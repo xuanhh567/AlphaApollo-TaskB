@@ -60,7 +60,7 @@ cd /home/ubuntu/AlphaApollo-TaskB
 克隆后已确认最新提交：
 
 ```text
-3dbe130 docs: add task b trajectory and experiment notes
+48fbbb0 docs: record task b server environment
 ```
 
 远端 `origin` 已设置为：
@@ -226,3 +226,37 @@ Task B 现在还剩真正的回归实验没有完成，主要是比较：
 - MATH-500 子集回归。
 - 如果资源允许，再跑完整 MATH-500 回归。
 
+## 10. 已发现的服务器运行注意事项
+
+本地模型路径：
+
+```text
+/home/ubuntu/wjx/AlphaApollo/models/Qwen2.5-3B-Instruct
+```
+
+这个路径下已看到：
+
+```text
+config.json
+tokenizer.json
+model-00001-of-00002.safetensors
+model-00002-of-00002.safetensors
+```
+
+服务器访问 Hugging Face 数据集时出现过连接超时。因此，小规模实验可以先在本机生成 parquet，再传到服务器运行。
+
+当前 vLLM 在 RTX 5090 上运行时遇到 CUDA kernel 兼容问题：
+
+```text
+CUDA error: no kernel image is available for execution on the device
+```
+
+已验证 PyTorch 本身可以在 GPU 上做 bf16 矩阵乘法，所以问题更接近 vLLM 编译 / CUDA kernel 适配，而不是 GPU 完全不可用。
+
+临时可用方案：
+
+```text
+rollout.name=hf
+```
+
+也就是先用 HuggingFace rollout 跑 smoke test 或小样本回归。这个方案会比 vLLM 慢，但能绕开 vLLM 的 kernel 问题。
