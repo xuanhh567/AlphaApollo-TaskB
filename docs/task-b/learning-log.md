@@ -411,6 +411,30 @@ manager.py
   - dispatcher 负责“执行某个 SkillSpec”，所以不是 Phase 2 的内容。
   - `env.skills` 是更通用的启用工具方式，旧的 `enable_python_code` 只是兼容入口。
 
+### Change 013: 实现 Phase 2 registry 基础能力
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/skills/registry.py`
+  - 新增 `alphaapollo/core/skills/builtin/python_code/SKILL.md`
+  - 新增 `alphaapollo/core/skills/builtin/local_rag/SKILL.md`
+  - 新增 `tests/test_skill_registry.py`
+  - 更新 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：让系统能从“读一个 skill”前进到“管理多个 skill”，并能按配置选择启用哪些 skill。
+- 当前理解：
+  - `SkillRegistry` 内部保存 `dict[str, SkillSpec]`。
+  - `register(spec)` 负责防止重名 skill 静默覆盖。
+  - `load_skill_registry_from_dirs(...)` 负责扫描多个目录，并收集错误继续。
+  - `get_builtin_skill_dirs()` 负责发现内置 skill 目录。
+  - `resolve_enabled_skill_names(...)` 负责把 `env.skills` 或旧配置转换成 skill name 列表。
+- 验证：
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/loader.py alphaapollo/core/skills/registry.py tests/test_skill_loader.py tests/test_skill_registry.py` 通过。
+- 还不懂的问题：
+  - 后续 dispatcher 是否应该使用 `registry.require(name)` 抛错，还是用 `registry.get(name)` 自己构造结构化错误。
+  - `entrypoint.path` 现在指向底层函数，Phase 4 迁移时是否需要 wrapper 来保持旧 `InformalMathToolGroup` 的返回格式。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

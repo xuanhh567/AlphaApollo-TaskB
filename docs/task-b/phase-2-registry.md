@@ -313,3 +313,155 @@ Phase 4: env.py 改用 dispatcher
 7. 创建内置 `python_code` / `local_rag` 的 `SKILL.md`。
 8. 写 registry 测试。
 9. 更新学习日志。
+
+## 11. 实际实现内容
+
+Phase 2 实现后，新增了：
+
+```text
+alphaapollo/core/skills/registry.py
+alphaapollo/core/skills/builtin/python_code/SKILL.md
+alphaapollo/core/skills/builtin/local_rag/SKILL.md
+tests/test_skill_registry.py
+```
+
+### 11.1 `SkillRegistry`
+
+`SkillRegistry` 是一个很薄的注册表，内部核心是：
+
+```text
+dict[str, SkillSpec]
+```
+
+也就是说：
+
+```text
+key = skill name
+value = 已经校验过的 SkillSpec
+```
+
+它提供：
+
+```python
+register(spec)
+get(name)
+require(name)
+names()
+specs()
+```
+
+其中 `register(spec)` 会检查重名。如果已经有同名 skill，它返回：
+
+```text
+duplicate_skill
+```
+
+不会静默覆盖。
+
+### 11.2 `SkillRegistryLoadResult`
+
+扫描多个 skill 目录时，返回的是：
+
+```text
+SkillRegistryLoadResult
+```
+
+它包含：
+
+```text
+registry: 注册好的 SkillRegistry
+loaded: 成功注册的 skill name 列表
+errors: 扫描或注册过程中收集到的错误
+```
+
+新手理解：
+
+```text
+registry 是结果本体；
+loaded 告诉你哪些成功了；
+errors 告诉你哪些失败了。
+```
+
+### 11.3 `load_skill_registry_from_dirs(...)`
+
+这个函数负责：
+
+```text
+多个目录
+-> 每个目录调用 load_skill_from_dir(...)
+-> 合法的注册进 registry
+-> 错误收集起来
+```
+
+它没有重新解析 YAML，而是复用 Phase 1 的 loader。
+
+这点很重要：
+
+```text
+loader 管解析；
+registry 管组织；
+两个职责不混在一起。
+```
+
+### 11.4 `get_builtin_skill_dirs()`
+
+这个函数扫描：
+
+```text
+alphaapollo/core/skills/builtin/*/SKILL.md
+```
+
+当前能发现：
+
+```text
+python_code
+local_rag
+```
+
+Phase 2 只发现和加载它们，不执行它们。
+
+### 11.5 `resolve_enabled_skill_names(...)`
+
+这个函数把配置转成启用 skill 名字列表。
+
+优先使用新配置：
+
+```yaml
+env:
+  skills:
+    - local_rag
+```
+
+如果新配置不存在，则从旧配置推导：
+
+```yaml
+env:
+  informal_math:
+    enable_python_code: true
+    enable_local_rag: false
+```
+
+推导结果：
+
+```text
+["python_code"]
+```
+
+## 12. 验证方式
+
+当前通过了：
+
+```bash
+python tests/test_skill_loader.py
+python tests/test_skill_registry.py
+python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/loader.py alphaapollo/core/skills/registry.py tests/test_skill_loader.py tests/test_skill_registry.py
+```
+
+测试覆盖：
+
+1. 注册后可以按 name 查询。
+2. 同名 skill 返回 `duplicate_skill`。
+3. 扫描多个目录时，坏 `SKILL.md` 的错误会被收集，其他合法 skill 继续注册。
+4. `enabled_skills` 能过滤只启用的 skill。
+5. 配置启用了不存在的 skill 时返回 `unknown_enabled_skill`。
+6. 内置 skill 目录能发现并加载 `python_code` 和 `local_rag`。

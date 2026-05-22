@@ -19,7 +19,7 @@
 ### Active
 
 - [x] 完成 B1：设计并实现 `SKILL.md` 规范、frontmatter 解析器、字段校验和中文编写说明。
-- [ ] 完成 B2：实现 Skill loader 与 registry，支持扫描 skill 目录并按配置启用 skill。
+- [x] 完成 B2：实现 Skill loader 与 registry，支持扫描 skill 目录并按配置启用 skill。
 - [ ] 完成 B3：实现结构化 `<tool_call>{...}</tool_call>` 协议、参数 schema 校验和通用 dispatcher。
 - [ ] 完成 B4：从 registry 自动生成工具 prompt 说明，降低 prompt 与具体工具的耦合。
 - [ ] 完成 B6：将 `python_code` 和 `local_rag` 迁移为 `SKILL.md` skill，并完成 MATH-500 回归验证。
@@ -57,9 +57,10 @@
 |----------|-----------|---------|
 | 所有 GSD 与 Task B 文档使用中文 | 用户刚接触这些技术，中文文档更利于理解和面试复盘 | — Pending |
 | 先做 B1 parser，再做 registry/dispatcher | 先把 skill 数据结构定稳，避免后续执行层返工 | — Pending |
-| 初期保留旧配置兼容路径 | 降低回归风险，方便逐步迁移 `enable_python_code`/`enable_local_rag` | — Pending |
+| 初期保留旧配置兼容路径 | 降低回归风险，方便逐步迁移 `enable_python_code`/`enable_local_rag` | ✓ Good |
+| Phase 2 只加载内置 skill 元数据，不执行工具 | 避免提前扰动 `env.py`，把执行迁移留到 dispatcher/env 阶段 | ✓ Good |
 | Task B 主要改 environment side，不碰 trainer 主体 | mini-project 明确关注 tool call 到 skill；trainer 改动风险高 | — Pending |
 | Phase 1 先只实现 SKILL.md loader，不接 registry/env | 降低风险，先建立稳定内部契约和测试 | ✓ Good |
 
 ---
-*Last updated: 2026-05-22 after Phase 1 completion*
+*Last updated: 2026-05-22 after Phase 2 completion*

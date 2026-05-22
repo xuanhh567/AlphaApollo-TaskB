@@ -49,9 +49,16 @@
 - 重名、缺失、未启用 skill 都有清晰错误
 - 不改具体工具代码也能完成注册发现
 
-**Status:** In Progress
+**Status:** Complete
 
 **Context:** `.planning/phases/02-skill-registry/02-CONTEXT.md`
+
+**Completed:** 2026-05-22
+
+**Delivered:**
+- `alphaapollo/core/skills/registry.py` implements skill registration, lookup, directory loading, built-in discovery, and enabled skill resolution.
+- `alphaapollo/core/skills/builtin/python_code/SKILL.md` and `alphaapollo/core/skills/builtin/local_rag/SKILL.md` define built-in skill metadata.
+- `tests/test_skill_registry.py` covers registry behavior and built-in skill loading.
 
 ## Phase 3: B3 - 结构化 Tool Call、参数校验与 Dispatcher
 
