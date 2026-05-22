@@ -25,13 +25,21 @@ class InformalMathTrainingEnv(BaseTextEnv):
 
     def __init__(self, env_config: DictConfig):
         super().__init__()
+        enabled_skills = resolve_enabled_skill_names(env_config, env_section="informal_math_training")
+        explicit_skills = _get_config_value(env_config, "skills", None) is not None
+        if explicit_skills:
+            enable_python_code = "python_code" in enabled_skills
+            enable_local_rag = "local_rag" in enabled_skills
+        else:
+            enable_python_code = _get_config_value(env_config, "enable_python_code", True)
+            enable_local_rag = _get_config_value(env_config, "enable_local_rag", True)
         
         # Build tool_config dict for tool group initialization
         tool_config = {
-            "enable_python_code": getattr(env_config, "enable_python_code", True),
-            "enable_local_rag": getattr(env_config, "enable_local_rag", True),
-            "python_code_timeout": getattr(env_config, "python_code_timeout", 30),
-            "rag_cfg": getattr(env_config, "rag", None),
+            "enable_python_code": enable_python_code,
+            "enable_local_rag": enable_local_rag,
+            "python_code_timeout": _get_config_value(env_config, "python_code_timeout", 30),
+            "rag_cfg": _get_config_value(env_config, "rag", None),
         }
         
         # Initialize the tools
@@ -43,16 +51,19 @@ class InformalMathTrainingEnv(BaseTextEnv):
         )
         self.init_tool_groups([self.tool_group])
 
-        enabled_skills = resolve_enabled_skill_names(env_config, env_section="informal_math_training")
-        registry_result = load_skill_registry_from_dirs(
+        enabled_registry_result = load_skill_registry_from_dirs(
             get_builtin_skill_dirs(),
             enabled_skills=enabled_skills,
         )
+        if enabled_registry_result.errors:
+            formatted_errors = "; ".join(f"{error.code}: {error.message}" for error in enabled_registry_result.errors)
+            raise ValueError(f"Failed to load enabled skills: {formatted_errors}")
+        registry_result = load_skill_registry_from_dirs(get_builtin_skill_dirs())
         if registry_result.errors:
             formatted_errors = "; ".join(f"{error.code}: {error.message}" for error in registry_result.errors)
-            raise ValueError(f"Failed to load enabled skills: {formatted_errors}")
+            raise ValueError(f"Failed to load built-in skills: {formatted_errors}")
         self.skill_registry = registry_result.registry
-        self.enabled_skill_names = registry_result.loaded
+        self.enabled_skill_names = enabled_registry_result.loaded
 
     def reset(self, extras: Optional[Dict[str, Any]] = None) -> None:
         # NOTE: using the information in "extra_info" of the data field to initialize the environment
@@ -236,3 +247,9 @@ class InformalMathTrainingEnv(BaseTextEnv):
             metadata=tool_infos,
             postprocessed_action=action,
         )
+
+
+def _get_config_value(config: Any, key: str, default: Any = None) -> Any:
+    if isinstance(config, dict):
+        return config.get(key, default)
+    return getattr(config, key, default)

@@ -614,6 +614,29 @@ manager.py
   - 验证 structured / legacy `local_rag` 路径。
   - 再决定是否把相同 bridge 同步到 `informal_math_evolving`。
 
+### Change 023: 验证 local_rag 新旧路径
+
+- 日期：2026-05-22
+- 改动：
+  - 更新 `alphaapollo/core/environments/informal_math_training/env.py`
+  - 更新 `tests/test_informal_math_skill_bridge.py`
+  - 更新 `docs/task-b/phase-4-env-integration.md`
+  - 更新 `.planning/STATE.md`
+  - 更新 `.planning/phases/04-env-tool-path/04-01-PLAN.md`
+- 我理解的目的：确认 `local_rag` 也能通过 structured `<tool_call>` 和旧 `<local_rag>` 两条路径进入同一个 Skill bridge。
+- 当前理解：
+  - registry 用来认识有哪些内置 skill 和校验参数。
+  - 工具是否启用仍由 `InformalMathToolGroup` 的 `enable_local_rag` 控制。
+  - 这样 `enable_local_rag=false` 时，模型调用 `local_rag` 会得到旧的 disabled 响应，而不是 `unknown_skill`。
+  - 旧 `<local_rag>not json</local_rag>` 继续返回原来的错误文本：`Error: Invalid JSON input for local_rag`。
+- 已验证：
+  - structured `local_rag` 在 RAG 关闭时返回 `<tool_response>{"result": "Local RAG is not enabled.", "status": "disabled"}</tool_response>`。
+  - legacy `<local_rag>` 在 RAG 关闭时返回同样 disabled 响应。
+  - legacy `<local_rag>` 非法 JSON 保留旧错误文本。
+  - 全部 Phase 1-4 相关测试通过。
+- 下一步：
+  - 评估是否要同步 `informal_math_evolving`，或者记录为后续阶段再做。
+
 ## 7. 下一步
 
 下一步进入 Phase 4 实现，不急着改两套 env，先从最小桥接层开始：

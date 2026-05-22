@@ -26,9 +26,8 @@ wrap_tool_response = skill_bridge.wrap_tool_response
 
 
 class FakeToolGroup:
-    enable_local_rag = True
-
-    def __init__(self):
+    def __init__(self, enable_local_rag=True):
+        self.enable_local_rag = enable_local_rag
         self.calls = []
 
     def get_tool(self, name):
@@ -41,6 +40,14 @@ class FakeToolGroup:
         if name == "python_code":
             return {"text_result": json.dumps({"result": "2", "status": "success"}), "score": 1}
         if name == "local_rag":
+            if not self.enable_local_rag:
+                return {
+                    "text_result": json.dumps({
+                        "result": "Local RAG is not enabled.",
+                        "status": "disabled",
+                    }),
+                    "score": 0,
+                }
             return {"text_result": json.dumps({"result": "docs", "status": "success"}), "score": 1}
         raise ValueError(name)
 
@@ -91,6 +98,22 @@ def test_parse_legacy_local_rag_json():
     }
 
 
+def test_parse_structured_local_rag():
+    actions = parse_tool_actions(
+        '<tool_call>{"name":"local_rag","arguments":{"repo_name":"sympy","query":"solve equations","top_k":3}}</tool_call>'
+    )
+
+    assert len(actions) == 1
+    assert actions[0].call is not None
+    assert actions[0].call.name == "local_rag"
+    assert actions[0].call.arguments == {
+        "repo_name": "sympy",
+        "query": "solve equations",
+        "top_k": 3,
+    }
+    assert actions[0].call_format == "structured"
+
+
 def test_parse_legacy_local_rag_invalid_json_keeps_old_error_text():
     actions = parse_tool_actions("<local_rag>not json</local_rag>")
 
@@ -112,6 +135,18 @@ def test_execute_skill_call_validates_before_tool_group_execution():
     assert tool_group.calls == []
 
 
+def test_execute_unknown_skill_returns_error_without_tool_group_execution():
+    registry = load_builtin_registry()
+    tool_group = FakeToolGroup()
+
+    result = execute_skill_call_with_tool_group(ToolCall(name="missing_tool", arguments={}), registry, tool_group)
+
+    assert not result.ok
+    assert result.error is not None
+    assert result.error.code == "unknown_skill"
+    assert tool_group.calls == []
+
+
 def test_execute_skill_call_uses_tool_group_for_runtime_behavior():
     registry = load_builtin_registry()
     tool_group = FakeToolGroup()
@@ -128,11 +163,50 @@ def test_execute_skill_call_uses_tool_group_for_runtime_behavior():
     assert wrap_tool_response(result.text_result).startswith("\n<tool_response>")
 
 
+def test_execute_local_rag_uses_tool_group_and_defaults_top_k():
+    registry = load_builtin_registry()
+    tool_group = FakeToolGroup()
+
+    result = execute_skill_call_with_tool_group(
+        ToolCall(name="local_rag", arguments={"repo_name": "sympy", "query": "solve equations"}),
+        registry,
+        tool_group,
+    )
+
+    assert result.ok
+    assert result.score == 1
+    assert tool_group.calls == [
+        ("local_rag", {"repo_name": "sympy", "query": "solve equations", "top_k": 3})
+    ]
+
+
+def test_execute_local_rag_preserves_disabled_tool_group_response():
+    registry = load_builtin_registry()
+    tool_group = FakeToolGroup(enable_local_rag=False)
+
+    result = execute_skill_call_with_tool_group(
+        ToolCall(name="local_rag", arguments={"repo_name": "sympy", "query": "solve equations"}),
+        registry,
+        tool_group,
+    )
+
+    assert result.ok
+    assert result.score == 0
+    assert json.loads(result.text_result) == {
+        "result": "Local RAG is not enabled.",
+        "status": "disabled",
+    }
+
+
 if __name__ == "__main__":
     test_parse_structured_python_code()
     test_parse_legacy_python_code()
     test_parse_legacy_local_rag_json()
+    test_parse_structured_local_rag()
     test_parse_legacy_local_rag_invalid_json_keeps_old_error_text()
     test_execute_skill_call_validates_before_tool_group_execution()
+    test_execute_unknown_skill_returns_error_without_tool_group_execution()
     test_execute_skill_call_uses_tool_group_for_runtime_behavior()
+    test_execute_local_rag_uses_tool_group_and_defaults_top_k()
+    test_execute_local_rag_preserves_disabled_tool_group_response()
     print("informal math skill bridge tests passed")

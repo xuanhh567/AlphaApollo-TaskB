@@ -26,6 +26,7 @@ See: `.planning/PROJECT.md`
 - Phase 4 context 已记录：先迁移 `informal_math_training`，保留旧标签兼容，记录 `informal_math_evolving` 相似路径并后续评估同步。
 - Phase 4 plan 已创建：`.planning/phases/04-env-tool-path/04-01-PLAN.md`。下一步开始实现 env bridge / runtime 接入。
 - Phase 4 第一小步已实现：`informal_math_training/skill_bridge.py` 支持 structured `<tool_call>` 与旧标签桥接，training env 已能执行 structured `python_code`。
+- Phase 4 第二小步已验证：structured / legacy `local_rag` 都能路由；RAG 关闭时保持旧 disabled 响应，旧 JSON 错误文本也保留。
 
 ## Important Local Context
 
@@ -50,10 +51,9 @@ See: `.planning/PROJECT.md`
 
 开始 Phase 4 实现：
 
-1. 验证 structured / legacy `local_rag` 路径。
-2. 补齐 `local_rag` 相关小样例测试。
-3. 评估是否同步 `informal_math_evolving`。
-4. 再进入 Phase 5 prompt 自动生成。
+1. 评估是否同步 `informal_math_evolving`。
+2. 若不同步，记录原因并收尾 Phase 4。
+3. 再进入 Phase 5 prompt 自动生成。
 
 ## Scope Correction Notes
 

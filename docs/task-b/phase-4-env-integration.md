@@ -230,6 +230,20 @@ ToolCall(name="python_code", arguments={"code": "print(1 + 1)"})
 
 这样后面的执行逻辑就不用到处关心“这是新格式还是旧格式”。
 
+`local_rag` 也是同样的思路：
+
+```xml
+<tool_call>{"name":"local_rag","arguments":{"repo_name":"sympy","query":"solve equations"}}</tool_call>
+```
+
+和：
+
+```xml
+<local_rag>{"repo_name":"sympy","query":"solve equations"}</local_rag>
+```
+
+都会进入同一条 `ToolCall(name="local_rag", arguments=...)` 路径。
+
 ### 7.2 为什么还保留 `InformalMathToolGroup`
 
 当前真实执行不是直接调用：
@@ -261,6 +275,21 @@ InformalMathToolGroup.local_rag(...)
 用旧 ToolGroup 保持运行时行为。
 ```
 
+这里还有一个细节：
+
+```text
+env 的 skill registry 认识所有内置 skill；
+工具是否真的启用，由 InformalMathToolGroup 的 enable flag 决定。
+```
+
+这样做是为了保留旧行为。比如 `enable_local_rag=false` 时，模型如果仍然调用 `local_rag`，旧逻辑会返回：
+
+```json
+{"result": "Local RAG is not enabled.", "status": "disabled"}
+```
+
+如果 registry 直接把未启用工具删掉，就会变成 `unknown_skill`，这和旧行为不一致。
+
 ### 7.3 已验证的小样例
 
 已经验证：
@@ -269,6 +298,9 @@ InformalMathToolGroup.local_rag(...)
 structured <tool_call> python_code -> 能执行 -> 返回 <tool_response>
 legacy <python_code> -> 能执行 -> 返回 <tool_response>
 structured python_code 缺 code -> 返回参数错误 <tool_response>，不崩溃
+structured <tool_call> local_rag -> 能路由 -> RAG 关闭时返回 disabled
+legacy <local_rag> -> 能路由 -> RAG 关闭时返回 disabled
+legacy <local_rag> 非法 JSON -> 保留旧错误文本
 ```
 
 其中参数错误类似：
