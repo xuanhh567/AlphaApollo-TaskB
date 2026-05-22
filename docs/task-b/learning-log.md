@@ -393,6 +393,24 @@ manager.py
   - 配置推导函数应该放在 `registry.py` 里，还是单独放在 `config.py`。
   - 内置 skill 的 `entrypoint.path` 应该直接指向底层函数，还是先指向 `InformalMathToolGroup` 方法。
 
+### Change 012: 写出 Phase 2 实现计划
+
+- 日期：2026-05-22
+- 改动：新增 `.planning/phases/02-skill-registry/02-01-PLAN.md`。
+- 我理解的目的：把 Phase 2 的想法变成可执行 wave，后续写代码时按计划推进，不把 registry、配置、内置 skill 和测试混在一起。
+- 当前计划拆分：
+  - Wave 1：设计 registry 数据结构。
+  - Wave 2：实现注册、查询和目录扫描。
+  - Wave 3：创建内置 `python_code` / `local_rag` 的 `SKILL.md`。
+  - Wave 4：实现 `env.skills` 和旧配置兼容。
+  - Wave 5：写 registry 测试。
+  - Wave 6：更新中文文档和学习记录。
+- 当前理解：
+  - loader 负责“读懂单个 SKILL.md”。
+  - registry 负责“管理多个 SkillSpec”。
+  - dispatcher 负责“执行某个 SkillSpec”，所以不是 Phase 2 的内容。
+  - `env.skills` 是更通用的启用工具方式，旧的 `enable_python_code` 只是兼容入口。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

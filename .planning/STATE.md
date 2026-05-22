@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 2 - B2 Skill Loader、Registry 与启用配置 planning
+**Current Focus:** Phase 2 - B2 Skill Loader、Registry 与启用配置 implementation planning complete
 
 ## Project Reference
 
@@ -18,6 +18,7 @@ See: `.planning/PROJECT.md`
 - GitHub 私有仓库已创建：`xuanhh567/AlphaApollo-TaskB`
 - Phase 1 已完成：`SKILL.md` 规范、`SkillSpec` 数据结构、loader/parser、结构化错误和基础测试均已实现。
 - Phase 2 context 已记录：决定采用 `Registry + 配置` 范围、扫描错误收集策略，并在 Phase 2 创建 `python_code` / `local_rag` 的 `SKILL.md`。
+- Phase 2 plan 已创建：`.planning/phases/02-skill-registry/02-01-PLAN.md`。
 
 ## Important Local Context
 
@@ -40,14 +41,15 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-继续 Phase 2：
+开始实现 Phase 2：
 
-1. 基于 `.planning/phases/02-skill-registry/02-CONTEXT.md` 写 Phase 2 计划。
-2. 设计 registry 的结果结构和错误结构。
+1. 设计 registry 的结果结构和错误结构。
+2. 实现 `SkillRegistry.register/get/names/specs`。
 3. 创建 `alphaapollo/core/skills/builtin/` 目录。
 4. 编写 `python_code/SKILL.md` 与 `local_rag/SKILL.md` 初版。
 5. 实现扫描 skill 目录并注册合法 skill。
 6. 设计新配置 `env.skills` 与旧配置兼容策略。
+7. 新增 `tests/test_skill_registry.py`。
 
 ## Risks
 
