@@ -1,0 +1,271 @@
+"""Bridge Skill tool calls into the informal math training environment."""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass
+from typing import Any
+
+from alphaapollo.core.skills.call_parser import ToolCall, ToolError, parse_tool_call
+from alphaapollo.core.skills.dispatcher import ToolResult
+from alphaapollo.core.skills.registry import SkillRegistry
+from alphaapollo.core.skills.validation import validate_arguments
+
+
+LEGACY_TOOL_PATTERNS = [
+    ("python_code", r"<python_code>(.*?)</python_code>"),
+    ("informalmath_verify", r"<informalmath_verify>(.*?)</informalmath_verify>"),
+    ("local_rag", r"<local_rag>(.*?)</local_rag>"),
+]
+
+
+@dataclass(frozen=True)
+class ParsedToolAction:
+    """One parsed tool action from a model response."""
+
+    tool_name: str | None = None
+    call: ToolCall | None = None
+    tool_input: Any = None
+    call_format: str = "none"
+    error: ToolError | None = None
+    legacy_error_response: str | None = None
+
+    @property
+    def is_tool_action(self) -> bool:
+        return self.tool_name is not None or self.call is not None or self.error is not None
+
+
+def parse_tool_actions(action: str) -> list[ParsedToolAction]:
+    """Parse structured and legacy tool calls from one model action."""
+
+    if _contains_structured_tool_call_tag(action):
+        parsed = parse_tool_call(action)
+        if isinstance(parsed, ToolError):
+            return [
+                ParsedToolAction(
+                    tool_name=parsed.tool_name,
+                    call_format="structured",
+                    error=parsed,
+                )
+            ]
+        return [
+            ParsedToolAction(
+                tool_name=parsed.name,
+                call=parsed,
+                tool_input=parsed.arguments,
+                call_format="structured",
+            )
+        ]
+
+    legacy_actions: list[ParsedToolAction] = []
+    for tool_name, pattern in LEGACY_TOOL_PATTERNS:
+        if f"<{tool_name}>" not in action or f"</{tool_name}>" not in action:
+            continue
+
+        match = re.search(pattern, action, re.DOTALL)
+        if match is None:
+            continue
+
+        tool_input = match.group(1).strip()
+        legacy_actions.append(_legacy_action_to_parsed(tool_name, tool_input, match.group(0)))
+
+    if not legacy_actions:
+        return [ParsedToolAction()]
+
+    return legacy_actions
+
+
+def execute_skill_call_with_tool_group(
+    call: ToolCall,
+    registry: SkillRegistry,
+    tool_group: Any,
+) -> ToolResult:
+    """Validate a Skill call, then execute the matching ToolGroup method.
+
+    The registry keeps the new Skill contract in charge of tool existence and
+    parameter validation. The ToolGroup keeps the old runtime behavior, including
+    enable flags, timeouts, RAG configuration, ``text_result`` and ``score``.
+    """
+
+    spec = registry.get(call.name)
+    if spec is None:
+        return _error_result(
+            call.name,
+            ToolError(
+                code="unknown_skill",
+                message=f"Unknown skill: {call.name}",
+                tool_name=call.name,
+            ),
+        )
+
+    normalized_arguments, validation_errors = validate_arguments(spec, call.arguments)
+    if validation_errors:
+        return _error_result(spec.name, validation_errors[0])
+
+    tool_func = tool_group.get_tool(spec.name)
+    if tool_func is None:
+        return _error_result(
+            spec.name,
+            ToolError(
+                code="tool_not_available",
+                message=f"Tool is not available in InformalMathToolGroup: {spec.name}",
+                tool_name=spec.name,
+            ),
+        )
+
+    try:
+        raw_output = tool_group.execute_tool(spec.name, normalized_arguments)
+    except Exception as exc:
+        return _error_result(
+            spec.name,
+            ToolError(
+                code="tool_execution_error",
+                message=f"Tool execution failed: {exc}",
+                tool_name=spec.name,
+                details={"exception_type": type(exc).__name__},
+            ),
+        )
+
+    raw_output = _maybe_add_local_rag_hint(spec.name, raw_output, tool_group)
+    return _normalize_tool_output(spec.name, raw_output)
+
+
+def tool_error_response(error: ToolError) -> str:
+    """Return a JSON string suitable for ``<tool_response>``."""
+
+    return _to_json_text(
+        {
+            "status": "error",
+            "error": {
+                "code": error.code,
+                "message": error.message,
+                "field": error.field,
+                "details": error.details,
+            },
+        }
+    )
+
+
+def wrap_tool_response(text_result: str) -> str:
+    return "\n<tool_response>" + text_result + "</tool_response>\n"
+
+
+def _contains_structured_tool_call_tag(action: str) -> bool:
+    if not isinstance(action, str):
+        return False
+    lowered = action.lower()
+    return "<tool_call>" in lowered or "</tool_call>" in lowered
+
+
+def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> ParsedToolAction:
+    if tool_name == "python_code":
+        return ParsedToolAction(
+            tool_name=tool_name,
+            call=ToolCall(name=tool_name, arguments={"code": tool_input}, raw_text=raw_text),
+            tool_input=tool_input,
+            call_format="legacy",
+        )
+
+    if tool_name == "local_rag":
+        try:
+            arguments = json.loads(tool_input)
+        except json.JSONDecodeError:
+            return ParsedToolAction(
+                tool_name=tool_name,
+                tool_input=tool_input,
+                call_format="legacy",
+                error=ToolError(
+                    code="invalid_json",
+                    message="Invalid JSON input for local_rag.",
+                    tool_name=tool_name,
+                ),
+                legacy_error_response="Error: Invalid JSON input for local_rag",
+            )
+
+        if not isinstance(arguments, dict):
+            return ParsedToolAction(
+                tool_name=tool_name,
+                tool_input=tool_input,
+                call_format="legacy",
+                error=ToolError(
+                    code="invalid_arguments_type",
+                    message="local_rag legacy input must be a JSON object.",
+                    tool_name=tool_name,
+                ),
+                legacy_error_response="Error: Invalid JSON input for local_rag",
+            )
+
+        return ParsedToolAction(
+            tool_name=tool_name,
+            call=ToolCall(name=tool_name, arguments=arguments, raw_text=raw_text),
+            tool_input=tool_input,
+            call_format="legacy",
+        )
+
+    return ParsedToolAction(
+        tool_name=tool_name,
+        tool_input=tool_input,
+        call_format="legacy",
+    )
+
+
+def _normalize_tool_output(tool_name: str, raw_output: Any) -> ToolResult:
+    if isinstance(raw_output, dict) and "text_result" in raw_output:
+        text_result = raw_output.get("text_result", "")
+        if not isinstance(text_result, str):
+            text_result = _to_json_text(text_result)
+        return ToolResult(
+            ok=True,
+            tool_name=tool_name,
+            text_result=text_result,
+            score=raw_output.get("score"),
+            raw_output=raw_output,
+        )
+
+    return ToolResult(
+        ok=True,
+        tool_name=tool_name,
+        text_result=_to_json_text(raw_output),
+        raw_output=raw_output,
+    )
+
+
+def _error_result(tool_name: str, error: ToolError) -> ToolResult:
+    return ToolResult(
+        ok=False,
+        tool_name=tool_name,
+        text_result=tool_error_response(error),
+        score=0,
+        error=error,
+    )
+
+
+def _maybe_add_local_rag_hint(tool_name: str, raw_output: Any, tool_group: Any) -> Any:
+    if tool_name != "python_code":
+        return raw_output
+    if not isinstance(raw_output, dict):
+        return raw_output
+    if not getattr(tool_group, "enable_local_rag", False):
+        return raw_output
+    if raw_output.get("score") != 0:
+        return raw_output
+
+    try:
+        inner = json.loads(raw_output.get("text_result", ""))
+    except json.JSONDecodeError:
+        return raw_output
+
+    inner["result"] = (
+        str(inner.get("result", ""))
+        + "\n\nPlease use the local_rag tool to query relevant information and resolve the code issue."
+    )
+    updated = dict(raw_output)
+    updated["text_result"] = json.dumps(inner)
+    return updated
+
+
+def _to_json_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, ensure_ascii=False, default=str)

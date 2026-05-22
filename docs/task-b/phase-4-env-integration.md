@@ -20,8 +20,10 @@ Phase 4 要做的是：
 ```text
 env.py 收到模型输出
 -> 识别是 answer 还是 tool call
--> 如果是 <tool_call>，交给 dispatcher
--> dispatcher 返回 ToolResult
+-> 如果是 <tool_call>，先解析成 ToolCall
+-> 用 SkillRegistry + SkillSpec.parameters 校验参数
+-> 复用 InformalMathToolGroup 执行真实工具
+-> 得到 ToolResult
 -> env.py 包成 <tool_response>
 -> 加回 chat_history
 ```
@@ -132,13 +134,34 @@ entrypoint 指到底层函数就完事
 
 ## 5. env 和 dispatcher 的分工
 
-dispatcher 负责：
+通用 dispatcher 在 Phase 3 已经可以负责：
 
 ```text
 找到 skill
 校验参数
 执行 entrypoint
 返回 ToolResult
+```
+
+但 Phase 4 第一版接入时，没有直接裸调 `SKILL.md` 里的底层 entrypoint。
+
+原因是：
+
+```text
+python_code / local_rag 的旧行为不只在底层函数里；
+旧行为还在 InformalMathToolGroup 里。
+```
+
+所以当前实现采用 env-side bridge：
+
+```text
+parse_tool_call / 旧标签解析
+-> ToolCall
+-> registry 找 SkillSpec
+-> validate_arguments 校验参数
+-> InformalMathToolGroup 执行真实工具
+-> ToolResult
+-> <tool_response>
 ```
 
 env.py 负责：
@@ -165,7 +188,96 @@ env.py 负责：
 7. 写小样例测试，验证新旧格式都能跑。
 8. 再决定是否同步 `informal_math_evolving`。
 
-## 7. 自测问题
+## 7. 当前已实现的小步
+
+本阶段已经新增：
+
+```text
+alphaapollo/core/environments/informal_math_training/skill_bridge.py
+tests/test_informal_math_skill_bridge.py
+```
+
+并修改：
+
+```text
+alphaapollo/core/environments/informal_math_training/env.py
+alphaapollo/core/skills/registry.py
+```
+
+### 7.1 `skill_bridge.py` 做什么
+
+它是新旧工具调用之间的翻译层。
+
+它能把新格式：
+
+```xml
+<tool_call>{"name":"python_code","arguments":{"code":"print(1 + 1)"}}</tool_call>
+```
+
+解析成：
+
+```python
+ToolCall(name="python_code", arguments={"code": "print(1 + 1)"})
+```
+
+也能把旧格式：
+
+```xml
+<python_code>print(1 + 1)</python_code>
+```
+
+转换成同样的 `ToolCall`。
+
+这样后面的执行逻辑就不用到处关心“这是新格式还是旧格式”。
+
+### 7.2 为什么还保留 `InformalMathToolGroup`
+
+当前真实执行不是直接调用：
+
+```text
+alphaapollo.core.tools.python_code:execute_python_code
+```
+
+而是继续调用：
+
+```text
+InformalMathToolGroup.python_code(...)
+InformalMathToolGroup.local_rag(...)
+```
+
+原因是旧 tool group 里保存了这些行为：
+
+- 工具是否启用。
+- timeout。
+- RAG 配置。
+- 成功/失败的 `score`。
+- JSON 格式 `text_result`。
+- python 失败时追加 local_rag 提示。
+
+所以当前 bridge 的作用更像：
+
+```text
+用新 Skill 系统管格式和参数；
+用旧 ToolGroup 保持运行时行为。
+```
+
+### 7.3 已验证的小样例
+
+已经验证：
+
+```text
+structured <tool_call> python_code -> 能执行 -> 返回 <tool_response>
+legacy <python_code> -> 能执行 -> 返回 <tool_response>
+structured python_code 缺 code -> 返回参数错误 <tool_response>，不崩溃
+```
+
+其中参数错误类似：
+
+```xml
+<tool_response>{"status": "error", "error": {"code": "missing_required_argument", ...}}</tool_response>
+```
+
+## 8. 自测问题
 
 写完 Phase 4 后，你应该能回答：
 

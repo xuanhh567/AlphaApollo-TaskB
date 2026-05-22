@@ -2,18 +2,21 @@ from alphaapollo.core.environments.informal_math_training.base_text_env import B
 from typing import Any
 from alphaapollo.core.environments.informal_math_training.utils.qwen_math import compute_score, extract_answer_segment
 from alphaapollo.core.tools.manager import InformalMathToolGroup
-import re
 from typing import Dict, Optional, List, Tuple
 from omegaconf import DictConfig
-import json
 
-# Tool pattern definitions for extensibility
-# To add a new tool, append ("tool_name", r"<tool_name>(.*?)</tool_name>") to this list
-TOOL_PATTERNS = [
-    ("python_code", r"<python_code>(.*?)</python_code>"),
-    ("informalmath_verify", r"<informalmath_verify>(.*?)</informalmath_verify>"),
-    ("local_rag", r"<local_rag>(.*?)</local_rag>"),
-]
+from alphaapollo.core.environments.informal_math_training.skill_bridge import (
+    ParsedToolAction,
+    execute_skill_call_with_tool_group,
+    parse_tool_actions,
+    tool_error_response,
+    wrap_tool_response,
+)
+from alphaapollo.core.skills.registry import (
+    get_builtin_skill_dirs,
+    load_skill_registry_from_dirs,
+    resolve_enabled_skill_names,
+)
 
 class InformalMathTrainingEnv(BaseTextEnv):
     """
@@ -39,6 +42,17 @@ class InformalMathTrainingEnv(BaseTextEnv):
             tool_config=tool_config,
         )
         self.init_tool_groups([self.tool_group])
+
+        enabled_skills = resolve_enabled_skill_names(env_config, env_section="informal_math_training")
+        registry_result = load_skill_registry_from_dirs(
+            get_builtin_skill_dirs(),
+            enabled_skills=enabled_skills,
+        )
+        if registry_result.errors:
+            formatted_errors = "; ".join(f"{error.code}: {error.message}" for error in registry_result.errors)
+            raise ValueError(f"Failed to load enabled skills: {formatted_errors}")
+        self.skill_registry = registry_result.registry
+        self.enabled_skill_names = registry_result.loaded
 
     def reset(self, extras: Optional[Dict[str, Any]] = None) -> None:
         # NOTE: using the information in "extra_info" of the data field to initialize the environment
@@ -74,13 +88,13 @@ class InformalMathTrainingEnv(BaseTextEnv):
             return 0
     
     
-    def _is_done(self, tool_calls: List[Tuple[Optional[str], Optional[str]]]) -> bool:
+    def _is_done(self, tool_calls: List[ParsedToolAction]) -> bool:
         # 1. exceed max steps
         if self.turns >= self.max_steps:
             return True
         
         # 2. no tool calls
-        if not tool_calls or all(tool_call == (None, None) for tool_call in tool_calls):
+        if not tool_calls or all(not tool_call.is_tool_action for tool_call in tool_calls):
             return True
 
         return False
@@ -94,27 +108,48 @@ class InformalMathTrainingEnv(BaseTextEnv):
         else:
             return "\n<tool_response>" + text_result + "</tool_response>\n"
 
-    # Support multiple tool calling: python_code and informalmath_verify
-    def _parse_action(self, action: str) -> List[Tuple[Optional[str], Optional[str]]]:
+    def _parse_action(self, action: str) -> List[ParsedToolAction]:
         """
-        Parse action to extract tool calls using unified TOOL_PATTERNS.
-        Returns a list of tuples: (tool_name, tool_input)
-        
-        To add a new tool, simply add its pattern to the TOOL_PATTERNS list at module level.
+        Parse action to extract structured or legacy tool calls.
         """
-        tool_calls = []
-        
-        for tool_name, pattern in TOOL_PATTERNS:
-            if f"<{tool_name}>" in action and f"</{tool_name}>" in action:
-                match = re.search(pattern, action, re.DOTALL)
-                if match:
-                    tool_calls.append((tool_name, match.group(1).strip()))
-        
-        # Return None if no tool calls found (for backward compatibility)
-        if not tool_calls:
-            return [(None, None)]
-        
-        return tool_calls
+        return parse_tool_actions(action)
+
+    def _execute_skill_tool_action(self, parsed_action: ParsedToolAction) -> Tuple[Optional[str], Dict[str, Any]]:
+        tool_name = parsed_action.tool_name
+        tool_input = parsed_action.tool_input
+
+        tool_info = {
+            "tool_calling": True,
+            "tool_group": "InformalMathToolGroup",
+            "tool_name": tool_name,
+            "tool_input": tool_input,
+            "tool_call_format": parsed_action.call_format,
+            "data_source": self.data_source,
+        }
+
+        if parsed_action.legacy_error_response is not None:
+            tool_info["error"] = parsed_action.error.code if parsed_action.error else "legacy_error"
+            return wrap_tool_response(parsed_action.legacy_error_response), tool_info
+
+        if parsed_action.error is not None:
+            tool_info["error"] = parsed_action.error.code
+            return wrap_tool_response(tool_error_response(parsed_action.error)), tool_info
+
+        if parsed_action.call is None:
+            return None, tool_info
+
+        result = execute_skill_call_with_tool_group(
+            parsed_action.call,
+            self.skill_registry,
+            self.tool_group,
+        )
+        tool_info["tool_name"] = result.tool_name
+        tool_info["tool_input"] = parsed_action.call.arguments
+        tool_info["score"] = result.score
+        if result.error is not None:
+            tool_info["error"] = result.error.code
+
+        return wrap_tool_response(result.text_result), tool_info
 
     def step(self, action: StopIteration, text_actions: List[str]) -> BaseTextEnvStepOutput:
         self.turns += 1
@@ -150,37 +185,13 @@ class InformalMathTrainingEnv(BaseTextEnv):
         tool_infos = []
         
         for tool_call in tool_calls:
-            if tool_call[0] is not None:
+            if tool_call.is_tool_action:
                 observation = None
                 tool_info = None
-                tool_name, tool_input = tool_call
+                tool_name = tool_call.tool_name
+                tool_input = tool_call.tool_input
                 
-                if tool_name == "python_code":
-                    # Get raw tool output as dict to check score
-                    tool_output = super()._execute_tool(
-                        "InformalMathToolGroup",
-                        "python_code",
-                        {"code": tool_input}
-                    )
-                    tool_info = {
-                        "tool_calling": True,
-                        "tool_group": "InformalMathToolGroup",
-                        "tool_name": "python_code",
-                        "tool_input": tool_input,
-                        "data_source": self.data_source,
-                    }
-                    # Check score and modify text_result if needed
-                    if self.tool_group.enable_local_rag and tool_output.get("score", None) == 0:
-                        inner = json.loads(tool_output.get("text_result", ""))
-                        inner["result"] = (
-                            str(inner.get("result", ""))
-                            + "\n\nPlease use the local_rag tool to query relevant information and resolve the code issue."
-                        )
-                        tool_output["text_result"] = json.dumps(inner)
-                    # Convert to string format for observation
-                    text_result = tool_output.get("text_result", "")
-                    observation = "\n<tool_response>" + text_result + "</tool_response>\n"
-                elif tool_name == "informalmath_verify":
+                if tool_name == "informalmath_verify":
                     observation = self._execute_tool(
                         "InformalMathToolGroup",
                         "informalmath_verify",
@@ -194,33 +205,11 @@ class InformalMathTrainingEnv(BaseTextEnv):
                         "tool_group": "InformalMathToolGroup",
                         "tool_name": "informalmath_verify",
                         "tool_input": tool_input,
+                        "tool_call_format": tool_call.call_format,
                         "data_source": self.data_source,
                     }
-                elif tool_name == "local_rag":
-                    try:
-                        tool_input_dict = json.loads(tool_input)
-                        observation = self._execute_tool(
-                            "InformalMathToolGroup",
-                            "local_rag",
-                            tool_input_dict
-                        )
-                        tool_info = {
-                            "tool_calling": True,
-                            "tool_group": "InformalMathToolGroup",
-                            "tool_name": "local_rag",
-                            "tool_input": tool_input,
-                            "data_source": self.data_source,
-                        }
-                    except json.JSONDecodeError:
-                        observation = "\n<tool_response>Error: Invalid JSON input for local_rag</tool_response>\n"
-                        tool_info = {
-                            "tool_calling": True,
-                            "tool_group": "InformalMathToolGroup",
-                            "tool_name": "local_rag",
-                            "tool_input": tool_input,
-                            "data_source": self.data_source,
-                            "error": "Invalid JSON"
-                        }
+                else:
+                    observation, tool_info = self._execute_skill_tool_action(tool_call)
 
             # Wrap the observation properly as a message
             if observation:

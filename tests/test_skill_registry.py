@@ -170,6 +170,28 @@ def test_resolve_enabled_skill_names_from_legacy_flags():
     assert resolve_enabled_skill_names(config) == ["python_code"]
 
 
+def test_resolve_enabled_skill_names_from_direct_env_config():
+    config = {
+        "enable_python_code": True,
+        "enable_local_rag": True,
+    }
+
+    assert resolve_enabled_skill_names(config, env_section="informal_math_training") == [
+        "python_code",
+        "local_rag",
+    ]
+
+
+def test_resolve_enabled_skill_names_prefers_direct_skills():
+    config = {
+        "skills": ["python_code"],
+        "enable_python_code": False,
+        "enable_local_rag": True,
+    }
+
+    assert resolve_enabled_skill_names(config, env_section="informal_math_training") == ["python_code"]
+
+
 if __name__ == "__main__":
     import tempfile
 
@@ -183,4 +205,6 @@ if __name__ == "__main__":
         test_builtin_skill_dirs_include_python_code_and_local_rag()
         test_resolve_enabled_skill_names_prefers_env_skills()
         test_resolve_enabled_skill_names_from_legacy_flags()
+        test_resolve_enabled_skill_names_from_direct_env_config()
+        test_resolve_enabled_skill_names_prefers_direct_skills()
     print("skill registry tests passed")

@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 4 - Env tool path migration planned
+**Current Focus:** Phase 4 - Env tool path migration in progress
 
 ## Project Reference
 
@@ -25,6 +25,7 @@ See: `.planning/PROJECT.md`
 - Phase 3 独立模块已完成：`call_parser.py`、`validation.py`、`dispatcher.py` 和对应测试已实现。尚未接入 `env.py`。
 - Phase 4 context 已记录：先迁移 `informal_math_training`，保留旧标签兼容，记录 `informal_math_evolving` 相似路径并后续评估同步。
 - Phase 4 plan 已创建：`.planning/phases/04-env-tool-path/04-01-PLAN.md`。下一步开始实现 env bridge / runtime 接入。
+- Phase 4 第一小步已实现：`informal_math_training/skill_bridge.py` 支持 structured `<tool_call>` 与旧标签桥接，training env 已能执行 structured `python_code`。
 
 ## Important Local Context
 
@@ -49,10 +50,10 @@ See: `.planning/PROJECT.md`
 
 开始 Phase 4 实现：
 
-1. 先实现 env-side bridge，复用 `ToolCall` 和参数校验，保持旧工具输出语义。
-2. 接入 `informal_math_training/env.py`，支持 structured `<tool_call>` 和旧标签双轨。
-3. 接入 `env.skills` / 旧开关兼容。
-4. 写小样例测试，确认新旧调用都能返回 `<tool_response>`。
+1. 验证 structured / legacy `local_rag` 路径。
+2. 补齐 `local_rag` 相关小样例测试。
+3. 评估是否同步 `informal_math_evolving`。
+4. 再进入 Phase 5 prompt 自动生成。
 
 ## Scope Correction Notes
 

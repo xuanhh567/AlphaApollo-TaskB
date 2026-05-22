@@ -587,6 +587,33 @@ manager.py
 - 下一步：
   - 先实现一个小的 env-side bridge，再改 `informal_math_training/env.py`。
 
+### Change 022: 实现 training env 的 structured tool bridge
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/environments/informal_math_training/skill_bridge.py`
+  - 修改 `alphaapollo/core/environments/informal_math_training/env.py`
+  - 修改 `alphaapollo/core/skills/registry.py`
+  - 新增 `tests/test_informal_math_skill_bridge.py`
+  - 更新 `tests/test_skill_registry.py`
+- 我理解的目的：让 `informal_math_training` 先支持 structured `<tool_call>`，同时继续支持旧 `<python_code>`。
+- 当前理解：
+  - `skill_bridge.py` 把新 `<tool_call>` 和旧 `<python_code>/<local_rag>` 都转换成统一的 `ToolCall`。
+  - bridge 用 `SkillRegistry` 找到 skill，用 `validate_arguments` 校验参数。
+  - 真正执行工具时，仍复用 `InformalMathToolGroup`，这样旧的 `text_result`、`score`、timeout 和 RAG 配置不会丢。
+  - structured 参数错误会变成 `<tool_response>`，不会让 rollout 崩溃。
+- 已验证：
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_skill_argument_validation.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - 用 `/Users/wangjiaxuan/miniforge3/envs/alphaapollo/bin/python` 做 smoke test，structured `python_code` 和 legacy `<python_code>` 都能返回 `<tool_response>`。
+- 下一步：
+  - 验证 structured / legacy `local_rag` 路径。
+  - 再决定是否把相同 bridge 同步到 `informal_math_evolving`。
+
 ## 7. 下一步
 
 下一步进入 Phase 4 实现，不急着改两套 env，先从最小桥接层开始：

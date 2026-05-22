@@ -149,18 +149,32 @@ def resolve_enabled_skill_names(config: Any, env_section: str = "informal_math")
     """Resolve enabled skill names from new ``env.skills`` or legacy flags.
 
     ``env.skills`` wins when present. Without it, legacy booleans under
-    ``env.<env_section>`` are translated into skill names.
+    ``env.<env_section>`` are translated into skill names. Callers may also
+    pass a direct env subsection, in which case ``skills`` and legacy flags are
+    read from that object.
     """
 
     explicit_skills = _select_config(config, "env.skills")
+    if explicit_skills is None:
+        explicit_skills = _select_config(config, "skills")
     if explicit_skills is not None:
         return _normalize_skill_names(explicit_skills)
 
     legacy_prefix = f"env.{env_section}"
+    legacy_section = _select_config(config, legacy_prefix)
+    if legacy_section is None:
+        legacy_section = _select_config(config, env_section)
+    if legacy_section is None:
+        legacy_section = config
+
     enabled: list[str] = []
-    if bool(_select_config(config, f"{legacy_prefix}.enable_python_code")):
+    if bool(_select_config(config, f"{legacy_prefix}.enable_python_code")) or bool(
+        _select_config(legacy_section, "enable_python_code")
+    ):
         enabled.append("python_code")
-    if bool(_select_config(config, f"{legacy_prefix}.enable_local_rag")):
+    if bool(_select_config(config, f"{legacy_prefix}.enable_local_rag")) or bool(
+        _select_config(legacy_section, "enable_local_rag")
+    ):
         enabled.append("local_rag")
     return enabled
 
