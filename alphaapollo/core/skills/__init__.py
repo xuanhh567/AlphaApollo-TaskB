@@ -17,6 +17,7 @@ from alphaapollo.core.skills.schema import (
     SkillParameter,
     SkillSpec,
 )
+from alphaapollo.core.skills.validation import validate_arguments
 
 __all__ = [
     "ToolCall",
@@ -34,4 +35,5 @@ __all__ = [
     "load_skill_registry_from_dirs",
     "parse_tool_call",
     "resolve_enabled_skill_names",
+    "validate_arguments",
 ]

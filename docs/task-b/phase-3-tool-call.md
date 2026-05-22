@@ -288,3 +288,70 @@ python tests/test_skill_loader.py
 python tests/test_skill_registry.py
 python -m py_compile alphaapollo/core/skills/call_parser.py tests/test_tool_call_parser.py alphaapollo/core/skills/__init__.py
 ```
+
+## 11. 已实现：参数校验 `validation.py`
+
+当前新增：
+
+```text
+alphaapollo/core/skills/validation.py
+tests/test_skill_argument_validation.py
+```
+
+`validation.py` 提供：
+
+```python
+validate_arguments(spec, arguments)
+```
+
+它做的事情是：
+
+```text
+SkillSpec.parameters + ToolCall.arguments
+-> normalized_arguments
+-> errors
+```
+
+也就是：
+
+- 检查 required 参数是否缺失。
+- 检查参数类型是否符合 `SKILL.md`。
+- 给有 default 的可选参数补默认值。
+- 检查模型是否传了 schema 里没有的多余参数。
+
+基础类型对应关系：
+
+| Skill 类型 | Python 类型 |
+|---|---|
+| `string` | `str` |
+| `integer` | `int`，但不能是 `bool` |
+| `number` | `int` / `float`，但不能是 `bool` |
+| `boolean` | `bool` |
+| `object` | `dict` |
+| `array` | `list` |
+
+新增错误：
+
+```text
+missing_required_argument
+invalid_argument_type
+unexpected_argument
+```
+
+为什么检查多余参数：
+
+```text
+如果模型传了 schema 里没有的参数，
+后面直接执行 Python 函数时可能出现 unexpected keyword argument；
+提前返回 ToolError 更容易让模型修正调用。
+```
+
+验证命令：
+
+```bash
+python tests/test_skill_argument_validation.py
+python tests/test_tool_call_parser.py
+python tests/test_skill_loader.py
+python tests/test_skill_registry.py
+python -m py_compile alphaapollo/core/skills/call_parser.py alphaapollo/core/skills/validation.py alphaapollo/core/skills/__init__.py tests/test_tool_call_parser.py tests/test_skill_argument_validation.py
+```

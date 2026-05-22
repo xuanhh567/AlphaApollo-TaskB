@@ -503,6 +503,30 @@ manager.py
   - 参数校验 helper 应该放在 `dispatcher.py` 里，还是单独拆成 `validation.py`。
   - `ToolError` 最终包装进 `<tool_response>` 时应该用 JSON 格式还是纯文本格式。
 
+### Change 018: 实现 Skill 参数校验
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/skills/validation.py`
+  - 新增 `tests/test_skill_argument_validation.py`
+  - 更新 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：在 dispatcher 执行工具之前，先检查模型传给工具的 arguments 是否符合 `SKILL.md` 里声明的参数规则。
+- 当前理解：
+  - `validate_arguments(spec, arguments)` 输入一个 `SkillSpec` 和一份模型参数。
+  - 它会返回补好默认值的 `normalized_arguments`，以及结构化 `ToolError` 列表。
+  - 如果有错误，后续 dispatcher 不应该执行工具。
+  - `integer` / `number` 要特别排除 `bool`，因为 Python 里 `bool` 是 `int` 的子类。
+- 额外规则：
+  - 如果模型传了 schema 没声明的参数，返回 `unexpected_argument`，避免执行时才出现 unexpected keyword argument。
+- 验证：
+  - `python tests/test_skill_argument_validation.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python -m py_compile alphaapollo/core/skills/call_parser.py alphaapollo/core/skills/validation.py alphaapollo/core/skills/__init__.py tests/test_tool_call_parser.py tests/test_skill_argument_validation.py` 通过。
+- 还不懂的问题：
+  - `None` 作为默认值时，当前 `SkillParameter.default=None` 无法区分“没写 default”和“默认值就是 null”，后续如果需要支持 null default，可能要调整 schema。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
