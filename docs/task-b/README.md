@@ -21,6 +21,8 @@
 | `phase-3-tool-call.md` | Phase 3：结构化 `<tool_call>`、参数校验和 dispatcher 设计 |
 | `phase-4-env-integration.md` | Phase 4：把 dispatcher 接入 env，并保持旧工具行为兼容 |
 | `phase-5-prompt.md` | Phase 5：从 registry / `SKILL.md` 自动生成 prompt 工具说明 |
+| `experiments.md` | Task B 实验记录、smoke trajectory 和 MATH-500 回归状态 |
+| `trajectories/structured-python-code-smoke.md` | 结构化 `<tool_call>` 到 `<tool_response>` 的最小样例 |
 
 ## 写文档的原则
 

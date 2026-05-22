@@ -29,6 +29,8 @@ See: `.planning/PROJECT.md`
 - Phase 4 第二小步已验证：structured / legacy `local_rag` 都能路由；RAG 关闭时保持旧 disabled 响应，旧 JSON 错误文本也保留。
 - Phase 4 已完成：training env 现在通过 `dispatch_tool_call(..., executor=...)` 走 dispatcher runtime executor；`informal_math_evolving` 按 Task B 主线暂缓同步。
 - Phase 5 已完成：`SkillSpec` 可以自动渲染为 structured `<tool_call>` prompt 工具说明，training prompt 已从 registry 接收 enabled skill specs。
+- Phase 6 已开始：已保存 structured python_code smoke trajectory，MATH-500 回归仍待资源确认。
+- README 已新增 Task B 专区；`docs/task-b/experiments.md` 已记录 smoke test 和 MATH-500 pending 状态。
 
 ## Important Local Context
 
@@ -53,9 +55,9 @@ See: `.planning/PROJECT.md`
 
 开始 Phase 6：
 
-1. 保存至少一个 structured `<tool_call>` + `<tool_response>` trajectory 样例。
-2. 整理 Task A baseline / Task B 回归计划和实验记录。
-3. 更新 README 的核心改动、运行教程和问题记录。
+1. 真实运行 Task A baseline 和 Task B skill 版本 MATH-500 回归。
+2. 将指标、日志路径和评估 JSON 补入 `docs/task-b/experiments.md`。
+3. 根据结果更新 README 的复现结果汇总。
 
 ## Scope Correction Notes
 

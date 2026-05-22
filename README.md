@@ -164,6 +164,80 @@ python3 -m alphaapollo.workflows.evo \
 - Python Code implementation: [alphaapollo/core/tools/python_code.py](alphaapollo/core/tools/python_code.py)
 - RAG implementation: [alphaapollo/core/tools/rag/](alphaapollo/core/tools/rag/)
 
+## Task B：Skill 化工具调用重构
+
+本 fork 包含 mini-project Task B 的重构：把 informal math 的工具调用路径，从“写死文本标签 + if/elif 路由”升级为“自描述 `SKILL.md` skill + 结构化 `<tool_call>` JSON”。
+
+### 重构前
+
+```text
+模型输出
+-> <python_code>...</python_code> / <local_rag>...</local_rag>
+-> env.py 正则解析
+-> if/elif 硬编码路由工具
+-> InformalMathToolGroup
+-> <tool_response>
+```
+
+### 重构后
+
+```text
+SKILL.md
+-> SkillSpec
+-> SkillRegistry
+-> prompt 自动生成工具说明
+-> 模型输出 <tool_call>{"name":"...","arguments":{...}}</tool_call>
+-> dispatcher 校验参数并路由
+-> InformalMathToolGroup runtime executor
+-> <tool_response>
+```
+
+旧 `<python_code>` 和 `<local_rag>` 标签仍然通过兼容桥接保留，但新的 training prompt 已经主推结构化 `<tool_call>` 格式。
+
+### 主要文件
+
+```text
+alphaapollo/core/skills/schema.py
+alphaapollo/core/skills/loader.py
+alphaapollo/core/skills/registry.py
+alphaapollo/core/skills/call_parser.py
+alphaapollo/core/skills/validation.py
+alphaapollo/core/skills/dispatcher.py
+alphaapollo/core/skills/prompt.py
+alphaapollo/core/skills/builtin/python_code/SKILL.md
+alphaapollo/core/skills/builtin/local_rag/SKILL.md
+alphaapollo/core/environments/informal_math_training/skill_bridge.py
+alphaapollo/core/environments/informal_math_training/env.py
+alphaapollo/core/environments/prompts/informal_math_training.py
+```
+
+### 验证命令
+
+```bash
+python tests/test_skill_prompt_renderer.py
+python tests/test_informal_math_skill_bridge.py
+python tests/test_skill_dispatcher.py
+python tests/test_skill_argument_validation.py
+python tests/test_tool_call_parser.py
+python tests/test_skill_registry.py
+python tests/test_skill_loader.py
+```
+
+Smoke trajectory：
+
+```text
+docs/task-b/trajectories/structured-python-code-smoke.md
+```
+
+Task B 学习文档和实验状态：
+
+```text
+docs/task-b/
+docs/task-b/experiments.md
+```
+
+MATH-500 baseline 与 skill 版本回归当前记录为 pending，详见 `docs/task-b/experiments.md`。这部分需要模型服务 / GPU 资源，正式提交前应补跑并记录指标。
+
 
 ## Acknowledgement
 AlphaApollo is built upon the open-source projects [verl](https://github.com/volcengine/verl), [verl-agent](https://github.com/langfengQ/verl-agent/tree/master), [vllm](https://github.com/vllm-project/vllm), and [sglang](https://github.com/sgl-project/sglang). We sincerely thank the contributors of these projects for their valuable work and support.
@@ -179,4 +253,3 @@ If you find **AlphaApollo** useful in your research, please consider citing our 
   year = {2025}
 }
 ```
-

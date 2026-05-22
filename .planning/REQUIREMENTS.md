@@ -47,14 +47,14 @@
 - [x] **COMPAT-03**: `python_code` 迁移前后的成功、失败、超时和禁用反馈必须保持语义一致。
 - [x] **COMPAT-04**: `local_rag` 迁移前后的成功、失败、禁用和参数错误反馈必须保持语义一致。
 - [ ] **COMPAT-05**: 在 MATH-500 上完成 Task A baseline 与 Task B skill 版本回归对比，指标误差不超过 3%。
-- [ ] **COMPAT-06**: 至少保存一个包含结构化 function-call 与 `<tool_response>` 的 trajectory 样例。
+- [x] **COMPAT-06**: 至少保存一个包含结构化 function-call 与 `<tool_response>` 的 trajectory 样例。
 
 ### 文档、学习与提交
 
-- [ ] **DOC-01**: `docs/task-b/learning-log.md` 必须记录每个阶段的目标、改动和未理解问题。
-- [ ] **DOC-02**: README 必须说明重构前后 tool call 流程对比和设计理由。
+- [x] **DOC-01**: `docs/task-b/learning-log.md` 必须记录每个阶段的目标、改动和未理解问题。
+- [x] **DOC-02**: README 必须说明重构前后 tool call 流程对比和设计理由。
 - [ ] **DOC-03**: README 或 `docs/task-b/experiments.md` 必须包含 Task A baseline 与 Task B 回归结果。
-- [ ] **DOC-04**: Git 历史必须包含多次有意义 commit，而不是一次性提交。
+- [x] **DOC-04**: Git 历史必须包含多次有意义 commit，而不是一次性提交。
 
 ## v2 Requirements
 
@@ -101,18 +101,18 @@
 | PROMPT-02 | Phase 5 | Complete |
 | PROMPT-03 | Phase 5 | Complete |
 | COMPAT-05 | Phase 6 | Pending |
-| COMPAT-06 | Phase 6 | Pending |
-| DOC-01 | Phase 6 | Pending |
-| DOC-02 | Phase 6 | Pending |
+| COMPAT-06 | Phase 6 | Complete |
+| DOC-01 | Phase 6 | Complete |
+| DOC-02 | Phase 6 | Complete |
 | DOC-03 | Phase 6 | Pending |
-| DOC-04 | Phase 6 | Pending |
+| DOC-04 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
-- Complete: 23
+- Complete: 27
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 5 prompt generation*
+*Last updated: 2026-05-22 after Phase 6 trajectory and README update*

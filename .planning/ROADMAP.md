@@ -181,7 +181,19 @@
 - README 能让他人复现环境和实验
 - 面试复习文档能回答核心调用链问题
 
-**Status:** Pending
+**Status:** Partial / Regression Pending
+
+**Context:** `.planning/phases/06-regression-docs/06-CONTEXT.md`
+
+**Plan:** `.planning/phases/06-regression-docs/06-01-PLAN.md`
+
+**Delivered:**
+- `docs/task-b/trajectories/structured-python-code-smoke.md` 保存 structured `<tool_call>` + `<tool_response>` 样例。
+- `docs/task-b/experiments.md` 记录 smoke test、测试命令和 MATH-500 回归状态。
+- README 新增 Task B 专区，说明重构前后流程、主文件和验证命令。
+
+**Pending:**
+- Task A baseline 与 Task B skill 版本 MATH-500 指标对比仍待真实模型/GPU资源运行。
 
 ## Future / Bonus: Task D - 新 Skill 与 MCP
 

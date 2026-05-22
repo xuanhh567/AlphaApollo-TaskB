@@ -721,6 +721,28 @@ manager.py
 - 下一步：
   - 进入 Phase 6：保存 trajectory 样例、整理回归和 README。
 
+### Change 028: 开始 Phase 6 并保存 structured trajectory
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `.planning/phases/06-regression-docs/06-CONTEXT.md`
+  - 新增 `.planning/phases/06-regression-docs/06-01-PLAN.md`
+  - 新增 `docs/task-b/experiments.md`
+  - 新增 `docs/task-b/trajectories/structured-python-code-smoke.md`
+  - 更新 `docs/task-b/README.md`
+- 我理解的目的：开始整理交付证据，先保存一条结构化 tool call 的最小 trajectory。
+- 当前理解：
+  - COMPAT-06 要求至少保存一个包含结构化 function-call 与 `<tool_response>` 的 trajectory。
+  - smoke trajectory 不等于 MATH-500 回归，它只证明新调用链能端到端跑通。
+  - MATH-500 baseline / skill 版本对比仍需要模型和 GPU 资源，暂时记录为 pending。
+- 已验证：
+  - prompt 自动生成 `<tool_call>` 示例。
+  - assistant action 使用 structured `<tool_call>`。
+  - env 返回 `<tool_response>`。
+  - metadata 中 `tool_call_format=structured`。
+- 下一步：
+  - 更新 README Task B 专区，说明重构前后流程、测试命令和当前回归状态。
+
 ## 7. 下一步
 
 下一步进入 Phase 5：prompt 自动生成。
