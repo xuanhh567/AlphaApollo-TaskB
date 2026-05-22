@@ -31,7 +31,7 @@ Task B 想把它改成：
 | 阶段 | 文档 | 当前状态 | 主要问题 |
 |---|---|---|---|
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
-| Phase 2 | `phase-2-registry.md` | 未开始 | 多个 skill 怎么被扫描、注册、启用 |
+| Phase 2 | `phase-2-registry.md` | 设计中 | 多个 skill 怎么被扫描、注册、启用 |
 | Phase 3 | `phase-3-tool-call.md` | 未开始 | `<tool_call>` 怎么解析和校验 |
 | Phase 4 | `phase-4-dispatcher.md` | 未开始 | dispatcher 怎么执行真正的工具 |
 | Phase 5 | `phase-5-prompt.md` | 未开始 | prompt 怎么从 registry 自动生成 |
@@ -87,7 +87,7 @@ docs/task-b/phase-1-skill-md-spec.md
 
 下一步进入 Phase 2：registry。
 
-Phase 2 暂时先不急着接 `env.py`，先回答三个问题：
+Phase 2 暂时先不急着接 `env.py`，先完成 registry 设计和计划：
 
 1. skill 文件夹应该从哪里扫描？
 2. 如果两个 skill 重名，registry 怎么报错？

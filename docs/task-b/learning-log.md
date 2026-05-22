@@ -378,6 +378,21 @@ manager.py
   - `learning-log.md`：记录每天的学习过程和改动。
   - 后续 Phase 2 开始后，再新增 `phase-2-registry.md`。
 
+### Change 011: 开始 Phase 2 registry 设计
+
+- 日期：2026-05-22
+- 改动：新增 `.planning/phases/02-skill-registry/02-CONTEXT.md`、`.planning/phases/02-skill-registry/02-DISCUSSION-LOG.md` 和 `docs/task-b/phase-2-registry.md`。
+- 我理解的目的：在写 registry 代码前，先明确它的职责、边界、错误策略和配置兼容方式。
+- 已确定的 Phase 2 决策：
+  - Phase 2 做 `Registry + 配置`，不提前接入 `env.py`。
+  - 扫描多个 skill 时采用“收集错误继续”的策略。
+  - Phase 2 现在创建 `python_code` / `local_rag` 的 `SKILL.md`，但暂时不执行。
+  - 新配置 `env.skills` 优先；没有新配置时，从旧的 `enable_python_code` / `enable_local_rag` 推导。
+- 还不懂的问题：
+  - registry 返回结果是否应该复用 `SkillLoadResult`，还是新增 `SkillRegistryResult`。
+  - 配置推导函数应该放在 `registry.py` 里，还是单独放在 `config.py`。
+  - 内置 skill 的 `entrypoint.path` 应该直接指向底层函数，还是先指向 `InformalMathToolGroup` 方法。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

@@ -49,7 +49,9 @@
 - 重名、缺失、未启用 skill 都有清晰错误
 - 不改具体工具代码也能完成注册发现
 
-**Status:** Pending
+**Status:** In Progress
+
+**Context:** `.planning/phases/02-skill-registry/02-CONTEXT.md`
 
 ## Phase 3: B3 - 结构化 Tool Call、参数校验与 Dispatcher
 

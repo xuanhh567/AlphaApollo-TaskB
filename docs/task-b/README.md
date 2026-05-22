@@ -17,10 +17,11 @@
 | `learning-log.md` | 学习记录和每次改动记录 |
 | `design.md` | Task B 总体设计地图 |
 | `phase-1-skill-md-spec.md` | Phase 1：`SKILL.md` 规范和 parser |
+| `phase-2-registry.md` | Phase 2：registry、启用配置和内置 skill 设计 |
 
 ## 写文档的原则
 
 - 不把所有内容集中到一个超大的 Markdown 文件里。
 - 每个 phase 文档只解释当前阶段要解决的问题。
 - 学习日志记录“我今天理解了什么”，phase 文档记录“这个阶段最终怎么设计”。
-- 等 Phase 2 真正开始时，再创建 `phase-2-registry.md`。
+- 每开始一个新 phase，先创建对应阶段文档，再写代码。
