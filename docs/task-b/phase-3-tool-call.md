@@ -235,3 +235,56 @@ execute(entrypoint, tool_call.arguments)
 4. required 参数缺失时，为什么不能继续执行工具？
 5. dispatcher 为什么不能硬编码 `python_code`？
 6. Phase 3 和 Phase 4 的边界是什么？
+
+## 10. 已实现：`call_parser.py`
+
+当前已经新增：
+
+```text
+alphaapollo/core/skills/call_parser.py
+tests/test_tool_call_parser.py
+```
+
+`call_parser.py` 现在提供：
+
+```python
+ToolCall
+ToolError
+parse_tool_call(text)
+```
+
+它只负责第一步：
+
+```text
+模型文本 -> ToolCall 或 ToolError
+```
+
+它不做：
+
+- 不查 registry。
+- 不校验参数 schema。
+- 不执行工具。
+- 不处理旧 `<python_code>` / `<local_rag>` 标签。
+
+当前能识别的错误包括：
+
+```text
+missing_tool_call
+invalid_tool_call_tag
+multiple_tool_calls
+invalid_json
+invalid_tool_call_payload
+missing_tool_name
+invalid_tool_name
+missing_arguments
+invalid_arguments_type
+```
+
+验证命令：
+
+```bash
+python tests/test_tool_call_parser.py
+python tests/test_skill_loader.py
+python tests/test_skill_registry.py
+python -m py_compile alphaapollo/core/skills/call_parser.py tests/test_tool_call_parser.py alphaapollo/core/skills/__init__.py
+```

@@ -482,6 +482,27 @@ manager.py
   - dispatcher 才负责执行。
   - Phase 3 的测试使用 fake entrypoint，不依赖真实 RAG 或 Python 工具执行。
 
+### Change 017: 实现结构化 tool call parser
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/skills/call_parser.py`
+  - 新增 `tests/test_tool_call_parser.py`
+  - 更新 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：先让系统能看懂模型输出的统一 `<tool_call>{...}</tool_call>`，并在格式错误时返回结构化 `ToolError`。
+- 当前理解：
+  - `ToolCall` 表示模型想调用哪个工具以及传了哪些参数。
+  - `ToolError` 表示解析、校验或执行阶段的结构化错误。
+  - `parse_tool_call(...)` 只做文本解析和 JSON 结构检查，不执行工具。
+- 验证：
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python -m py_compile alphaapollo/core/skills/call_parser.py tests/test_tool_call_parser.py alphaapollo/core/skills/__init__.py` 通过。
+- 还不懂的问题：
+  - 参数校验 helper 应该放在 `dispatcher.py` 里，还是单独拆成 `validation.py`。
+  - `ToolError` 最终包装进 `<tool_response>` 时应该用 JSON 格式还是纯文本格式。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
