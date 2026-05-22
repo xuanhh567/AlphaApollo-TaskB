@@ -366,12 +366,24 @@ manager.py
   - 先设计 registry 的职责，再写 `registry.py`。
   - 创建内置 skill 目录和 `python_code` / `local_rag` 的 `SKILL.md`。
 
+### Change 010: 拆分 Task B 阶段文档
+
+- 日期：2026-05-22
+- 改动：把原来的 `docs/task-b/design.md` 拆成总览文档和 `docs/task-b/phase-1-skill-md-spec.md`。
+- 我理解的目的：Task B 会越来越大，如果所有解释都写在一个文件里，新手很容易迷路；按阶段拆分后，每个文档只回答当前阶段的问题。
+- 当前文档分工：
+  - `README.md`：告诉我从哪里开始看。
+  - `design.md`：只画 Task B 的总地图。
+  - `phase-1-skill-md-spec.md`：详细解释 Phase 1 的 `SKILL.md` 和 parser。
+  - `learning-log.md`：记录每天的学习过程和改动。
+  - 后续 Phase 2 开始后，再新增 `phase-2-registry.md`。
+
 ## 7. 下一步
 
-下一步先做 Phase 1 / B1，不写复杂执行逻辑，只设计和解析 `SKILL.md`：
+下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
 
 ```text
-目标：能读一个 skill 的 SKILL.md，并得到 SkillSpec 或结构化错误。
+目标：能扫描多个 skill 目录，并把合法 SkillSpec 注册成可查询的工具表。
 ```
 
-完成 B1 后，再进入 registry 和 dispatcher。
+完成 registry 后，再继续结构化 tool_call 和 dispatcher。

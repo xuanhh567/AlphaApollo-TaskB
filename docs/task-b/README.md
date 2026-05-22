@@ -1,12 +1,26 @@
-# Task B Notes
+# Task B 文档目录
 
-这个目录用于存放 Task B 的个人学习记录、设计草稿、实现笔记和实验记录。
+这个目录用于存放 Task B 的个人学习记录、分阶段设计、实现笔记和实验记录。
 
-建议后续按用途拆分文档：
+## 推荐阅读顺序
 
-- `learning-log.md`：边学边写的主记录，记录每一步为什么改、改了什么、是否真的理解。
-- `design.md`：Skill 系统设计草稿，例如 `SKILL.md` 规范、registry、dispatcher、prompt 自动生成。
-- `experiments.md`：Task A baseline、Task B 回归、MATH-500 子集结果、运行命令和日志位置。
-- `interview-notes.md`：面试前复习用，记录关键调用链和常见问题回答。
+1. `learning-log.md`：边学边写的主记录，记录每一步为什么改、改了什么、是否真的理解。
+2. `design.md`：Task B 总体设计地图，只看大关系，不陷入细节。
+3. `phase-1-skill-md-spec.md`：Phase 1 详细文档，解释 `SKILL.md` 规范和 parser。
+4. 后续每开始一个阶段，再新增对应 phase 文档。
 
-当前先维护 `learning-log.md`。每完成一个小功能，就在里面追加一条 change record。
+## 当前文档状态
+
+| 文件 | 用途 |
+|---|---|
+| `README.md` | 当前目录入口 |
+| `learning-log.md` | 学习记录和每次改动记录 |
+| `design.md` | Task B 总体设计地图 |
+| `phase-1-skill-md-spec.md` | Phase 1：`SKILL.md` 规范和 parser |
+
+## 写文档的原则
+
+- 不把所有内容集中到一个超大的 Markdown 文件里。
+- 每个 phase 文档只解释当前阶段要解决的问题。
+- 学习日志记录“我今天理解了什么”，phase 文档记录“这个阶段最终怎么设计”。
+- 等 Phase 2 真正开始时，再创建 `phase-2-registry.md`。
