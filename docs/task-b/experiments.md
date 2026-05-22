@@ -64,7 +64,8 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 
 ```text
 MATH-500 正式回归需要稳定的数据、模型推理后端和较长运行时间。
-服务器已能跑 1 题 smoke test，但 vLLM 在 RTX 5090 上存在 kernel 兼容问题，正式回归需要先确定使用 HF rollout 还是修复 vLLM 环境。
+服务器已能跑 1 题和 5 题 smoke/sanity test，但 alphaapollo5090 里的 vLLM 在 RTX 5090 上存在 kernel 兼容问题。
+HF rollout 能跑通链路，但生成质量异常重复，不适合直接作为正式回归后端。
 ```
 
 建议后续至少固定随机种子抽样 100 题，再视资源跑全量 500 题。
@@ -215,7 +216,175 @@ Examples:
 
 这说明真实 rollout 里已经不是旧的手写 `<python_code>` prompt，而是新的 SkillSpec 自动生成 prompt。
 
-## 5. 建议回归入口
+## 5. 服务器 Sanity Test：MATH-500 5 题
+
+### 目的
+
+在 1 题 smoke test 后，继续验证 5 个样本连续 rollout 是否稳定。
+
+### 数据准备
+
+本机生成 MATH-500 前 5 题：
+
+```bash
+python -m alphaapollo.data_preprocess.prepare_custom_data \
+  --data_source HuggingFaceH4/MATH-500 \
+  --splits test \
+  --sample_indices 0,1,2,3,4 \
+  --local_dir ./data/task-b-sanity-5
+```
+
+生成数据：
+
+```text
+rows: 5
+indices: [0, 1, 2, 3, 4]
+answers:
+  - \left( 3, \frac{\pi}{2} \right)
+  - p - q
+  - \frac{14}{3}
+  - 9
+  - \text{Evelyn}
+```
+
+服务器输入输出路径：
+
+```text
+输入数据: /home/ubuntu/AlphaApollo-TaskB/data/task-b-sanity-5/custom_data/test.parquet
+贪心输出 JSON: /home/ubuntu/AlphaApollo-TaskB/data/task-b-sanity-5/skill_sanity_hf.json
+采样输出 JSON: /home/ubuntu/AlphaApollo-TaskB/data/task-b-sanity-5/skill_sanity_hf_sample.json
+```
+
+### 运行结果
+
+贪心 HF rollout：
+
+```text
+Status: completed
+Rows: 5
+avg@1: 0.0000
+pass@1: 0.0000
+rewards: [0.0, 0.0, 0.0, 0.0, 0.0]
+prompt_has_tool_call: 5 / 5
+assistant_tool_calls: 0 / 5
+assistant_answers: 0 / 5
+```
+
+采样 HF rollout，参数参考官方脚本：
+
+```text
+temperature: 0.6
+top_k: 20
+top_p: 0.95
+```
+
+结果：
+
+```text
+Status: completed
+Rows: 5
+avg@1: 0.0000
+pass@1: 0.0000
+rewards: [0.0, 0.0, 0.0, 0.0, 0.0]
+prompt_has_tool_call: 5 / 5
+assistant_tool_calls: 0 / 5
+assistant_answers: 0 / 5
+```
+
+### 结论
+
+这次 5 题 sanity test 证明：
+
+```text
+数据 parquet -> 模型加载 -> env -> reward -> JSON/parquet 保存
+```
+
+这条链路可以连续跑多个样本。
+
+但它也暴露了一个新问题：
+
+```text
+HF rollout 的模型输出严重重复，没有稳定生成 <answer> 或 <tool_call>。
+```
+
+因此，不建议直接用当前 HF rollout 跑 20/100 题回归。否则大概率只是得到更多 0 分重复文本，对 Task B 回归没有解释力。
+
+## 6. 推理后端排查
+
+### 本地模型文件是否正常
+
+在服务器上直接用 transformers 读取同一个本地模型：
+
+```text
+/home/ubuntu/wjx/AlphaApollo/models/Qwen2.5-3B-Instruct
+```
+
+最小生成测试输出正常，能自然回答极坐标问题。因此：
+
+```text
+模型文件本身没有明显损坏。
+```
+
+### alphaapollo5090 的 vLLM 状态
+
+`alphaapollo5090` 环境：
+
+```text
+torch 2.8.0+cu128
+vllm 0.10.2
+```
+
+运行 AlphaApollo vLLM rollout 时失败：
+
+```text
+CUDA error: no kernel image is available for execution on the device
+```
+
+### 独立 vllm 环境状态
+
+服务器还有一个 `vllm` conda 环境：
+
+```text
+/home/ubuntu/miniconda3/envs/vllm/bin/python
+torch 2.11.0+cu130
+vllm 0.20.0
+transformers 5.9.0
+CUDA 可用: True
+```
+
+这个环境可以直接用 vLLM 跑本地 Qwen 模型，输出正常。
+
+但它缺少 AlphaApollo 运行依赖：
+
+```text
+ray: False
+datasets: False
+omegaconf: False
+pandas: False
+pyarrow: False
+tensordict: False
+accelerate: False
+codetiming: False
+hydra: False
+```
+
+### 当前判断
+
+最稳的下一步不是继续跑 20 题，而是先准备一个真正可用于 AlphaApollo 的 vLLM 环境：
+
+```text
+保留 vllm 环境中适配 RTX 5090 的 torch/vllm，
+补齐 AlphaApollo 需要的 ray/datasets/omegaconf/pandas/pyarrow 等依赖，
+然后重新跑 5 题 sanity。
+```
+
+如果新的 vLLM-AlphaApollo 环境能跑通 5 题并生成正常答案，再继续：
+
+```text
+5 题 sanity -> 20 题 mini regression -> 100 题正式子集回归
+```
+
+## 7. 建议回归入口
 
 Task B 主线配置：
 
@@ -246,6 +415,7 @@ Task B skill version 命令
 
 ```text
 1. 服务器访问 Hugging Face 数据源超时。
-2. vLLM 在 RTX 5090 上 kernel 不兼容。
-3. 如果继续用 HF rollout，需要评估速度是否能接受 100 题以上回归。
+2. alphaapollo5090 中的 vLLM 在 RTX 5090 上 kernel 不兼容。
+3. HF rollout 能跑但输出异常重复，不适合作为正式回归。
+4. 独立 vllm 环境能正常推理，但需要补齐 AlphaApollo 运行依赖。
 ```

@@ -194,7 +194,7 @@ ssh 106.55.163.7
 cd /home/ubuntu/AlphaApollo-TaskB
 ```
 
-然后优先使用这个 Python：
+然后优先使用这个 Python 做单元测试、数据检查和非 vLLM 小实验：
 
 ```bash
 /home/ubuntu/miniconda3/envs/alphaapollo5090/bin/python
@@ -245,7 +245,7 @@ model-00002-of-00002.safetensors
 
 服务器访问 Hugging Face 数据集时出现过连接超时。因此，小规模实验可以先在本机生成 parquet，再传到服务器运行。
 
-当前 vLLM 在 RTX 5090 上运行时遇到 CUDA kernel 兼容问题：
+`alphaapollo5090` 里的 vLLM 在 RTX 5090 上运行时遇到 CUDA kernel 兼容问题：
 
 ```text
 CUDA error: no kernel image is available for execution on the device
@@ -253,10 +253,45 @@ CUDA error: no kernel image is available for execution on the device
 
 已验证 PyTorch 本身可以在 GPU 上做 bf16 矩阵乘法，所以问题更接近 vLLM 编译 / CUDA kernel 适配，而不是 GPU 完全不可用。
 
-临时可用方案：
+HF rollout 临时能跑通链路：
 
 ```text
 rollout.name=hf
 ```
 
-也就是先用 HuggingFace rollout 跑 smoke test 或小样本回归。这个方案会比 vLLM 慢，但能绕开 vLLM 的 kernel 问题。
+但是 5 题 sanity test 显示，HF rollout 的生成结果严重重复，没有稳定输出 `<answer>` 或 `<tool_call>`，所以不适合作为正式 MATH-500 回归后端。
+
+服务器还有一个独立 `vllm` 环境：
+
+```text
+/home/ubuntu/miniconda3/envs/vllm/bin/python
+torch 2.11.0+cu130
+vllm 0.20.0
+transformers 5.9.0
+CUDA 可用: True
+```
+
+这个环境已经验证可以直接用 vLLM 运行本地 Qwen 模型，输出正常。
+
+但它暂时缺少 AlphaApollo 所需依赖：
+
+```text
+ray: False
+datasets: False
+omegaconf: False
+pandas: False
+pyarrow: False
+tensordict: False
+accelerate: False
+codetiming: False
+hydra: False
+```
+
+因此，后续更推荐的环境路线是：
+
+```text
+基于 /home/ubuntu/miniconda3/envs/vllm 补齐 AlphaApollo 依赖，
+或者创建一个新的 alphaapollo-vllm5090 环境，
+保留 torch 2.11.0+cu130 / vllm 0.20.0，
+再跑 5 -> 20 -> 100 题回归。
+```
