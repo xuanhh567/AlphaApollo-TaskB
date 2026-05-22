@@ -117,7 +117,9 @@
 - `<tool_call>{"name":"local_rag",...}</tool_call>` 可路由
 - 旧 prompt/旧标签路径在过渡期不被立即破坏，除非已有等价替代
 
-**Status:** Pending
+**Status:** In Progress
+
+**Context:** `.planning/phases/04-env-tool-path/04-CONTEXT.md`
 
 ## Phase 5: B4 - Prompt 自动生成
 
@@ -167,4 +169,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 3 context*
+*Last updated: 2026-05-22 after Phase 4 context*

@@ -19,6 +19,7 @@
 | `phase-1-skill-md-spec.md` | Phase 1：`SKILL.md` 规范和 parser |
 | `phase-2-registry.md` | Phase 2：registry、启用配置和内置 skill 设计 |
 | `phase-3-tool-call.md` | Phase 3：结构化 `<tool_call>`、参数校验和 dispatcher 设计 |
+| `phase-4-env-integration.md` | Phase 4：把 dispatcher 接入 env，并保持旧工具行为兼容 |
 
 ## 写文档的原则
 

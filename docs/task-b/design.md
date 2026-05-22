@@ -33,7 +33,7 @@ Task B 想把它改成：
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
 | Phase 2 | `phase-2-registry.md` | 模块完成，运行时接入待完成 | 多个 skill 怎么被扫描、注册、启用 |
 | Phase 3 | `phase-3-tool-call.md` | 设计中 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
-| Phase 4 | `phase-4-dispatcher.md` | 未开始 | env 怎么接入 dispatcher |
+| Phase 4 | `phase-4-env-integration.md` | 设计中 | env 怎么接入 dispatcher，并保持旧工具行为 |
 | Phase 5 | `phase-5-prompt.md` | 未开始 | prompt 怎么从 registry 自动生成 |
 | Phase 6 | `phase-6-regression.md` | 未开始 | 怎么证明迁移前后行为没有明显变坏 |
 
@@ -96,10 +96,10 @@ docs/task-b/phase-1-skill-md-spec.md
 
 ## 5. 下一步
 
-下一步进入 Phase 3：结构化 tool call。
+下一步进入 Phase 4：env 运行时接入。
 
-Phase 3 暂时先不急着接 `env.py`，先完成 parser、参数校验和 dispatcher 的独立设计：
+Phase 4 暂时先不急着大改两套 env，先完成接入方案：
 
-1. `<tool_call>{...}</tool_call>` 应该如何解析？
-2. `arguments` 如何按 `SkillSpec.parameters` 校验？
-3. dispatcher 如何通过 registry 执行 entrypoint？
+1. 新 `<tool_call>` 如何进入 env 执行路径？
+2. 旧 `<python_code>` / `<local_rag>` 如何继续兼容？
+3. `python_code` / `local_rag` wrapper 如何保持旧 `text_result` + `score`？

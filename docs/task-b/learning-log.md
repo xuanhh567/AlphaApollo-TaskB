@@ -553,6 +553,23 @@ manager.py
   - `python tests/test_skill_loader.py` 通过。
   - `python -m py_compile ...` 通过。
 
+### Change 020: 开始 Phase 4 env 接入设计
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `.planning/phases/04-env-tool-path/04-CONTEXT.md`
+  - 新增 `.planning/phases/04-env-tool-path/04-DISCUSSION-LOG.md`
+  - 新增 `docs/task-b/phase-4-env-integration.md`
+- 我理解的目的：在改 `env.py` 之前，先明确 structured dispatcher 怎么接回 environment side，并避免破坏旧工具行为。
+- 当前理解：
+  - Phase 4 先接 `informal_math_training`，因为它是当前 Task B 配置主线。
+  - `informal_math_evolving` 也有类似旧路径，需要记录并后续评估同步。
+  - 旧 `<python_code>` / `<local_rag>` 标签不能直接删。
+  - `python_code` / `local_rag` 的 skill entrypoint 需要 wrapper 或复用 `InformalMathToolGroup`，保持旧 `text_result` + `score`。
+- 还不懂的问题：
+  - wrapper 应该放在 `alphaapollo/core/skills/builtin/...`，还是放在 env bridge 里。
+  - `informalmath_verify` 是否也应该在后续迁移成 skill，还是只保留旧路径。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
