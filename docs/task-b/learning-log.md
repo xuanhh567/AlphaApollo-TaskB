@@ -681,6 +681,24 @@ manager.py
 - 下一步：
   - Phase 5：从 registry / `SKILL.md` 自动生成 prompt 工具说明。
 
+### Change 026: 开始 Phase 5 prompt 自动生成设计
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `.planning/phases/05-prompt-auto-generation/05-CONTEXT.md`
+  - 新增 `.planning/phases/05-prompt-auto-generation/05-01-PLAN.md`
+  - 新增 `docs/task-b/phase-5-prompt.md`
+  - 更新 `docs/task-b/README.md`
+  - 更新 `docs/task-b/design.md`
+- 我理解的目的：进入 Task B4，让 prompt 工具说明从 `SKILL.md` / registry 自动生成，而不是继续手写 `<python_code>` / `<local_rag>`。
+- 当前理解：
+  - Phase 5 不改工具执行链路。
+  - Phase 5 要新增 prompt renderer，把 `SkillSpec` 转成模型能看的工具说明。
+  - 新 prompt 应该主推统一 `<tool_call>` 格式。
+  - 旧标签兼容仍然留在 env bridge，不作为新 prompt 的主要说明。
+- 下一步：
+  - 实现 `alphaapollo/core/skills/prompt.py` 和对应测试。
+
 ## 7. 下一步
 
 下一步进入 Phase 5：prompt 自动生成。

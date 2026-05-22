@@ -28,6 +28,7 @@ See: `.planning/PROJECT.md`
 - Phase 4 第一小步已实现：`informal_math_training/skill_bridge.py` 支持 structured `<tool_call>` 与旧标签桥接，training env 已能执行 structured `python_code`。
 - Phase 4 第二小步已验证：structured / legacy `local_rag` 都能路由；RAG 关闭时保持旧 disabled 响应，旧 JSON 错误文本也保留。
 - Phase 4 已完成：training env 现在通过 `dispatch_tool_call(..., executor=...)` 走 dispatcher runtime executor；`informal_math_evolving` 按 Task B 主线暂缓同步。
+- Phase 5 context 和 plan 已创建：下一步实现 prompt renderer。
 
 ## Important Local Context
 

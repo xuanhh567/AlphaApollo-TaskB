@@ -111,3 +111,9 @@ Phase 5 要做：
 从 registry 读取 skill frontmatter，
 自动生成 prompt 里的工具说明和 examples。
 ```
+
+详细内容见：
+
+```text
+docs/task-b/phase-5-prompt.md
+```

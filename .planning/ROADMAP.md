@@ -150,7 +150,11 @@
 - prompt 中不再手写每个工具的完整 schema 和示例
 - 用户能解释 prompt 自动生成与 registry 的关系
 
-**Status:** Pending
+**Status:** Planned
+
+**Context:** `.planning/phases/05-prompt-auto-generation/05-CONTEXT.md`
+
+**Plan:** `.planning/phases/05-prompt-auto-generation/05-01-PLAN.md`
 
 ## Phase 6: B6/C - 回归、文档与提交整理
 
