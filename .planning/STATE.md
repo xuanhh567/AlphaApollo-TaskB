@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 3 - B3 结构化 Tool Call、参数校验与 Dispatcher implementation planning complete
+**Current Focus:** Phase 4 - Env tool path migration planning
 
 ## Project Reference
 
@@ -22,6 +22,7 @@ See: `.planning/PROJECT.md`
 - Phase 2 尚未完全满足运行时要求：`env.skills` 还没有接入 env 创建流程；旧 `enable_python_code` / `enable_local_rag` 的运行时兼容需要 Phase 4 处理。
 - Phase 3 context 已记录：采用统一 `<tool_call>` JSON 结构、单 tool call 约束、`SkillSpec.parameters` 参数校验和独立 dispatcher 测试边界。
 - Phase 3 plan 已创建：`.planning/phases/03-structured-tool-call/03-01-PLAN.md`。
+- Phase 3 独立模块已完成：`call_parser.py`、`validation.py`、`dispatcher.py` 和对应测试已实现。尚未接入 `env.py`。
 
 ## Important Local Context
 
@@ -44,13 +45,13 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-开始实现 Phase 3：
+开始 Phase 4：
 
-1. 设计 `ToolCall`、`ToolResult`、`ToolError` 的字段。
-2. 实现 `call_parser.py`。
-3. 实现参数校验 helper。
-4. 实现 `dispatcher.py` 的 `python_function` entrypoint 执行。
-5. 新增独立测试，暂不接 `env.py`。
+1. 先设计 env 接入方案，不急着改代码。
+2. 确认 `informal_math_training` 和 `informal_math_evolving` 是否都要接入。
+3. 为 `python_code` / `local_rag` 做兼容 wrapper，保持旧 `text_result` + `score`。
+4. 把 dispatcher 结果包装成 `<tool_response>`。
+5. 保留旧标签兼容路径，降低回归风险。
 
 ## Scope Correction Notes
 

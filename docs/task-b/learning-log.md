@@ -527,6 +527,32 @@ manager.py
 - 还不懂的问题：
   - `None` 作为默认值时，当前 `SkillParameter.default=None` 无法区分“没写 default”和“默认值就是 null”，后续如果需要支持 null default，可能要调整 schema。
 
+### Change 019: 实现独立 dispatcher
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/skills/dispatcher.py`
+  - 新增 `tests/test_skill_dispatcher.py`
+  - 新增 `tests/skill_dispatcher_fixtures.py`
+  - 更新 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：让系统能从 `ToolCall` 通过 registry 找到对应 skill，校验参数，然后执行 `python_function` entrypoint。
+- 当前理解：
+  - `dispatch_tool_call(call, registry)` 是 Phase 3 的核心入口。
+  - 它不硬编码 `python_code` 或 `local_rag`。
+  - 它先查 registry，再调用 `validate_arguments`，最后动态 import `entrypoint.path`。
+  - 工具异常会变成 `ToolResult(ok=False, error=ToolError(...))`，不会直接让调用方崩溃。
+- 当前限制：
+  - 还没有接入 `env.py`。
+  - 还没有实现超时隔离。
+  - 真实 `python_code` / `local_rag` 的旧返回语义还要 Phase 4 wrapper 处理。
+- 验证：
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_skill_argument_validation.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python -m py_compile ...` 通过。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

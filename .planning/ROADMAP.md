@@ -83,9 +83,22 @@
 - JSON 错、缺参数、类型错、unknown skill 都能返回结构化错误
 - 成功结果和失败结果都能被包装进 `<tool_response>`
 
-**Status:** In Progress
+**Status:** Module Complete / Env Integration Pending
 
 **Context:** `.planning/phases/03-structured-tool-call/03-CONTEXT.md`
+
+**Module Completed:** 2026-05-22
+
+**Delivered:**
+- `alphaapollo/core/skills/call_parser.py` parses structured `<tool_call>` JSON into `ToolCall` or `ToolError`.
+- `alphaapollo/core/skills/validation.py` validates arguments against `SkillSpec.parameters`.
+- `alphaapollo/core/skills/dispatcher.py` routes calls through `SkillRegistry` and executes `python_function` entrypoints without hardcoded tool names.
+- Parser, validation, and dispatcher tests cover success and structured error cases.
+
+**Pending Env Integration:**
+- Wrap dispatcher results into `<tool_response>` in the environment.
+- Preserve old `python_code` / `local_rag` `text_result` + `score` semantics.
+- Add timeout / stderr / non-zero return-code compatibility at the concrete tool wrapper layer.
 
 ## Phase 4: 迁移 Env Tool 执行路径与内置 Skill
 

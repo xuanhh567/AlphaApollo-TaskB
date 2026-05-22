@@ -355,3 +355,65 @@ python tests/test_skill_loader.py
 python tests/test_skill_registry.py
 python -m py_compile alphaapollo/core/skills/call_parser.py alphaapollo/core/skills/validation.py alphaapollo/core/skills/__init__.py tests/test_tool_call_parser.py tests/test_skill_argument_validation.py
 ```
+
+## 12. 已实现：Dispatcher
+
+当前新增：
+
+```text
+alphaapollo/core/skills/dispatcher.py
+tests/test_skill_dispatcher.py
+tests/skill_dispatcher_fixtures.py
+```
+
+`dispatcher.py` 提供：
+
+```python
+ToolResult
+dispatch_tool_call(call, registry)
+```
+
+它把前面几步串起来：
+
+```text
+ToolCall
+-> registry.get(name)
+-> validate_arguments(...)
+-> import entrypoint
+-> function(**arguments)
+-> ToolResult
+```
+
+当前支持：
+
+- unknown skill：返回 `unknown_skill`
+- 参数缺失：返回 `missing_required_argument`
+- 参数类型错误：返回 `invalid_argument_type`
+- import 失败：返回 `entrypoint_import_error`
+- entrypoint 不是 callable：返回 `entrypoint_import_error`
+- 工具执行异常：返回 `tool_execution_error`
+- 正常返回 `{"text_result": "...", "score": 1}` 时会归一化成 `ToolResult`
+
+仍然没有做：
+
+- 没有接入 `env.py`
+- 没有替换旧 `<python_code>` / `<local_rag>` 流程
+- 没有实现超时隔离
+
+注意：
+
+```text
+Phase 3 的 dispatcher 是独立模块；
+Phase 4 才负责把它接进 environment side。
+```
+
+验证命令：
+
+```bash
+python tests/test_skill_dispatcher.py
+python tests/test_skill_argument_validation.py
+python tests/test_tool_call_parser.py
+python tests/test_skill_registry.py
+python tests/test_skill_loader.py
+python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/loader.py alphaapollo/core/skills/registry.py alphaapollo/core/skills/call_parser.py alphaapollo/core/skills/validation.py alphaapollo/core/skills/dispatcher.py tests/test_skill_loader.py tests/test_skill_registry.py tests/test_tool_call_parser.py tests/test_skill_argument_validation.py tests/test_skill_dispatcher.py tests/skill_dispatcher_fixtures.py
+```

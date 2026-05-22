@@ -25,12 +25,14 @@
 
 ### 结构化调用与 Dispatcher
 
-- [ ] **CALL-01**: 模型侧工具调用必须支持统一结构化格式，例如 `<tool_call>{"name":"...","arguments":{...}}</tool_call>`。
-- [ ] **CALL-02**: parser 必须能识别无效 JSON、缺少 `name`、缺少 `arguments`、unknown skill 等错误。
-- [ ] **CALL-03**: 参数校验必须按 `SKILL.md` schema 检查 required 字段与基础类型。
-- [ ] **CALL-04**: 通用 dispatcher 必须通过 registry 路由 skill，不得包含 `if name == "python_code"` 这类具体工具硬编码。
+- [x] **CALL-01**: 模型侧工具调用必须支持统一结构化格式，例如 `<tool_call>{"name":"...","arguments":{...}}</tool_call>`。
+- [x] **CALL-02**: parser 必须能识别无效 JSON、缺少 `name`、缺少 `arguments`、unknown skill 等错误。
+- [x] **CALL-03**: 参数校验必须按 `SKILL.md` schema 检查 required 字段与基础类型。
+- [x] **CALL-04**: 通用 dispatcher 必须通过 registry 路由 skill，不得包含 `if name == "python_code"` 这类具体工具硬编码。
 - [ ] **CALL-05**: dispatcher 必须把成功和失败结果都包装为结构化反馈，并最终进入 `<tool_response>`。
 - [ ] **CALL-06**: skill 执行异常、超时、stderr 和非零退出码不能导致 rollout 崩溃。
+
+> Phase 3 已实现独立 parser、参数校验和 dispatcher；CALL-05 / CALL-06 中的 `<tool_response>` 运行时包装、超时隔离、stderr / 非零退出码兼容需要 Phase 4 接入具体工具 wrapper 后完成。
 
 ### Prompt 自动生成
 
@@ -85,12 +87,12 @@
 | REG-03 | Phase 2 | Complete |
 | REG-04 | Phase 2/4 | Partial |
 | REG-05 | Phase 2/4 | Partial |
-| CALL-01 | Phase 3 | Pending |
-| CALL-02 | Phase 3 | Pending |
-| CALL-03 | Phase 3 | Pending |
-| CALL-04 | Phase 3 | Pending |
-| CALL-05 | Phase 3 | Pending |
-| CALL-06 | Phase 3 | Pending |
+| CALL-01 | Phase 3 | Complete |
+| CALL-02 | Phase 3 | Complete |
+| CALL-03 | Phase 3 | Complete |
+| CALL-04 | Phase 3 | Complete |
+| CALL-05 | Phase 3/4 | Partial |
+| CALL-06 | Phase 3/4 | Partial |
 | COMPAT-01 | Phase 4 | Pending |
 | COMPAT-02 | Phase 4 | Pending |
 | COMPAT-03 | Phase 4 | Pending |
@@ -108,9 +110,9 @@
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
-- Complete: 8
+- Complete: 12
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 2 scope correction*
+*Last updated: 2026-05-22 after Phase 3 module completion*
