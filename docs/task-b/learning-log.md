@@ -453,6 +453,17 @@ manager.py
   - JSON 必须包含 `name` 和 `arguments`。
   - 旧 `<python_code>` / `<local_rag>` 标签兼容留到 Phase 4。
 
+### Change 015: 修正 Phase 2 完成状态，避免走偏
+
+- 日期：2026-05-22
+- 改动：把 Phase 2 从“完全完成”修正为“registry 基础模块完成，运行时接入待完成”。
+- 我理解的目的：原始 Task B2 不只是要有 registry 代码，还要求训练启动时由声明式 `env.skills` 驱动。我们目前只完成了 registry 和配置解析 helper，还没接到 `env.py` / `env_manager.py`。
+- 当前准确进度：
+  - 已完成：`registry.py`、内置 `SKILL.md`、registry 测试、配置解析 helper。
+  - 未完成：运行时真正使用 `env.skills`，以及旧 `enable_python_code` / `enable_local_rag` 的 env 兼容切换。
+- 重要风险：
+  - 当前内置 `SKILL.md` 的 `entrypoint.path` 指向底层函数，但旧工具返回语义来自 `InformalMathToolGroup` 包装；Phase 4 需要 wrapper 或兼容入口来保持 `text_result` + `score` 行为。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

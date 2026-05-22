@@ -18,7 +18,8 @@ See: `.planning/PROJECT.md`
 - GitHub 私有仓库已创建：`xuanhh567/AlphaApollo-TaskB`
 - Phase 1 已完成：`SKILL.md` 规范、`SkillSpec` 数据结构、loader/parser、结构化错误和基础测试均已实现。
 - Phase 2 context 已记录：决定采用 `Registry + 配置` 范围、扫描错误收集策略，并在 Phase 2 创建 `python_code` / `local_rag` 的 `SKILL.md`。
-- Phase 2 已完成：registry、内置 skill metadata、启用配置解析和 registry 测试均已实现。
+- Phase 2 registry 基础模块已完成：registry、内置 skill metadata、启用配置解析 helper 和 registry 测试均已实现。
+- Phase 2 尚未完全满足运行时要求：`env.skills` 还没有接入 env 创建流程；旧 `enable_python_code` / `enable_local_rag` 的运行时兼容需要 Phase 4 处理。
 - Phase 3 context 已记录：采用统一 `<tool_call>` JSON 结构、单 tool call 约束、`SkillSpec.parameters` 参数校验和独立 dispatcher 测试边界。
 
 ## Important Local Context
@@ -50,6 +51,11 @@ See: `.planning/PROJECT.md`
 4. 实现参数校验 helper。
 5. 实现 `dispatcher.py` 的 `python_function` entrypoint 执行。
 6. 新增独立测试，暂不接 `env.py`。
+
+## Scope Correction Notes
+
+- 不要把“registry 模块可用”说成“B2 运行时完全完成”。
+- 当前 `python_code` / `local_rag` 的 `SKILL.md` entrypoint 只是元数据占位；Phase 4 需要确认 wrapper 或入口函数能保持旧 `text_result` + `score` 语义。
 
 ## Risks
 

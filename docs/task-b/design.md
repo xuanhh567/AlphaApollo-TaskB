@@ -31,7 +31,7 @@ Task B 想把它改成：
 | 阶段 | 文档 | 当前状态 | 主要问题 |
 |---|---|---|---|
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
-| Phase 2 | `phase-2-registry.md` | 已完成 | 多个 skill 怎么被扫描、注册、启用 |
+| Phase 2 | `phase-2-registry.md` | 模块完成，运行时接入待完成 | 多个 skill 怎么被扫描、注册、启用 |
 | Phase 3 | `phase-3-tool-call.md` | 设计中 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
 | Phase 4 | `phase-4-dispatcher.md` | 未开始 | env 怎么接入 dispatcher |
 | Phase 5 | `phase-5-prompt.md` | 未开始 | prompt 怎么从 registry 自动生成 |
@@ -70,7 +70,7 @@ registry.py
 
 ## 4. 当前已经完成
 
-Phase 1 和 Phase 2 已经完成：
+Phase 1 已完成，Phase 2 的 registry 基础模块已完成：
 
 - 设计了 `SKILL.md` 的最小字段规范。
 - 实现了 `SkillSpec` 等内部数据结构。
@@ -79,6 +79,14 @@ Phase 1 和 Phase 2 已经完成：
 - 实现了 `registry.py`，可以注册、查询、扫描和过滤 skill。
 - 新增了内置 `python_code` / `local_rag` 的 `SKILL.md`。
 - 新增了 `tests/test_skill_registry.py` 验证 registry 行为。
+
+注意：
+
+```text
+registry 模块已经可用；
+但训练流程还没有真正改成由 env.skills 驱动；
+这部分运行时接入留到 Phase 4。
+```
 
 详细内容见：
 

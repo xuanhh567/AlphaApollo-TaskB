@@ -465,3 +465,39 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 4. `enabled_skills` 能过滤只启用的 skill。
 5. 配置启用了不存在的 skill 时返回 `unknown_enabled_skill`。
 6. 内置 skill 目录能发现并加载 `python_code` 和 `local_rag`。
+
+## 13. 防走偏说明
+
+这里要特别区分两件事：
+
+```text
+registry 基础模块完成
+```
+
+不等于：
+
+```text
+AlphaApollo 训练流程已经完全使用 env.skills
+```
+
+当前已经完成的是：
+
+- 能扫描 skill 目录。
+- 能注册和查询 `SkillSpec`。
+- 能解析 `env.skills` 或旧配置，得到启用 skill 名字列表。
+- 能发现内置 `python_code` / `local_rag` 的 `SKILL.md`。
+
+但还没有完成的是：
+
+- `env_manager.py` / `env.py` 启动时真正使用 `env.skills`。
+- 旧的 `enable_python_code` / `enable_local_rag` 在运行时完全切换到新 registry。
+- `python_code` / `local_rag` 的 skill entrypoint 保证返回和旧工具一样的 `text_result` + `score`。
+
+所以更准确的说法是：
+
+```text
+Phase 2 registry module complete；
+runtime integration pending。
+```
+
+运行时接入会在 Phase 4 处理。

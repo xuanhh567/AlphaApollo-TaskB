@@ -18,8 +18,10 @@
 - [x] **REG-01**: Skill loader 必须能扫描配置指定的 skill 目录。
 - [x] **REG-02**: Registry 必须能按 `name` 注册和查找 skill。
 - [x] **REG-03**: 重名 skill 必须返回清晰错误或拒绝注册，不能静默覆盖。
-- [x] **REG-04**: 启用工具应由声明式配置控制，例如 `env.skills=[python_code, local_rag]`。
-- [x] **REG-05**: 初期必须兼容旧的 `enable_python_code` 与 `enable_local_rag` 配置，降低回归风险。
+- [ ] **REG-04**: 启用工具应由声明式配置控制，例如 `env.skills=[python_code, local_rag]`。
+- [ ] **REG-05**: 初期必须兼容旧的 `enable_python_code` 与 `enable_local_rag` 配置，降低回归风险。
+
+> Phase 2 已实现 `env.skills` 与旧配置推导 helper，但尚未接入 AlphaApollo 运行时 env 创建流程；REG-04 / REG-05 等 Phase 4 运行时接入后再标 Complete。
 
 ### 结构化调用与 Dispatcher
 
@@ -81,8 +83,8 @@
 | REG-01 | Phase 2 | Complete |
 | REG-02 | Phase 2 | Complete |
 | REG-03 | Phase 2 | Complete |
-| REG-04 | Phase 2 | Complete |
-| REG-05 | Phase 2 | Complete |
+| REG-04 | Phase 2/4 | Partial |
+| REG-05 | Phase 2/4 | Partial |
 | CALL-01 | Phase 3 | Pending |
 | CALL-02 | Phase 3 | Pending |
 | CALL-03 | Phase 3 | Pending |
@@ -106,9 +108,9 @@
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
-- Complete: 10
+- Complete: 8
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 2 completion*
+*Last updated: 2026-05-22 after Phase 2 scope correction*
