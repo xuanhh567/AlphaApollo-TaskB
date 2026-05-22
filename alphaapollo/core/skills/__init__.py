@@ -2,6 +2,7 @@
 
 from alphaapollo.core.skills.call_parser import ToolCall, ToolError, parse_tool_call
 from alphaapollo.core.skills.dispatcher import RuntimeExecutor, ToolResult, dispatch_tool_call
+from alphaapollo.core.skills.prompt import render_skill_prompt_block, render_tool_call_example
 from alphaapollo.core.skills.registry import (
     SkillRegistry,
     SkillRegistryError,
@@ -37,6 +38,8 @@ __all__ = [
     "get_builtin_skill_dirs",
     "load_skill_registry_from_dirs",
     "parse_tool_call",
+    "render_skill_prompt_block",
+    "render_tool_call_example",
     "resolve_enabled_skill_names",
     "dispatch_tool_call",
     "validate_arguments",

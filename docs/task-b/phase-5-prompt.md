@@ -111,3 +111,60 @@ alphaapollo/core/environments/env_manager.py
 ```
 
 先从小测试开始，不直接跑训练。
+
+## 7. 当前已实现
+
+已经新增：
+
+```text
+alphaapollo/core/skills/prompt.py
+tests/test_skill_prompt_renderer.py
+```
+
+并修改：
+
+```text
+alphaapollo/core/environments/prompts/informal_math_training.py
+alphaapollo/core/environments/env_manager.py
+```
+
+现在 prompt 生成链路是：
+
+```text
+env_manager
+-> resolve_enabled_skill_names(...)
+-> load_skill_registry_from_dirs(...)
+-> registry.specs()
+-> get_policy_training_prompt(..., tool_specs=specs)
+-> render_skill_prompt_block(specs)
+```
+
+模型看到的工具说明会包含：
+
+- skill 名字。
+- description。
+- required / optional 参数。
+- default 值。
+- `<tool_call>` 示例。
+
+例如：
+
+```xml
+<tool_call>{"name":"python_code","arguments":{"code":"print(1 + 1)"}}</tool_call>
+```
+
+旧的 `tool_config` 调用方式暂时仍然保留，避免 demo 或旧脚本突然失效；但 training 主线现在会传入 `tool_specs`，使用自动生成的 structured prompt。
+
+## 8. 已验证
+
+已经验证：
+
+```text
+prompt block 包含 python_code / local_rag 的 name 和 description
+prompt block 包含 required 参数
+prompt block 包含 optional default 参数 top_k=3
+examples 自动渲染成 <tool_call>
+无工具时 prompt 不出现 <tool_call>
+history prompt 仍然保留 memory_context / step_count
+旧 tool_config fallback 仍然可用
+```

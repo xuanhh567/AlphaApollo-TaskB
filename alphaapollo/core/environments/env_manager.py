@@ -29,6 +29,11 @@ from omegaconf import OmegaConf
 from alphaapollo.core.environments.base import EnvironmentManagerBase, to_numpy
 from alphaapollo.core.environments.prompts import *
 from alphaapollo.core.environments.memory import EvolvingMemory, NDimensionalMemory, SearchMemory, SimpleMemory
+from alphaapollo.core.skills.registry import (
+    get_builtin_skill_dirs,
+    load_skill_registry_from_dirs,
+    resolve_enabled_skill_names,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -374,18 +379,34 @@ class InformalMathTrainingEnvironmentManager(EnvironmentManagerBase):
             "enable_python_code": enable_python_code,
             "enable_local_rag": enable_local_rag,
         }
+        tool_specs = self._get_enabled_tool_specs()
         
         for i in range(len(text_obs)):
             if init:
-                template = get_policy_training_prompt(use_history=False, max_steps=self.config.env.max_steps, tool_config=tool_config)
+                template = get_policy_training_prompt(use_history=False, max_steps=self.config.env.max_steps, tool_config=tool_config, tool_specs=tool_specs)
                 obs_i = template.format(question=self.tasks[i])
             else:
                 memory_entry = "" if not memory_ctx else memory_ctx[i]
-                template = get_policy_training_prompt(use_history=True, max_steps=self.config.env.max_steps, tool_config=tool_config)
+                template = get_policy_training_prompt(use_history=True, max_steps=self.config.env.max_steps, tool_config=tool_config, tool_specs=tool_specs)
                 obs_i = template.format(question=self.tasks[i], memory_context=memory_entry, step_count=len(self.memory[i]))
                     
             postprocess_text_obs.append(obs_i)
         return postprocess_text_obs
+
+    def _get_enabled_tool_specs(self):
+        enabled_skills = resolve_enabled_skill_names(self.config)
+        if not enabled_skills:
+            return []
+
+        registry_result = load_skill_registry_from_dirs(
+            get_builtin_skill_dirs(),
+            enabled_skills=enabled_skills,
+        )
+        if registry_result.errors:
+            formatted_errors = "; ".join(f"{error.code}: {error.message}" for error in registry_result.errors)
+            raise ValueError(f"Failed to load prompt skills: {formatted_errors}")
+
+        return registry_result.registry.specs()
 
 
     def _process_batch(self, batch_idx, total_batch_list, total_infos, success):

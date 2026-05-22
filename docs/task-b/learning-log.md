@@ -699,6 +699,28 @@ manager.py
 - 下一步：
   - 实现 `alphaapollo/core/skills/prompt.py` 和对应测试。
 
+### Change 027: 实现 prompt 自动生成
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `alphaapollo/core/skills/prompt.py`
+  - 新增 `tests/test_skill_prompt_renderer.py`
+  - 修改 `alphaapollo/core/environments/prompts/informal_math_training.py`
+  - 修改 `alphaapollo/core/environments/env_manager.py`
+  - 更新 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：完成 Task B4，让 training prompt 的工具说明从 `SkillSpec` 自动生成，而不是继续手写 `<python_code>` / `<local_rag>`。
+- 当前理解：
+  - `render_skill_prompt_block(specs)` 会读取 `SkillSpec.name`、`description`、`parameters`、`examples`。
+  - examples 会自动渲染成 `<tool_call>{"name":"...","arguments":{...}}</tool_call>`。
+  - `env_manager` 会根据 `env.skills` 或旧开关加载 enabled skill specs，然后传给 `get_policy_training_prompt(..., tool_specs=...)`。
+  - 旧 `tool_config` fallback 暂时保留，避免 demo 或旧脚本突然失效。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - Phase 1-5 相关测试全部通过。
+  - 用 `alphaapollo` 环境生成过实际 prompt，确认包含 `<tool_call>`，不再主推 `<python_code>` / `<local_rag>`。
+- 下一步：
+  - 进入 Phase 6：保存 trajectory 样例、整理回归和 README。
+
 ## 7. 下一步
 
 下一步进入 Phase 5：prompt 自动生成。

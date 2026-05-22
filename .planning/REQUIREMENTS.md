@@ -36,9 +36,9 @@
 
 ### Prompt 自动生成
 
-- [ ] **PROMPT-01**: 工具说明必须能从 registry 中的 `name`、`description`、schema 和 examples 自动生成。
-- [ ] **PROMPT-02**: 新增或移除 skill 后，prompt 工具说明应自动更新，不需要手写每个工具说明。
-- [ ] **PROMPT-03**: prompt 必须明确告诉模型使用统一 `<tool_call>` 格式。
+- [x] **PROMPT-01**: 工具说明必须能从 registry 中的 `name`、`description`、schema 和 examples 自动生成。
+- [x] **PROMPT-02**: 新增或移除 skill 后，prompt 工具说明应自动更新，不需要手写每个工具说明。
+- [x] **PROMPT-03**: prompt 必须明确告诉模型使用统一 `<tool_call>` 格式。
 
 ### 内置 Skill 迁移与回归
 
@@ -97,9 +97,9 @@
 | COMPAT-02 | Phase 4 | Complete |
 | COMPAT-03 | Phase 4 | Complete |
 | COMPAT-04 | Phase 4 | Complete |
-| PROMPT-01 | Phase 5 | Pending |
-| PROMPT-02 | Phase 5 | Pending |
-| PROMPT-03 | Phase 5 | Pending |
+| PROMPT-01 | Phase 5 | Complete |
+| PROMPT-02 | Phase 5 | Complete |
+| PROMPT-03 | Phase 5 | Complete |
 | COMPAT-05 | Phase 6 | Pending |
 | COMPAT-06 | Phase 6 | Pending |
 | DOC-01 | Phase 6 | Pending |
@@ -110,9 +110,9 @@
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
-- Complete: 20
+- Complete: 23
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 4 runtime dispatcher alignment*
+*Last updated: 2026-05-22 after Phase 5 prompt generation*

@@ -49,7 +49,7 @@
 - 重名、缺失、未启用 skill 都有清晰错误
 - 不改具体工具代码也能完成注册发现
 
-**Status:** Module Complete / Runtime Integration Pending
+**Status:** Complete
 
 **Context:** `.planning/phases/02-skill-registry/02-CONTEXT.md`
 
@@ -60,10 +60,9 @@
 - `alphaapollo/core/skills/builtin/python_code/SKILL.md` and `alphaapollo/core/skills/builtin/local_rag/SKILL.md` define built-in skill metadata.
 - `tests/test_skill_registry.py` covers registry behavior and built-in skill loading.
 
-**Pending Runtime Integration:**
-- Wire `env.skills` into environment creation instead of only providing `resolve_enabled_skill_names(...)`.
-- Preserve old `enable_python_code` / `enable_local_rag` behavior when `env.skills` is absent.
-- Confirm built-in skill entrypoints preserve old `InformalMathToolGroup` result semantics before env migration.
+**Runtime Integration Completed in Phase 4/5:**
+- `env.skills` and legacy `enable_python_code` / `enable_local_rag` are wired into training env runtime and prompt generation.
+- Built-in skill runtime semantics are preserved through dispatcher runtime executor + `InformalMathToolGroup`.
 
 ## Phase 3: B3 - 结构化 Tool Call、参数校验与 Dispatcher
 
@@ -150,11 +149,19 @@
 - prompt 中不再手写每个工具的完整 schema 和示例
 - 用户能解释 prompt 自动生成与 registry 的关系
 
-**Status:** Planned
+**Status:** Complete
 
 **Context:** `.planning/phases/05-prompt-auto-generation/05-CONTEXT.md`
 
 **Plan:** `.planning/phases/05-prompt-auto-generation/05-01-PLAN.md`
+
+**Completed:** 2026-05-22
+
+**Delivered:**
+- `alphaapollo/core/skills/prompt.py` renders `SkillSpec` metadata into structured `<tool_call>` prompt instructions.
+- `informal_math_training` prompt accepts `tool_specs` and uses auto-generated tool instructions.
+- `env_manager.py` loads enabled built-in skill specs from registry and passes them to the training prompt.
+- Prompt renderer tests verify metadata, parameters, defaults, examples, no-tool mode, history placeholders, and legacy fallback.
 
 ## Phase 6: B6/C - 回归、文档与提交整理
 
@@ -186,4 +193,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 4 completion*
+*Last updated: 2026-05-22 after Phase 5 completion*

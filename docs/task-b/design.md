@@ -31,11 +31,11 @@ Task B 想把它改成：
 | 阶段 | 文档 | 当前状态 | 主要问题 |
 |---|---|---|---|
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
-| Phase 2 | `phase-2-registry.md` | 模块完成，运行时接入待完成 | 多个 skill 怎么被扫描、注册、启用 |
-| Phase 3 | `phase-3-tool-call.md` | 模块完成，env 接入待完成 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
+| Phase 2 | `phase-2-registry.md` | 已完成 | 多个 skill 怎么被扫描、注册、启用 |
+| Phase 3 | `phase-3-tool-call.md` | 已完成 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
 | Phase 4 | `phase-4-env-integration.md` | 已完成 training env 主线 | env 怎么接入 dispatcher，并保持旧工具行为 |
-| Phase 5 | `phase-5-prompt.md` | 下一步 | prompt 怎么从 registry 自动生成 |
-| Phase 6 | `phase-6-regression.md` | 未开始 | 怎么证明迁移前后行为没有明显变坏 |
+| Phase 5 | `phase-5-prompt.md` | 已完成 | prompt 怎么从 registry 自动生成 |
+| Phase 6 | `phase-6-regression.md` | 下一步 | 怎么证明迁移前后行为没有明显变坏 |
 
 ## 3. 关键模块关系
 
@@ -96,7 +96,7 @@ docs/task-b/phase-1-skill-md-spec.md
 
 ## 5. 下一步
 
-下一步进入 Phase 5：prompt 自动生成。
+下一步进入 Phase 6：回归、trajectory 样例和 README 整理。
 
 Phase 4 已经完成 `informal_math_training` 主线：
 
@@ -105,7 +105,7 @@ Phase 4 已经完成 `informal_math_training` 主线：
 3. `python_code` / `local_rag` 保持旧 `text_result` + `score`。
 4. env runtime 现在通过 `dispatch_tool_call(..., executor=...)` 走 dispatcher。
 
-Phase 5 要做：
+Phase 5 已完成：
 
 ```text
 从 registry 读取 skill frontmatter，
@@ -116,4 +116,12 @@ Phase 5 要做：
 
 ```text
 docs/task-b/phase-5-prompt.md
+```
+
+Phase 6 要做：
+
+```text
+保存结构化 tool call trajectory；
+整理 Task A / Task B 回归；
+更新 README。
 ```

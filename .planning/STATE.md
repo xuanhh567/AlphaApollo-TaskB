@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 5 - Prompt auto-generation
+**Current Focus:** Phase 6 - Regression, trajectory sample, and docs
 
 ## Project Reference
 
@@ -28,7 +28,7 @@ See: `.planning/PROJECT.md`
 - Phase 4 第一小步已实现：`informal_math_training/skill_bridge.py` 支持 structured `<tool_call>` 与旧标签桥接，training env 已能执行 structured `python_code`。
 - Phase 4 第二小步已验证：structured / legacy `local_rag` 都能路由；RAG 关闭时保持旧 disabled 响应，旧 JSON 错误文本也保留。
 - Phase 4 已完成：training env 现在通过 `dispatch_tool_call(..., executor=...)` 走 dispatcher runtime executor；`informal_math_evolving` 按 Task B 主线暂缓同步。
-- Phase 5 context 和 plan 已创建：下一步实现 prompt renderer。
+- Phase 5 已完成：`SkillSpec` 可以自动渲染为 structured `<tool_call>` prompt 工具说明，training prompt 已从 registry 接收 enabled skill specs。
 
 ## Important Local Context
 
@@ -51,11 +51,11 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-开始 Phase 5：
+开始 Phase 6：
 
-1. 设计 registry -> prompt 的工具说明渲染函数。
-2. 修改 informal math training prompt，让工具说明由 `SKILL.md` frontmatter 自动生成。
-3. 保留旧 prompt 兼容风险说明。
+1. 保存至少一个 structured `<tool_call>` + `<tool_response>` trajectory 样例。
+2. 整理 Task A baseline / Task B 回归计划和实验记录。
+3. 更新 README 的核心改动、运行教程和问题记录。
 
 ## Scope Correction Notes
 
