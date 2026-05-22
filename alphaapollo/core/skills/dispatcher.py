@@ -12,6 +12,8 @@ from .registry import SkillRegistry
 from .schema import SkillSpec
 from .validation import validate_arguments
 
+RuntimeExecutor = Callable[[SkillSpec, dict[str, Any]], Any]
+
 
 @dataclass(frozen=True)
 class ToolResult:
@@ -25,7 +27,11 @@ class ToolResult:
     error: ToolError | None = None
 
 
-def dispatch_tool_call(call: ToolCall, registry: SkillRegistry) -> ToolResult:
+def dispatch_tool_call(
+    call: ToolCall,
+    registry: SkillRegistry,
+    executor: RuntimeExecutor | None = None,
+) -> ToolResult:
     """Validate and execute one tool call through a skill registry."""
 
     spec = registry.get(call.name)
@@ -42,6 +48,22 @@ def dispatch_tool_call(call: ToolCall, registry: SkillRegistry) -> ToolResult:
     normalized_arguments, validation_errors = validate_arguments(spec, call.arguments)
     if validation_errors:
         return _error_result(spec.name, validation_errors[0])
+
+    if executor is not None:
+        try:
+            raw_output = executor(spec, normalized_arguments)
+        except Exception as exc:
+            return _error_result(
+                spec.name,
+                ToolError(
+                    code="tool_execution_error",
+                    message=f"Tool execution failed: {exc}",
+                    tool_name=spec.name,
+                    details={"exception_type": type(exc).__name__},
+                ),
+            )
+
+        return _normalize_output(spec.name, raw_output)
 
     if spec.entrypoint.type != "python_function":
         return _error_result(

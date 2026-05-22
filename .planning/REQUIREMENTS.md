@@ -18,10 +18,10 @@
 - [x] **REG-01**: Skill loader 必须能扫描配置指定的 skill 目录。
 - [x] **REG-02**: Registry 必须能按 `name` 注册和查找 skill。
 - [x] **REG-03**: 重名 skill 必须返回清晰错误或拒绝注册，不能静默覆盖。
-- [ ] **REG-04**: 启用工具应由声明式配置控制，例如 `env.skills=[python_code, local_rag]`。
-- [ ] **REG-05**: 初期必须兼容旧的 `enable_python_code` 与 `enable_local_rag` 配置，降低回归风险。
+- [x] **REG-04**: 启用工具应由声明式配置控制，例如 `env.skills=[python_code, local_rag]`。
+- [x] **REG-05**: 初期必须兼容旧的 `enable_python_code` 与 `enable_local_rag` 配置，降低回归风险。
 
-> Phase 2 已实现 `env.skills` 与旧配置推导 helper，但尚未接入 AlphaApollo 运行时 env 创建流程；REG-04 / REG-05 等 Phase 4 运行时接入后再标 Complete。
+> Phase 4 已将 `env.skills` / 旧开关兼容接入 `informal_math_training` 运行时；prompt 自动生成仍留到 Phase 5。
 
 ### 结构化调用与 Dispatcher
 
@@ -29,10 +29,10 @@
 - [x] **CALL-02**: parser 必须能识别无效 JSON、缺少 `name`、缺少 `arguments`、unknown skill 等错误。
 - [x] **CALL-03**: 参数校验必须按 `SKILL.md` schema 检查 required 字段与基础类型。
 - [x] **CALL-04**: 通用 dispatcher 必须通过 registry 路由 skill，不得包含 `if name == "python_code"` 这类具体工具硬编码。
-- [ ] **CALL-05**: dispatcher 必须把成功和失败结果都包装为结构化反馈，并最终进入 `<tool_response>`。
-- [ ] **CALL-06**: skill 执行异常、超时、stderr 和非零退出码不能导致 rollout 崩溃。
+- [x] **CALL-05**: dispatcher 必须把成功和失败结果都包装为结构化反馈，并最终进入 `<tool_response>`。
+- [x] **CALL-06**: skill 执行异常、超时、stderr 和非零退出码不能导致 rollout 崩溃。
 
-> Phase 3 已实现独立 parser、参数校验和 dispatcher；CALL-05 / CALL-06 中的 `<tool_response>` 运行时包装、超时隔离、stderr / 非零退出码兼容需要 Phase 4 接入具体工具 wrapper 后完成。
+> Phase 4 已让 `informal_math_training` 通过 `dispatch_tool_call(..., executor=...)` 执行 runtime ToolGroup，并将成功、参数错误和工具禁用反馈包进 `<tool_response>`。`python_code` 的 timeout / stderr / 非零退出码继续由旧 `InformalMathToolGroup` 处理。
 
 ### Prompt 自动生成
 
@@ -42,10 +42,10 @@
 
 ### 内置 Skill 迁移与回归
 
-- [ ] **COMPAT-01**: 现有 `python_code` 必须迁移为 `SKILL.md` skill。
-- [ ] **COMPAT-02**: 现有 `local_rag` 必须迁移为 `SKILL.md` skill。
-- [ ] **COMPAT-03**: `python_code` 迁移前后的成功、失败、超时和禁用反馈必须保持语义一致。
-- [ ] **COMPAT-04**: `local_rag` 迁移前后的成功、失败、禁用和参数错误反馈必须保持语义一致。
+- [x] **COMPAT-01**: 现有 `python_code` 必须迁移为 `SKILL.md` skill。
+- [x] **COMPAT-02**: 现有 `local_rag` 必须迁移为 `SKILL.md` skill。
+- [x] **COMPAT-03**: `python_code` 迁移前后的成功、失败、超时和禁用反馈必须保持语义一致。
+- [x] **COMPAT-04**: `local_rag` 迁移前后的成功、失败、禁用和参数错误反馈必须保持语义一致。
 - [ ] **COMPAT-05**: 在 MATH-500 上完成 Task A baseline 与 Task B skill 版本回归对比，指标误差不超过 3%。
 - [ ] **COMPAT-06**: 至少保存一个包含结构化 function-call 与 `<tool_response>` 的 trajectory 样例。
 
@@ -85,18 +85,18 @@
 | REG-01 | Phase 2 | Complete |
 | REG-02 | Phase 2 | Complete |
 | REG-03 | Phase 2 | Complete |
-| REG-04 | Phase 2/4 | Partial |
-| REG-05 | Phase 2/4 | Partial |
+| REG-04 | Phase 2/4 | Complete |
+| REG-05 | Phase 2/4 | Complete |
 | CALL-01 | Phase 3 | Complete |
 | CALL-02 | Phase 3 | Complete |
 | CALL-03 | Phase 3 | Complete |
 | CALL-04 | Phase 3 | Complete |
-| CALL-05 | Phase 3/4 | Partial |
-| CALL-06 | Phase 3/4 | Partial |
-| COMPAT-01 | Phase 4 | Pending |
-| COMPAT-02 | Phase 4 | Pending |
-| COMPAT-03 | Phase 4 | Pending |
-| COMPAT-04 | Phase 4 | Pending |
+| CALL-05 | Phase 3/4 | Complete |
+| CALL-06 | Phase 3/4 | Complete |
+| COMPAT-01 | Phase 4 | Complete |
+| COMPAT-02 | Phase 4 | Complete |
+| COMPAT-03 | Phase 4 | Complete |
+| COMPAT-04 | Phase 4 | Complete |
 | PROMPT-01 | Phase 5 | Pending |
 | PROMPT-02 | Phase 5 | Pending |
 | PROMPT-03 | Phase 5 | Pending |
@@ -110,9 +110,9 @@
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
-- Complete: 12
+- Complete: 20
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 3 module completion*
+*Last updated: 2026-05-22 after Phase 4 runtime dispatcher alignment*

@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 4 - Env tool path migration in progress
+**Current Focus:** Phase 5 - Prompt auto-generation
 
 ## Project Reference
 
@@ -27,6 +27,7 @@ See: `.planning/PROJECT.md`
 - Phase 4 plan 已创建：`.planning/phases/04-env-tool-path/04-01-PLAN.md`。下一步开始实现 env bridge / runtime 接入。
 - Phase 4 第一小步已实现：`informal_math_training/skill_bridge.py` 支持 structured `<tool_call>` 与旧标签桥接，training env 已能执行 structured `python_code`。
 - Phase 4 第二小步已验证：structured / legacy `local_rag` 都能路由；RAG 关闭时保持旧 disabled 响应，旧 JSON 错误文本也保留。
+- Phase 4 已完成：training env 现在通过 `dispatch_tool_call(..., executor=...)` 走 dispatcher runtime executor；`informal_math_evolving` 按 Task B 主线暂缓同步。
 
 ## Important Local Context
 
@@ -49,16 +50,16 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-开始 Phase 4 实现：
+开始 Phase 5：
 
-1. 评估是否同步 `informal_math_evolving`。
-2. 若不同步，记录原因并收尾 Phase 4。
-3. 再进入 Phase 5 prompt 自动生成。
+1. 设计 registry -> prompt 的工具说明渲染函数。
+2. 修改 informal math training prompt，让工具说明由 `SKILL.md` frontmatter 自动生成。
+3. 保留旧 prompt 兼容风险说明。
 
 ## Scope Correction Notes
 
 - 不要把“registry 模块可用”说成“B2 运行时完全完成”。
-- 当前 `python_code` / `local_rag` 的 `SKILL.md` entrypoint 只是元数据占位；Phase 4 需要确认 wrapper 或入口函数能保持旧 `text_result` + `score` 语义。
+- `python_code` / `local_rag` 的 runtime 语义通过 dispatcher runtime executor + `InformalMathToolGroup` 保持；不要再把它描述成 env 自己绕过 dispatcher。
 
 ## Risks
 

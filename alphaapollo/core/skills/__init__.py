@@ -1,7 +1,7 @@
 """Skill metadata primitives for AlphaApollo tool plugins."""
 
 from alphaapollo.core.skills.call_parser import ToolCall, ToolError, parse_tool_call
-from alphaapollo.core.skills.dispatcher import ToolResult, dispatch_tool_call
+from alphaapollo.core.skills.dispatcher import RuntimeExecutor, ToolResult, dispatch_tool_call
 from alphaapollo.core.skills.registry import (
     SkillRegistry,
     SkillRegistryError,
@@ -24,6 +24,7 @@ __all__ = [
     "ToolCall",
     "ToolError",
     "ToolResult",
+    "RuntimeExecutor",
     "SkillRegistry",
     "SkillRegistryError",
     "SkillRegistryLoadResult",

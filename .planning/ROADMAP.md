@@ -83,7 +83,7 @@
 - JSON 错、缺参数、类型错、unknown skill 都能返回结构化错误
 - 成功结果和失败结果都能被包装进 `<tool_response>`
 
-**Status:** Module Complete / Env Integration Pending
+**Status:** Complete
 
 **Context:** `.planning/phases/03-structured-tool-call/03-CONTEXT.md`
 
@@ -95,10 +95,10 @@
 - `alphaapollo/core/skills/dispatcher.py` routes calls through `SkillRegistry` and executes `python_function` entrypoints without hardcoded tool names.
 - Parser, validation, and dispatcher tests cover success and structured error cases.
 
-**Pending Env Integration:**
-- Wrap dispatcher results into `<tool_response>` in the environment.
-- Preserve old `python_code` / `local_rag` `text_result` + `score` semantics.
-- Add timeout / stderr / non-zero return-code compatibility at the concrete tool wrapper layer.
+**Env Integration Completed in Phase 4:**
+- Dispatcher results are wrapped into `<tool_response>` in `informal_math_training`.
+- Runtime executor preserves old `python_code` / `local_rag` `text_result` + `score` semantics through `InformalMathToolGroup`.
+- Timeout / stderr / non-zero return-code compatibility remains handled by the existing concrete tool group.
 
 ## Phase 4: 迁移 Env Tool 执行路径与内置 Skill
 
@@ -117,11 +117,22 @@
 - `<tool_call>{"name":"local_rag",...}</tool_call>` 可路由
 - 旧 prompt/旧标签路径在过渡期不被立即破坏，除非已有等价替代
 
-**Status:** In Progress
+**Status:** Complete
 
 **Context:** `.planning/phases/04-env-tool-path/04-CONTEXT.md`
 
 **Plan:** `.planning/phases/04-env-tool-path/04-01-PLAN.md`
+
+**Completed:** 2026-05-22
+
+**Delivered:**
+- `informal_math_training` supports structured `<tool_call>` for `python_code` and `local_rag`.
+- Legacy `<python_code>` and `<local_rag>` remain compatible.
+- Runtime execution now goes through `dispatch_tool_call(..., executor=...)`, so registry lookup, schema validation, and result normalization stay in dispatcher.
+- `InformalMathToolGroup` remains the concrete runtime executor to preserve old tool behavior.
+
+**Deferred:**
+- `informal_math_evolving` migration is deferred because Task B mainline config targets `informal_math_training`; syncing evolving can be a follow-up after prompt generation or regression.
 
 ## Phase 5: B4 - Prompt 自动生成
 
@@ -171,4 +182,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 4 plan*
+*Last updated: 2026-05-22 after Phase 4 completion*

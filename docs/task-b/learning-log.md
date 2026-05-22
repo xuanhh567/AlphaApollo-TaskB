@@ -637,13 +637,57 @@ manager.py
 - 下一步：
   - 评估是否要同步 `informal_math_evolving`，或者记录为后续阶段再做。
 
+### Change 024: 让 env bridge 重新走 dispatcher
+
+- 日期：2026-05-22
+- 改动：
+  - 修改 `alphaapollo/core/skills/dispatcher.py`
+  - 修改 `alphaapollo/core/environments/informal_math_training/skill_bridge.py`
+  - 修改 `tests/test_skill_dispatcher.py`
+  - 更新 `docs/task-b/phase-3-tool-call.md`
+  - 更新 `docs/task-b/phase-4-env-integration.md`
+- 我理解的目的：让实际 env 运行时更贴合 B3 要求，不让 bridge 自己重复做“查 registry + 校验 + 归一化”。
+- 当前理解：
+  - `dispatch_tool_call(call, registry)` 默认仍然会导入并执行 `SKILL.md` 的 `entrypoint.path`。
+  - `dispatch_tool_call(call, registry, executor=...)` 会先查 registry、校验 arguments，再把 `SkillSpec` 和校验后的参数交给 executor。
+  - training env 的 executor 负责调用 `InformalMathToolGroup`，这样旧的 `text_result`、`score`、timeout 和 enable flag 都还能保留。
+  - 这样可以解释为：dispatcher 负责通用规则，runtime executor 负责具体环境执行。
+- 已验证：
+  - structured `python_code` 可以返回成功 `<tool_response>`。
+  - legacy `<python_code>` 仍然可以返回成功 `<tool_response>`。
+  - structured `local_rag` 在 RAG 关闭时返回 disabled `<tool_response>`。
+  - legacy `<local_rag>` 在 RAG 关闭时返回 disabled `<tool_response>`。
+  - structured 参数错误仍然返回结构化 `<tool_response>`。
+- 下一步：
+  - Phase 4 收尾，进入 Phase 5 prompt 自动生成。
+
+### Change 025: Phase 4 主线收尾
+
+- 日期：2026-05-22
+- 改动：
+  - 更新 `.planning/REQUIREMENTS.md`
+  - 更新 `.planning/ROADMAP.md`
+  - 更新 `.planning/STATE.md`
+  - 更新 `.planning/phases/04-env-tool-path/04-01-PLAN.md`
+  - 更新 `docs/task-b/design.md`
+  - 更新 `docs/task-b/phase-4-env-integration.md`
+- 我理解的目的：把 Phase 4 从“实现中”整理为“training env 主线完成”，并明确 `informal_math_evolving` 暂不同步。
+- 当前理解：
+  - Task B 的主线是 `informal_math_training`。
+  - 这个环境已经支持 structured `<tool_call>` 的 `python_code` / `local_rag`。
+  - 旧标签路径继续兼容。
+  - runtime 现在通过 dispatcher + executor 组合执行，符合 B3 对 dispatcher 的要求。
+  - `informal_math_evolving` 有相似但不同的旧路径，后续可以同步，但不是当前最高优先级。
+- 下一步：
+  - Phase 5：从 registry / `SKILL.md` 自动生成 prompt 工具说明。
+
 ## 7. 下一步
 
-下一步进入 Phase 4 实现，不急着改两套 env，先从最小桥接层开始：
+下一步进入 Phase 5：prompt 自动生成。
 
 ```text
-目标：让 informal_math_training/env.py 能识别 structured <tool_call>，
-并继续兼容旧 <python_code> / <local_rag>。
+目标：让 prompt 里的工具说明来自 SKILL.md，
+新增或移除 skill 时不再手写工具说明。
 ```
 
-完成 training env 小样例后，再决定是否同步 informal_math_evolving。
+完成 Phase 5 后，再进入 Phase 6 回归与 README 整理。

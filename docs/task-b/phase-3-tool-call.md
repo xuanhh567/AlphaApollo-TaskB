@@ -370,7 +370,7 @@ tests/skill_dispatcher_fixtures.py
 
 ```python
 ToolResult
-dispatch_tool_call(call, registry)
+dispatch_tool_call(call, registry, executor=None)
 ```
 
 它把前面几步串起来：
@@ -379,10 +379,32 @@ dispatch_tool_call(call, registry)
 ToolCall
 -> registry.get(name)
 -> validate_arguments(...)
--> import entrypoint
--> function(**arguments)
+-> 如果没有 executor：import SKILL.md entrypoint
+-> 如果有 executor：把 SkillSpec 和校验后的 arguments 交给 executor
 -> ToolResult
 ```
+
+为什么要支持 `executor`：
+
+```text
+独立 skill 可以直接走 SKILL.md entrypoint；
+但 env.py 里的 python_code / local_rag 需要复用 InformalMathToolGroup，
+这样才能保留旧 timeout、enable flag、score、text_result 和 RAG 配置。
+```
+
+所以现在 dispatcher 有两种执行方式：
+
+```text
+普通模式：dispatcher -> entrypoint.path
+env 运行时模式：dispatcher -> runtime executor -> InformalMathToolGroup
+```
+
+不管哪种方式，dispatcher 都仍然负责：
+
+- 查 registry。
+- 校验 arguments。
+- 不通过校验就不执行工具。
+- 把成功或失败归一化为 `ToolResult`。
 
 当前支持：
 
@@ -393,12 +415,13 @@ ToolCall
 - entrypoint 不是 callable：返回 `entrypoint_import_error`
 - 工具执行异常：返回 `tool_execution_error`
 - 正常返回 `{"text_result": "...", "score": 1}` 时会归一化成 `ToolResult`
+- runtime executor 会收到已经补好默认值、通过 schema 校验的 arguments
 
 仍然没有做：
 
 - 没有接入 `env.py`
 - 没有替换旧 `<python_code>` / `<local_rag>` 流程
-- 没有实现超时隔离
+- 独立 dispatcher 本身没有实现进程级超时隔离；具体工具的超时仍由工具 wrapper 或 ToolGroup 负责
 
 注意：
 

@@ -14,6 +14,7 @@ from alphaapollo.core.skills.call_parser import ToolCall
 from alphaapollo.core.skills.dispatcher import ToolResult, dispatch_tool_call
 from alphaapollo.core.skills.loader import load_skill_from_dir
 from alphaapollo.core.skills.registry import SkillRegistry
+from alphaapollo.core.skills.schema import SkillSpec
 
 
 SKILL = """---
@@ -99,6 +100,36 @@ def test_default_argument_is_used(tmp_path):
     assert result.raw_output == {"text_result": "haha", "score": 1}
 
 
+def test_runtime_executor_receives_validated_arguments(tmp_path):
+    registry = load_registry(tmp_path)
+    calls = []
+
+    def executor(spec: SkillSpec, arguments: dict):
+        calls.append((spec.name, arguments))
+        return {"text_result": arguments["text"] * arguments["count"], "score": 1}
+
+    result = dispatch_tool_call(ToolCall(name="echo_tool", arguments={"text": "ha"}), registry, executor=executor)
+
+    assert result.ok
+    assert result.text_result == "haha"
+    assert result.score == 1
+    assert calls == [("echo_tool", {"text": "ha", "count": 2})]
+
+
+def test_runtime_executor_is_not_called_when_validation_fails(tmp_path):
+    registry = load_registry(tmp_path)
+    calls = []
+
+    def executor(spec: SkillSpec, arguments: dict):
+        calls.append((spec.name, arguments))
+        return {"text_result": "should not run", "score": 1}
+
+    result = dispatch_tool_call(ToolCall(name="echo_tool", arguments={}), registry, executor=executor)
+
+    assert_result_error(result, "missing_required_argument", "text")
+    assert calls == []
+
+
 def test_dispatcher_normalizes_plain_object_output(tmp_path):
     registry = load_registry(tmp_path, name="value_tool", entrypoint="skill_dispatcher_fixtures:value_tool")
 
@@ -135,6 +166,19 @@ def test_tool_execution_error_returns_error(tmp_path):
     assert result.error.details == {"exception_type": "RuntimeError"}
 
 
+def test_runtime_executor_error_returns_error(tmp_path):
+    registry = load_registry(tmp_path)
+
+    def executor(spec: SkillSpec, arguments: dict):
+        raise RuntimeError("boom")
+
+    result = dispatch_tool_call(ToolCall(name="echo_tool", arguments={"text": "hi"}), registry, executor=executor)
+
+    assert_result_error(result, "tool_execution_error")
+    assert result.error is not None
+    assert result.error.details == {"exception_type": "RuntimeError"}
+
+
 if __name__ == "__main__":
     import tempfile
 
@@ -144,8 +188,11 @@ if __name__ == "__main__":
         test_missing_required_argument_returns_error(tmp_path)
         test_invalid_argument_type_returns_error(tmp_path)
         test_default_argument_is_used(tmp_path)
+        test_runtime_executor_receives_validated_arguments(tmp_path)
+        test_runtime_executor_is_not_called_when_validation_fails(tmp_path)
         test_dispatcher_normalizes_plain_object_output(tmp_path)
         test_entrypoint_import_error_returns_error(tmp_path)
         test_not_callable_entrypoint_returns_error(tmp_path)
         test_tool_execution_error_returns_error(tmp_path)
+        test_runtime_executor_error_returns_error(tmp_path)
     print("skill dispatcher tests passed")

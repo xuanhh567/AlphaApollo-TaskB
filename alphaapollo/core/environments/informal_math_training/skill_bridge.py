@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from alphaapollo.core.skills.call_parser import ToolCall, ToolError, parse_tool_call
-from alphaapollo.core.skills.dispatcher import ToolResult
+from alphaapollo.core.skills.dispatcher import ToolResult, dispatch_tool_call
 from alphaapollo.core.skills.registry import SkillRegistry
-from alphaapollo.core.skills.validation import validate_arguments
+from alphaapollo.core.skills.schema import SkillSpec
 
 
 LEGACY_TOOL_PATTERNS = [
@@ -88,47 +88,11 @@ def execute_skill_call_with_tool_group(
     enable flags, timeouts, RAG configuration, ``text_result`` and ``score``.
     """
 
-    spec = registry.get(call.name)
-    if spec is None:
-        return _error_result(
-            call.name,
-            ToolError(
-                code="unknown_skill",
-                message=f"Unknown skill: {call.name}",
-                tool_name=call.name,
-            ),
-        )
-
-    normalized_arguments, validation_errors = validate_arguments(spec, call.arguments)
-    if validation_errors:
-        return _error_result(spec.name, validation_errors[0])
-
-    tool_func = tool_group.get_tool(spec.name)
-    if tool_func is None:
-        return _error_result(
-            spec.name,
-            ToolError(
-                code="tool_not_available",
-                message=f"Tool is not available in InformalMathToolGroup: {spec.name}",
-                tool_name=spec.name,
-            ),
-        )
-
-    try:
-        raw_output = tool_group.execute_tool(spec.name, normalized_arguments)
-    except Exception as exc:
-        return _error_result(
-            spec.name,
-            ToolError(
-                code="tool_execution_error",
-                message=f"Tool execution failed: {exc}",
-                tool_name=spec.name,
-                details={"exception_type": type(exc).__name__},
-            ),
-        )
-
-    raw_output = _maybe_add_local_rag_hint(spec.name, raw_output, tool_group)
-    return _normalize_tool_output(spec.name, raw_output)
+    return dispatch_tool_call(
+        call,
+        registry,
+        executor=lambda spec, arguments: _execute_tool_group_entrypoint(spec, arguments, tool_group),
+    )
 
 
 def tool_error_response(error: ToolError) -> str:
@@ -210,35 +174,13 @@ def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> 
     )
 
 
-def _normalize_tool_output(tool_name: str, raw_output: Any) -> ToolResult:
-    if isinstance(raw_output, dict) and "text_result" in raw_output:
-        text_result = raw_output.get("text_result", "")
-        if not isinstance(text_result, str):
-            text_result = _to_json_text(text_result)
-        return ToolResult(
-            ok=True,
-            tool_name=tool_name,
-            text_result=text_result,
-            score=raw_output.get("score"),
-            raw_output=raw_output,
-        )
+def _execute_tool_group_entrypoint(spec: SkillSpec, arguments: dict[str, Any], tool_group: Any) -> Any:
+    tool_func = tool_group.get_tool(spec.name)
+    if tool_func is None:
+        raise ValueError(f"Tool is not available in InformalMathToolGroup: {spec.name}")
 
-    return ToolResult(
-        ok=True,
-        tool_name=tool_name,
-        text_result=_to_json_text(raw_output),
-        raw_output=raw_output,
-    )
-
-
-def _error_result(tool_name: str, error: ToolError) -> ToolResult:
-    return ToolResult(
-        ok=False,
-        tool_name=tool_name,
-        text_result=tool_error_response(error),
-        score=0,
-        error=error,
-    )
+    raw_output = tool_group.execute_tool(spec.name, arguments)
+    return _maybe_add_local_rag_hint(spec.name, raw_output, tool_group)
 
 
 def _maybe_add_local_rag_hint(tool_name: str, raw_output: Any, tool_group: Any) -> Any:

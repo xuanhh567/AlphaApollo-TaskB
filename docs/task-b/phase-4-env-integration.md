@@ -21,8 +21,10 @@ Phase 4 要做的是：
 env.py 收到模型输出
 -> 识别是 answer 还是 tool call
 -> 如果是 <tool_call>，先解析成 ToolCall
--> 用 SkillRegistry + SkillSpec.parameters 校验参数
--> 复用 InformalMathToolGroup 执行真实工具
+-> 交给 dispatcher
+-> dispatcher 用 SkillRegistry + SkillSpec.parameters 校验参数
+-> dispatcher 调用 runtime executor
+-> runtime executor 复用 InformalMathToolGroup 执行真实工具
 -> 得到 ToolResult
 -> env.py 包成 <tool_response>
 -> 加回 chat_history
@@ -143,7 +145,7 @@ entrypoint 指到底层函数就完事
 返回 ToolResult
 ```
 
-但 Phase 4 第一版接入时，没有直接裸调 `SKILL.md` 里的底层 entrypoint。
+但 Phase 4 接入 env 时，没有直接裸调 `SKILL.md` 里的底层 entrypoint。
 
 原因是：
 
@@ -152,14 +154,15 @@ python_code / local_rag 的旧行为不只在底层函数里；
 旧行为还在 InformalMathToolGroup 里。
 ```
 
-所以当前实现采用 env-side bridge：
+所以当前实现采用 env-side bridge + dispatcher runtime executor：
 
 ```text
 parse_tool_call / 旧标签解析
 -> ToolCall
--> registry 找 SkillSpec
--> validate_arguments 校验参数
--> InformalMathToolGroup 执行真实工具
+-> dispatch_tool_call(call, registry, executor=...)
+-> dispatcher 找 SkillSpec
+-> dispatcher 校验 arguments
+-> runtime executor 调用 InformalMathToolGroup
 -> ToolResult
 -> <tool_response>
 ```
@@ -176,6 +179,13 @@ env.py 负责：
 ```
 
 不要把 env 的状态塞进 dispatcher。
+
+这里的关键边界是：
+
+```text
+dispatcher 管“通用规则”：找工具、校验参数、错误变 ToolResult；
+runtime executor 管“具体运行时”：怎么用当前 env 的 ToolGroup 执行。
+```
 
 ## 6. Phase 4 的推荐实现顺序
 
@@ -272,6 +282,7 @@ InformalMathToolGroup.local_rag(...)
 
 ```text
 用新 Skill 系统管格式和参数；
+用 dispatcher 统一路由和错误处理；
 用旧 ToolGroup 保持运行时行为。
 ```
 
@@ -319,3 +330,32 @@ legacy <local_rag> 非法 JSON -> 保留旧错误文本
 4. `<tool_call>` 成功执行后，如何变成 `<tool_response>`？
 5. `env.skills` 和旧 `enable_python_code` 的运行时关系是什么？
 6. `informal_math_training` 和 `informal_math_evolving` 的迁移顺序是什么？
+
+## 9. Phase 4 结论
+
+Phase 4 当前完成的是 Task B 主线环境：
+
+```text
+informal_math_training
+```
+
+暂时不同步：
+
+```text
+informal_math_evolving
+```
+
+原因：
+
+```text
+MiniProject 当前主线配置是 env.env_name=informal_math_training；
+Phase 5 prompt 自动生成和 Phase 6 回归更直接影响 Task B 得分；
+evolving 的 termination / local_rag fallback 细节不同，适合作为后续同步任务。
+```
+
+所以后续回答时可以这样说：
+
+```text
+Task B 的主线训练环境已经完成 Skill runtime 接入；
+evolving 环境已记录差异，暂不纳入本阶段交付范围。
+```
