@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 3 - B3 结构化 Tool Call、参数校验与 Dispatcher
+**Current Focus:** Phase 3 - B3 结构化 Tool Call、参数校验与 Dispatcher planning
 
 ## Project Reference
 
@@ -19,6 +19,7 @@ See: `.planning/PROJECT.md`
 - Phase 1 已完成：`SKILL.md` 规范、`SkillSpec` 数据结构、loader/parser、结构化错误和基础测试均已实现。
 - Phase 2 context 已记录：决定采用 `Registry + 配置` 范围、扫描错误收集策略，并在 Phase 2 创建 `python_code` / `local_rag` 的 `SKILL.md`。
 - Phase 2 已完成：registry、内置 skill metadata、启用配置解析和 registry 测试均已实现。
+- Phase 3 context 已记录：采用统一 `<tool_call>` JSON 结构、单 tool call 约束、`SkillSpec.parameters` 参数校验和独立 dispatcher 测试边界。
 
 ## Important Local Context
 
@@ -41,12 +42,14 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-开始 Phase 3：
+继续 Phase 3：
 
-1. 先设计统一 `<tool_call>{...}</tool_call>` 的 parser。
-2. 设计参数校验如何使用 `SkillSpec.parameters`。
-3. 设计 dispatcher 的 `ToolResult` / `ToolError`。
-4. 暂时不接入 `env.py`，先让 parser 和 dispatcher 能独立测试。
+1. 基于 `.planning/phases/03-structured-tool-call/03-CONTEXT.md` 写 Phase 3 plan。
+2. 设计 `ToolCall`、`ToolResult`、`ToolError` 的字段。
+3. 实现 `call_parser.py`。
+4. 实现参数校验 helper。
+5. 实现 `dispatcher.py` 的 `python_function` entrypoint 执行。
+6. 新增独立测试，暂不接 `env.py`。
 
 ## Risks
 

@@ -31,9 +31,9 @@ Task B 想把它改成：
 | 阶段 | 文档 | 当前状态 | 主要问题 |
 |---|---|---|---|
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
-| Phase 2 | `phase-2-registry.md` | 设计中 | 多个 skill 怎么被扫描、注册、启用 |
-| Phase 3 | `phase-3-tool-call.md` | 未开始 | `<tool_call>` 怎么解析和校验 |
-| Phase 4 | `phase-4-dispatcher.md` | 未开始 | dispatcher 怎么执行真正的工具 |
+| Phase 2 | `phase-2-registry.md` | 已完成 | 多个 skill 怎么被扫描、注册、启用 |
+| Phase 3 | `phase-3-tool-call.md` | 设计中 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
+| Phase 4 | `phase-4-dispatcher.md` | 未开始 | env 怎么接入 dispatcher |
 | Phase 5 | `phase-5-prompt.md` | 未开始 | prompt 怎么从 registry 自动生成 |
 | Phase 6 | `phase-6-regression.md` | 未开始 | 怎么证明迁移前后行为没有明显变坏 |
 
@@ -70,12 +70,15 @@ registry.py
 
 ## 4. 当前已经完成
 
-Phase 1 已经完成：
+Phase 1 和 Phase 2 已经完成：
 
 - 设计了 `SKILL.md` 的最小字段规范。
 - 实现了 `SkillSpec` 等内部数据结构。
 - 实现了 `loader.py`，可以读取和校验 `SKILL.md`。
 - 新增了 `tests/test_skill_loader.py` 验证合法和非法输入。
+- 实现了 `registry.py`，可以注册、查询、扫描和过滤 skill。
+- 新增了内置 `python_code` / `local_rag` 的 `SKILL.md`。
+- 新增了 `tests/test_skill_registry.py` 验证 registry 行为。
 
 详细内容见：
 
@@ -85,10 +88,10 @@ docs/task-b/phase-1-skill-md-spec.md
 
 ## 5. 下一步
 
-下一步进入 Phase 2：registry。
+下一步进入 Phase 3：结构化 tool call。
 
-Phase 2 暂时先不急着接 `env.py`，先完成 registry 设计和计划：
+Phase 3 暂时先不急着接 `env.py`，先完成 parser、参数校验和 dispatcher 的独立设计：
 
-1. skill 文件夹应该从哪里扫描？
-2. 如果两个 skill 重名，registry 怎么报错？
-3. 配置里只启用 `python_code` 和 `local_rag` 时，registry 怎么过滤？
+1. `<tool_call>{...}</tool_call>` 应该如何解析？
+2. `arguments` 如何按 `SkillSpec.parameters` 校验？
+3. dispatcher 如何通过 registry 执行 entrypoint？

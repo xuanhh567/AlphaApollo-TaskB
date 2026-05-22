@@ -435,6 +435,24 @@ manager.py
   - 后续 dispatcher 是否应该使用 `registry.require(name)` 抛错，还是用 `registry.get(name)` 自己构造结构化错误。
   - `entrypoint.path` 现在指向底层函数，Phase 4 迁移时是否需要 wrapper 来保持旧 `InformalMathToolGroup` 的返回格式。
 
+### Change 014: 开始 Phase 3 结构化 tool call 设计
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `.planning/phases/03-structured-tool-call/03-CONTEXT.md`
+  - 新增 `.planning/phases/03-structured-tool-call/03-DISCUSSION-LOG.md`
+  - 新增 `docs/task-b/phase-3-tool-call.md`
+- 我理解的目的：在写 parser 和 dispatcher 前，先明确 `<tool_call>` 的格式、参数校验边界和 dispatcher 的职责。
+- 当前理解：
+  - `call_parser` 负责把模型文本变成 `ToolCall`。
+  - 参数校验使用 `SkillSpec.parameters`，不重新发明一套 schema。
+  - dispatcher 通过 registry 找 skill，不能硬编码具体工具名。
+  - Phase 3 先独立测试，不接 `env.py`。
+- 当前保守默认：
+  - 一个 action 只允许一个 `<tool_call>`。
+  - JSON 必须包含 `name` 和 `arguments`。
+  - 旧 `<python_code>` / `<local_rag>` 标签兼容留到 Phase 4。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：

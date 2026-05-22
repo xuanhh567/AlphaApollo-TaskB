@@ -78,7 +78,9 @@
 - JSON 错、缺参数、类型错、unknown skill 都能返回结构化错误
 - 成功结果和失败结果都能被包装进 `<tool_response>`
 
-**Status:** Pending
+**Status:** In Progress
+
+**Context:** `.planning/phases/03-structured-tool-call/03-CONTEXT.md`
 
 ## Phase 4: 迁移 Env Tool 执行路径与内置 Skill
 
@@ -147,4 +149,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 1 completion*
+*Last updated: 2026-05-22 after Phase 3 context*
