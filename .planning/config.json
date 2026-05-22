@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "workflow": {
+    "mode": "interactive",
+    "language": "zh-CN",
+    "phase_granularity": "standard",
+    "execution": "sequential_first",
+    "commit_planning_docs": true,
+    "research_before_phase": true,
+    "verify_plans": true,
+    "verify_work": true
+  },
+  "project": {
+    "name": "AlphaApollo Task B Skill Refactor",
+    "repo": "xuanhh567/AlphaApollo-TaskB",
+    "upstream": "tmlr-group/AlphaApollo"
+  },
+  "notes": {
+    "gsd_sdk_available": false,
+    "created_by": "Codex inline GSD fallback",
+    "reason": "gsd-sdk command was not available in this environment, so standard .planning artifacts were created manually."
+  }
+}
