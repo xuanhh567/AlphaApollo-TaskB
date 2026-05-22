@@ -1,7 +1,7 @@
 # State: AlphaApollo Task B Skill Refactor
 
 **Last Updated:** 2026-05-22
-**Current Focus:** Phase 1 - B1 SKILL.md 规范与解析器
+**Current Focus:** Phase 2 - B2 Skill Loader、Registry 与启用配置
 
 ## Project Reference
 
@@ -16,6 +16,7 @@ See: `.planning/PROJECT.md`
 - 用户要求所有相关文档使用中文。
 - 已创建个人学习记录目录：`docs/task-b/`
 - GitHub 私有仓库已创建：`xuanhh567/AlphaApollo-TaskB`
+- Phase 1 已完成：`SKILL.md` 规范、`SkillSpec` 数据结构、loader/parser、结构化错误和基础测试均已实现。
 
 ## Important Local Context
 
@@ -38,12 +39,13 @@ See: `.planning/PROJECT.md`
 
 ## Next Action
 
-开始 Phase 1：
+开始 Phase 2：
 
-1. 讨论并确定 `SKILL.md` frontmatter 字段。
-2. 设计 `SkillSpec` / `SkillParameter` 数据结构。
-3. 实现最小 parser，先只做到“读文件 + 校验 + 返回结构化结果”。
-4. 写中文 skill 编写说明。
+1. 设计 registry 的职责和数据结构。
+2. 创建 `alphaapollo/core/skills/builtin/` 目录。
+3. 编写 `python_code/SKILL.md` 与 `local_rag/SKILL.md` 初版。
+4. 实现扫描 skill 目录并注册合法 skill。
+5. 设计新配置 `env.skills` 与旧配置兼容策略。
 
 ## Risks
 
@@ -54,3 +56,4 @@ See: `.planning/PROJECT.md`
 
 ---
 *State initialized: 2026-05-22*
+*Last updated: 2026-05-22 after Phase 1 completion*

@@ -248,6 +248,124 @@ manager.py
   - `env.skills` 如何最小侵入地接入现有 config。
   - 回归实验的 baseline 应该先跑全量还是先跑子集。
 
+### Change 004: 开始 Phase 1，设计 SKILL.md 规范
+
+- 日期：2026-05-22
+- 改动：新增 `docs/task-b/design.md`、`.planning/phases/01-skill-md-spec/CONTEXT.md`、`.planning/phases/01-skill-md-spec/01-01-PLAN.md`
+- 我理解的目的：先把 Skill 的“说明书格式”讲清楚，只设计 `SKILL.md` 字段和 parser 目标，不急着写实现代码。
+- 当前理解：
+  - `name` 是 registry 和模型调用使用的唯一工具名。
+  - `description` 会进入 prompt，帮助模型判断什么时候使用工具。
+  - `parameters` 是未来参数校验和 prompt 自动生成的依据。
+  - `entrypoint` 是未来 dispatcher 真正执行 skill 的入口地址。
+  - `examples` 是给模型和新人看的调用示例。
+- 还不懂的问题：
+  - Phase 1 中是否需要支持 `enum` 这类更细 schema。
+  - `entrypoint.type` 除了 `python_function`，是否要现在就设计 `script`。
+  - examples 是否要强制包含完整 `<tool_call>`，还是只写 arguments 即可。
+
+### Change 005: 写出 parser 实现计划
+
+- 日期：2026-05-22
+- 改动：在 `docs/task-b/design.md` 中新增 “Parser 实现计划”，并补充 `.planning/phases/01-skill-md-spec/01-01-PLAN.md` 的 Wave 3。
+- 我理解的目的：在写代码前先明确 parser 的边界、数据结构、错误格式、实现步骤和最小测试。
+- 当前理解：
+  - `schema.py` 放数据结构，不读文件。
+  - `loader.py` 负责读取 `SKILL.md`、解析 frontmatter、校验字段、返回 `SkillLoadResult`。
+  - parser 只负责把 `SKILL.md` 变成 `SkillSpec` 或结构化错误，不负责执行工具。
+  - 测试应该断言错误 `code` 和 `field`，不要依赖完整错误文本。
+- 还不懂的问题：
+  - 是否应该现在就引入 pytest，还是先用脚本验证。
+  - YAML 依赖应该用当前环境已有的 `yaml` / `PyYAML`，还是避免新增依赖。
+  - `SkillLoadResult` 是否应该支持多个错误一起返回，还是遇到第一个错误就停止。
+
+### Change 006: 新增 Skill 元数据数据结构
+
+- 日期：2026-05-22
+- 改动：新增 `alphaapollo/core/skills/schema.py` 和 `alphaapollo/core/skills/__init__.py`
+- 我理解的目的：先定义 parser 成功或失败后要交给后续模块的“标准交接单”，还不读取 `SKILL.md`，也不执行工具。
+- 新增的数据结构：
+  - `SkillParameter`：描述一个参数，如 `code`、`repo_name`。
+  - `SkillEntrypoint`：描述执行入口，如 `python_function` + `module:function`。
+  - `SkillExample`：描述一个示例参数 payload，用于文档和 prompt。
+  - `SkillSpec`：一个完整合法 skill 的内部表示。
+  - `SkillLoadError`：一个结构化解析错误。
+  - `SkillLoadResult`：loader 的统一返回包装，包含 `ok/spec/errors`。
+- 验证：
+  - `python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/__init__.py` 通过。
+  - 直接导入 `alphaapollo.core.skills` 时，当前 shell 环境缺少 `omegaconf`，会被仓库顶层 `alphaapollo/__init__.py` 提前拦住；这不是本次新增文件语法问题。
+  - 使用 `importlib` 绕开顶层包导入后，可以成功构造 `SkillSpec` 和 `SkillLoadResult.success(...)`。
+- 还不懂的问题：
+  - 是否应该调整仓库顶层 `alphaapollo/__init__.py`，避免导入轻量模块时强依赖 workflow 依赖。
+  - `SkillLoadResult.failure(...)` 是否应该允许返回多个错误，后续 parser 如何收集多个错误。
+
+### Change 007: 新增 SKILL.md loader
+
+- 日期：2026-05-22
+- 改动：新增 `alphaapollo/core/skills/loader.py`
+- 我理解的目的：实现 Phase 1 的核心 parser，把 `SKILL.md` 读取为 `SkillSpec`，或在格式错误时返回结构化 `SkillLoadError`。
+- loader 当前做的事情：
+  - `load_skill_from_dir(...)`：从 skill 目录读取 `SKILL.md`。
+  - `load_skill_file(...)`：读取单个文件。
+  - `_extract_frontmatter(...)`：提取 `---` 中间的 YAML frontmatter。
+  - `_parse_yaml(...)`：用 `yaml.safe_load` 解析 frontmatter。
+  - `_build_skill_spec(...)`：校验字段并构造 `SkillSpec`。
+- 当前支持的校验：
+  - 必填顶层字段：`name`、`description`、`parameters`、`entrypoint`、`examples`。
+  - skill name 只允许小写字母、数字、下划线，并且以小写字母开头。
+  - 参数类型支持：`string`、`integer`、`number`、`boolean`、`object`、`array`。
+  - `entrypoint.type` 当前只支持 `python_function`。
+  - `entrypoint.path` 必须像 `module.path:function_name`。
+  - `examples` 每项必须有 `arguments`，且必须是 object。
+- 验证：
+  - `python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/loader.py alphaapollo/core/skills/__init__.py` 通过。
+  - 临时样例验证通过：
+    - 合法 `python_code` 返回 `ok=True`。
+    - 缺 `name` 返回 `missing_required_field/name`。
+    - `parameters` 类型错返回 `invalid_field_type/parameters`。
+    - `entrypoint.path` 格式错返回 `invalid_entrypoint_path/entrypoint.path`。
+    - example 缺 `arguments` 返回 `missing_required_field/examples[0].arguments`。
+- 还不懂的问题：
+  - 是否需要正式加入 pytest 测试文件，而不是只用临时脚本验证。
+  - `loader.py` 是否应该一次收集所有错误，还是保持当前部分错误会提前返回。
+
+### Change 008: 新增 Skill loader 测试
+
+- 日期：2026-05-22
+- 改动：新增 `tests/test_skill_loader.py`，并轻量调整 `alphaapollo/__init__.py` 与 `alphaapollo/core/__init__.py` 的导入行为。
+- 我理解的目的：把临时验证固化成可重复测试，保护 `loader.py` 后续不被改坏。
+- 测试覆盖：
+  - 合法 `SKILL.md` 能得到 `SkillSpec`。
+  - 缺少 `name` 返回结构化错误。
+  - `parameters` 不是 list 返回结构化错误。
+  - `entrypoint.path` 不符合 `module:function` 返回结构化错误。
+  - example 缺少 `arguments` 返回结构化错误。
+  - 缺少 frontmatter 返回结构化错误。
+- 导入相关改动：
+  - `alphaapollo/__init__.py` 改为懒加载 workflows，避免导入轻量子模块时立刻需要 `omegaconf`。
+  - `alphaapollo/core/__init__.py` 增加 `ALPHAAPOLLO_SKIP_VERL_ALIAS=1` 测试开关，默认行为不变；测试中使用该开关避免拉起 verl/pandas 等重依赖。
+- 验证：
+  - `python tests/test_skill_loader.py` 通过。
+  - `python -m py_compile alphaapollo/__init__.py alphaapollo/core/__init__.py alphaapollo/core/skills/schema.py alphaapollo/core/skills/loader.py tests/test_skill_loader.py` 通过。
+- 还不懂的问题：
+  - 后续是否要安装 pytest 并把 `python tests/test_skill_loader.py` 换成标准 `pytest tests/test_skill_loader.py`。
+  - 懒加载 workflows 是否会影响某些依赖 `from alphaapollo import rl` 的旧代码路径，需要后续回归确认。
+
+### Change 009: Phase 1 收尾
+
+- 日期：2026-05-22
+- 改动：更新 `.planning/PROJECT.md`、`.planning/REQUIREMENTS.md`、`.planning/ROADMAP.md`、`.planning/STATE.md` 和 Phase 1 PLAN 状态。
+- 我理解的目的：把 B1 从计划状态正式标记为完成，并把下一步焦点切换到 Phase 2：registry 与启用配置。
+- Phase 1 已完成内容：
+  - `SKILL.md` 字段规范设计。
+  - `SkillSpec` / `SkillParameter` 等内部数据结构。
+  - `loader.py` 解析 frontmatter、YAML 和字段校验。
+  - 结构化错误返回。
+  - `tests/test_skill_loader.py` 基础测试。
+- 下一步：
+  - 先设计 registry 的职责，再写 `registry.py`。
+  - 创建内置 skill 目录和 `python_code` / `local_rag` 的 `SKILL.md`。
+
 ## 7. 下一步
 
 下一步先做 Phase 1 / B1，不写复杂执行逻辑，只设计和解析 `SKILL.md`：

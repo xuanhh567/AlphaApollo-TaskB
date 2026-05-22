@@ -21,7 +21,15 @@
 - 缺字段、字段类型错误、frontmatter 缺失时返回结构化错误
 - 用户能用中文解释 `SkillSpec` 每个字段的用途
 
-**Status:** Pending
+**Status:** Complete
+
+**Completed:** 2026-05-22
+
+**Delivered:**
+- `alphaapollo/core/skills/schema.py` 定义 Skill 元数据内部契约。
+- `alphaapollo/core/skills/loader.py` 解析 `SKILL.md` frontmatter 并返回 `SkillSpec` 或结构化错误。
+- `tests/test_skill_loader.py` 覆盖合法 skill 和常见错误格式。
+- `docs/task-b/design.md` 用中文解释 `SKILL.md` 规范和 parser 计划。
 
 ## Phase 2: B2 - Skill Loader、Registry 与启用配置
 
@@ -130,3 +138,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
+*Last updated: 2026-05-22 after Phase 1 completion*

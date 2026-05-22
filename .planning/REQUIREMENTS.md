@@ -7,11 +7,11 @@
 
 ### Skill 规范与解析
 
-- [ ] **SKILL-01**: 每个 skill 必须是一个目录，并包含一个 `SKILL.md`。
-- [ ] **SKILL-02**: `SKILL.md` frontmatter 必须至少声明 `name`、`description`、参数 schema、调用入口和 examples。
-- [ ] **SKILL-03**: parser 必须能解析 YAML frontmatter，并把合法内容转换为内部 `SkillSpec`。
-- [ ] **SKILL-04**: parser 必须在缺字段或格式错误时返回结构化错误，而不是抛出未处理异常。
-- [ ] **SKILL-05**: 仓库必须提供中文 `SKILL.md` 编写说明，能指导他人新增 skill。
+- [x] **SKILL-01**: 每个 skill 必须是一个目录，并包含一个 `SKILL.md`。
+- [x] **SKILL-02**: `SKILL.md` frontmatter 必须至少声明 `name`、`description`、参数 schema、调用入口和 examples。
+- [x] **SKILL-03**: parser 必须能解析 YAML frontmatter，并把合法内容转换为内部 `SkillSpec`。
+- [x] **SKILL-04**: parser 必须在缺字段或格式错误时返回结构化错误，而不是抛出未处理异常。
+- [x] **SKILL-05**: 仓库必须提供中文 `SKILL.md` 编写说明，能指导他人新增 skill。
 
 ### Registry 与配置
 
@@ -73,11 +73,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SKILL-01 | Phase 1 | Pending |
-| SKILL-02 | Phase 1 | Pending |
-| SKILL-03 | Phase 1 | Pending |
-| SKILL-04 | Phase 1 | Pending |
-| SKILL-05 | Phase 1 | Pending |
+| SKILL-01 | Phase 1 | Complete |
+| SKILL-02 | Phase 1 | Complete |
+| SKILL-03 | Phase 1 | Complete |
+| SKILL-04 | Phase 1 | Complete |
+| SKILL-05 | Phase 1 | Complete |
 | REG-01 | Phase 2 | Pending |
 | REG-02 | Phase 2 | Pending |
 | REG-03 | Phase 2 | Pending |
@@ -106,8 +106,9 @@
 **Coverage:**
 - v1 requirements: 29 total
 - Mapped to phases: 29
+- Complete: 5
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after GSD project initialization*
+*Last updated: 2026-05-22 after Phase 1 completion*

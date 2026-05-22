@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import types
+import os
 from importlib import import_module
 from pathlib import Path
 
@@ -267,4 +268,5 @@ def _ensure_multi_turn_rollout_alias() -> None:
     sys.modules[legacy_name] = real_pkg
 
 
-ensure_verl_alias()
+if os.environ.get("ALPHAAPOLLO_SKIP_VERL_ALIAS") != "1":
+    ensure_verl_alias()

@@ -18,7 +18,7 @@
 
 ### Active
 
-- [ ] 完成 B1：设计并实现 `SKILL.md` 规范、frontmatter 解析器、字段校验和中文编写说明。
+- [x] 完成 B1：设计并实现 `SKILL.md` 规范、frontmatter 解析器、字段校验和中文编写说明。
 - [ ] 完成 B2：实现 Skill loader 与 registry，支持扫描 skill 目录并按配置启用 skill。
 - [ ] 完成 B3：实现结构化 `<tool_call>{...}</tool_call>` 协议、参数 schema 校验和通用 dispatcher。
 - [ ] 完成 B4：从 registry 自动生成工具 prompt 说明，降低 prompt 与具体工具的耦合。
@@ -59,6 +59,7 @@
 | 先做 B1 parser，再做 registry/dispatcher | 先把 skill 数据结构定稳，避免后续执行层返工 | — Pending |
 | 初期保留旧配置兼容路径 | 降低回归风险，方便逐步迁移 `enable_python_code`/`enable_local_rag` | — Pending |
 | Task B 主要改 environment side，不碰 trainer 主体 | mini-project 明确关注 tool call 到 skill；trainer 改动风险高 | — Pending |
+| Phase 1 先只实现 SKILL.md loader，不接 registry/env | 降低风险，先建立稳定内部契约和测试 | ✓ Good |
 
 ---
-*Last updated: 2026-05-22 after GSD project initialization*
+*Last updated: 2026-05-22 after Phase 1 completion*
