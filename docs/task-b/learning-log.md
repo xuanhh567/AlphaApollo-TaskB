@@ -464,6 +464,24 @@ manager.py
 - 重要风险：
   - 当前内置 `SKILL.md` 的 `entrypoint.path` 指向底层函数，但旧工具返回语义来自 `InformalMathToolGroup` 包装；Phase 4 需要 wrapper 或兼容入口来保持 `text_result` + `score` 行为。
 
+### Change 016: 写出 Phase 3 实现计划
+
+- 日期：2026-05-22
+- 改动：新增 `.planning/phases/03-structured-tool-call/03-01-PLAN.md`。
+- 我理解的目的：把结构化 tool call 从概念拆成可执行步骤，避免一上来就改 `env.py`。
+- 当前计划拆分：
+  - Wave 1：设计 `ToolCall`、`ToolError`、`ToolResult`。
+  - Wave 2：实现 `<tool_call>` parser。
+  - Wave 3：按 `SkillSpec.parameters` 做参数校验。
+  - Wave 4：实现 dispatcher 和 `python_function` entrypoint。
+  - Wave 5：写 parser / dispatcher 测试。
+  - Wave 6：更新中文文档。
+- 当前理解：
+  - parser 只判断模型输出格式。
+  - 参数校验判断 `arguments` 是否符合 skill schema。
+  - dispatcher 才负责执行。
+  - Phase 3 的测试使用 fake entrypoint，不依赖真实 RAG 或 Python 工具执行。
+
 ## 7. 下一步
 
 下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
