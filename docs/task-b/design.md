@@ -32,8 +32,8 @@ Task B 想把它改成：
 |---|---|---|---|
 | Phase 1 | `phase-1-skill-md-spec.md` | 已完成 | `SKILL.md` 怎么写，parser 怎么读 |
 | Phase 2 | `phase-2-registry.md` | 模块完成，运行时接入待完成 | 多个 skill 怎么被扫描、注册、启用 |
-| Phase 3 | `phase-3-tool-call.md` | 设计中 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
-| Phase 4 | `phase-4-env-integration.md` | 设计中 | env 怎么接入 dispatcher，并保持旧工具行为 |
+| Phase 3 | `phase-3-tool-call.md` | 模块完成，env 接入待完成 | `<tool_call>` 怎么解析、校验并交给 dispatcher |
+| Phase 4 | `phase-4-env-integration.md` | 已规划，准备实现 | env 怎么接入 dispatcher，并保持旧工具行为 |
 | Phase 5 | `phase-5-prompt.md` | 未开始 | prompt 怎么从 registry 自动生成 |
 | Phase 6 | `phase-6-regression.md` | 未开始 | 怎么证明迁移前后行为没有明显变坏 |
 
@@ -96,10 +96,10 @@ docs/task-b/phase-1-skill-md-spec.md
 
 ## 5. 下一步
 
-下一步进入 Phase 4：env 运行时接入。
+下一步进入 Phase 4 实现：env 运行时接入。
 
-Phase 4 暂时先不急着大改两套 env，先完成接入方案：
+Phase 4 暂时先不急着大改两套 env，按 plan 先完成 `informal_math_training`：
 
-1. 新 `<tool_call>` 如何进入 env 执行路径？
-2. 旧 `<python_code>` / `<local_rag>` 如何继续兼容？
-3. `python_code` / `local_rag` wrapper 如何保持旧 `text_result` + `score`？
+1. 新 `<tool_call>` 进入 env 执行路径。
+2. 旧 `<python_code>` / `<local_rag>` 继续兼容。
+3. `python_code` / `local_rag` 保持旧 `text_result` + `score`。

@@ -121,6 +121,8 @@
 
 **Context:** `.planning/phases/04-env-tool-path/04-CONTEXT.md`
 
+**Plan:** `.planning/phases/04-env-tool-path/04-01-PLAN.md`
+
 ## Phase 5: B4 - Prompt 自动生成
 
 **Goal:** 从 registry 中 skill 元信息自动生成工具说明，减少 prompt 与具体工具的手写耦合。
@@ -169,4 +171,4 @@
 
 ---
 *Roadmap created: 2026-05-22*
-*Last updated: 2026-05-22 after Phase 4 context*
+*Last updated: 2026-05-22 after Phase 4 plan*

@@ -570,12 +570,30 @@ manager.py
   - wrapper 应该放在 `alphaapollo/core/skills/builtin/...`，还是放在 env bridge 里。
   - `informalmath_verify` 是否也应该在后续迁移成 skill，还是只保留旧路径。
 
+### Change 021: 创建 Phase 4 实现计划
+
+- 日期：2026-05-22
+- 改动：
+  - 新增 `.planning/phases/04-env-tool-path/04-01-PLAN.md`
+  - 更新 `.planning/STATE.md`
+  - 更新 `.planning/ROADMAP.md`
+  - 更新 `docs/task-b/design.md`
+- 我理解的目的：在改 `env.py` 前，先把 structured `<tool_call>` 怎么接入真实训练环境拆成小步骤。
+- 当前理解：
+  - Phase 4 不是继续造新模块，而是把前面做好的 parser / registry / validator / dispatcher 接到 environment side。
+  - 这一步最重要的是兼容旧行为，不能为了新格式直接删掉旧 `<python_code>` / `<local_rag>`。
+  - `InformalMathToolGroup` 仍然重要，因为它保存了旧工具的真实返回格式、score、timeout、RAG 配置等。
+  - dispatcher 应该保持通用；env 负责 chat history、done、reward、metadata 和 `<tool_response>` 包装。
+- 下一步：
+  - 先实现一个小的 env-side bridge，再改 `informal_math_training/env.py`。
+
 ## 7. 下一步
 
-下一步进入 Phase 2 / B2，不急着接入 `env.py`，先设计 registry：
+下一步进入 Phase 4 实现，不急着改两套 env，先从最小桥接层开始：
 
 ```text
-目标：能扫描多个 skill 目录，并把合法 SkillSpec 注册成可查询的工具表。
+目标：让 informal_math_training/env.py 能识别 structured <tool_call>，
+并继续兼容旧 <python_code> / <local_rag>。
 ```
 
-完成 registry 后，再继续结构化 tool_call 和 dispatcher。
+完成 training env 小样例后，再决定是否同步 informal_math_evolving。
