@@ -56,19 +56,20 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 
 | 项目 | 数据集 | 状态 | 结果 |
 |---|---|---|---|
-| Task A baseline | MATH-500 | Pending | 未运行 |
-| Task B skill version | MATH-500 | Pending | 未运行 |
-| 指标差值 | MATH-500 | Pending | 未计算 |
+| Task A baseline | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.58` |
+| Task B skill version | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.38` |
+| Task B skill prompt v2 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.32` |
+| 指标差值 | MATH-500 固定 100 题子集 | Failed | best skill 比 baseline 低 20 个百分点 |
 
-当前没有完成正式回归的原因：
+结论：
 
 ```text
-MATH-500 正式回归需要稳定的数据、模型推理后端和较长运行时间。
-服务器已能跑 1 题和 5 题 smoke/sanity test，但 alphaapollo5090 里的 vLLM 在 RTX 5090 上存在 kernel 兼容问题。
-HF rollout 能跑通链路，但生成质量异常重复，不适合直接作为正式回归后端。
+Task B 的代码链路已经能跑通，但当前 structured skill prompt 的回归指标没有通过 B6。
+B6 要求相对 Task A baseline 误差 <= 3%，当前 best skill 是 0.38，对比 baseline 0.58，差距为 0.20。
 ```
 
-建议后续至少固定随机种子抽样 100 题，再视资源跑全量 500 题。
+通俗解释：新 Skill 系统会执行，但模型看到新 prompt 后，行为还没有和旧 `<python_code>` prompt 对齐。
+当前主要问题不是 registry / dispatcher 崩溃，而是模型更少稳定使用工具，且最终答案正确率下降。
 
 ## 3.1 4090 服务器 vLLM 单题链路验证
 
@@ -311,6 +312,160 @@ pass@1: 0.6000
 ```text
 main_generation 的 JSON 输出是 JSONL（一行一个 JSON 对象），不是一个普通 JSON 数组。
 读取时要按行 json.loads，不能直接 json.loads(整个文件)。
+```
+
+## 3.3 MATH-500 固定 100 题回归：Task A baseline vs Task B skill
+
+### 目的
+
+MiniProject 要求 B6 做回归：
+
+```text
+在 MATH-500 上回归（可固定种子抽样 >=100 题），
+指标相对 Task A 基线不得回退（误差 <=3%）。
+```
+
+这里先跑固定 100 题子集，目的是回答一个核心问题：
+
+```text
+只把模型侧工具协议从旧标签换成 Skill 结构化调用后，准确率有没有明显下降？
+```
+
+### 对比方式
+
+本次对比尽量只改一个变量：模型看到的工具调用格式。
+
+```text
+相同项:
+- 模型: Qwen2.5-3B-Instruct
+- 后端: vLLM
+- 数据: MATH-500 固定 100 题子集
+- n_samples: 1
+- do_sample: false
+- temperature: 0.0
+- top_k: -1
+- max_steps: 2
+- enable_python_code: true
+- enable_local_rag: false
+
+不同项:
+- legacy: 使用旧 `<python_code>...</python_code>` prompt
+- skill: 使用新的 `<tool_call>{"name": ..., "arguments": ...}</tool_call>` prompt
+- skill_v2: 调整后的 structured skill prompt，更强调先用工具再给最终答案
+```
+
+这不是 Task A 完整论文复现，只是 Task B 的迁移回归。它的价值在于比较同一个代码版本、同一个模型、同一个数据子集下，新旧工具协议是否保持接近。
+
+因此这里的 `baseline` 更准确地说是“旧 Function Call 协议基线”，不是 MiniProject Task A 的完整模型能力复现。
+
+### 数据子集
+
+生成方式：
+
+```text
+从 MATH-500 的 500 题中，用 random.Random(0) 固定抽样 100 题，并排序。
+```
+
+服务器数据路径：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-regression-100/custom_data/test.parquet
+```
+
+抽样 index：
+
+```text
+0,7,20,31,32,37,41,46,47,48,50,51,55,71,72,75,97,104,111,113,
+122,124,128,132,133,144,149,154,155,158,161,163,166,169,170,181,
+183,197,204,207,215,222,226,229,241,244,248,250,252,258,260,261,
+266,272,278,280,282,286,290,298,308,312,313,316,320,327,342,350,
+360,361,363,368,373,386,388,401,409,411,412,414,422,423,424,430,
+432,435,443,447,455,456,461,464,465,467,468,470,478,485,488,489
+```
+
+### 关键命令参数
+
+服务器脚本：
+
+```text
+/tmp/run_math500_100_regression.sh
+/tmp/run_math500_100_skill_v2.sh
+```
+
+核心覆盖参数：
+
+```bash
+model.path=/root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
+data.path=/root/AlphaApollo-TaskB/data/task-b-regression-100/custom_data/test.parquet
+data.n_samples=1
+data.batch_size=1
+rollout.name=vllm
+rollout.do_sample=false
+rollout.temperature=0.0
+rollout.top_k=-1
+rollout.top_p=1.0
+rollout.prompt_length=2048
+rollout.response_length=1024
+env.env_name=informal_math_training
++env.skills=[python_code]
++env.tool_prompt_format=legacy  # 或 skill
+env.max_steps=2
+env.history_length=2
+env.informal_math.enable_python_code=true
+env.informal_math.enable_local_rag=false
+```
+
+注意：`env.skills` 和 `env.tool_prompt_format` 是新字段，所以 Hydra 命令行里要写成 `+env.skills=...` 和 `+env.tool_prompt_format=...`。
+
+### 结果
+
+| 版本 | prompt 格式 | commit | avg@1 | pass@1 | 重新统计 accuracy | answer 数 | tool call 数 | 结论 |
+|---|---|---|---:|---:|---:|---:|---:|---|
+| baseline | 旧 `<python_code>` 标签 | `2fe16cb` | 0.58 | 0.58 | 0.58 | 71 | 48 legacy tags | 基线 |
+| skill | 新 `<tool_call>` JSON | `2fe16cb` | 0.38 | 0.38 | 0.38 | 84 | 12 structured calls | 未通过 |
+| skill_v2 | 调整后的 `<tool_call>` prompt | `57c6d7a` | 0.32 | 0.32 | 0.32 | 64 | 15 structured calls | 未通过 |
+
+输出文件：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_legacy.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_legacy.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v2.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v2.parquet
+```
+
+日志文件：
+
+```text
+/tmp/run_math500_100_legacy.log
+/tmp/run_math500_100_skill.log
+/tmp/run_math500_100_skill_v2.log
+```
+
+### 当前判断
+
+这次 B6 没有通过。
+
+```text
+允许误差: <= 3%
+实际差距: 0.58 - 0.38 = 0.20
+```
+
+更细一点看，旧 prompt 里模型有 48 次使用旧工具标签，而新 prompt 里 structured tool call 只有 12 次。说明新系统虽然能解析和执行 `<tool_call>`，但 prompt 没有让模型像以前那样稳定地使用工具。`skill_v2` 试图更强调工具优先，但准确率继续下降，因此不能把它当作修复。
+
+### 下一步建议
+
+下一步不要继续盲目跑更大规模，而应该先做 prompt 行为对齐：
+
+```text
+1. 抽取 legacy 正确、skill 错误的样本做差异分析。
+2. 对照旧 prompt，把 structured prompt 改到更接近旧版语气和位置。
+3. 固定同一个 100 题子集重跑。
+4. 只有当 100 题误差进入 3% 以内，再跑全量 500 题。
 ```
 
 ## 4. 服务器 Smoke Test：MATH-500 1 题

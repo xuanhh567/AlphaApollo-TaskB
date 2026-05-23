@@ -835,13 +835,54 @@ manager.py
   - 在美国服务器跑 MATH-500 20 题 sanity test。
   - 把 20 题结果写入 `docs/task-b/experiments.md`。
 
+### Change 033: 增加新旧 prompt 回归开关
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/environments/env_manager.py`
+  - 新增配置开关 `env.tool_prompt_format=legacy|skill`
+  - 使用 `legacy` 时走旧 `<python_code>...</python_code>` prompt
+  - 使用 `skill` 时走新 `<tool_call>{"name": ..., "arguments": ...}</tool_call>` prompt
+- 我理解的目的：为了公平比较 Task B 迁移前后效果，要尽量只改变“模型看到的工具格式”，其他模型、数据、rollout 参数都保持一样。
+- 当前理解：
+  - `legacy` 不是回退代码实现，而是让模型看到旧格式 prompt，方便作为 Task A 风格 baseline。
+  - `skill` 是 Task B 的新格式 prompt。
+  - 两组都仍然跑同一个 env / vLLM / 模型 / 数据子集。
+- 已验证：
+  - `python -m py_compile alphaapollo/core/environments/env_manager.py alphaapollo/core/environments/prompts/informal_math_training.py` 通过。
+  - Task B 关键单元测试通过。
+
+### Change 034: 完成 MATH-500 固定 100 题回归，但 B6 未通过
+
+- 日期：2026-05-23
+- 改动：
+  - 在服务器生成 MATH-500 固定 100 题子集。
+  - 跑 `legacy` baseline。
+  - 跑 `skill` structured prompt。
+  - 调整 prompt 后跑 `skill_v2`。
+  - 更新 `docs/task-b/experiments.md`。
+- 实验结果：
+  - `legacy`: `avg@1/pass@1 = 0.58`
+  - `skill`: `avg@1/pass@1 = 0.38`
+  - `skill_v2`: `avg@1/pass@1 = 0.32`
+- 我理解的目的：B6 要求 Task B skill 版本相对 Task A baseline 误差不超过 3%，所以必须真实跑一个至少 100 题的固定子集对比。
+- 当前理解：
+  - 新 Skill 代码链路能跑通，不代表回归就通过。
+  - 这次主要失败点是模型在新 prompt 下行为变了：旧 prompt 有 48 次 legacy tool tag，新 prompt 只有 12 次 structured tool call。
+  - `skill_v2` 增强了“优先用工具”的提示，但结果没有改善，说明不能只靠一句提示解决。
+  - 现在应该承认 B6 未通过，并做差异分析，而不是继续扩大题量。
+- 下一步：
+  - 抽取 `legacy` 正确、`skill` 错误的样本。
+  - 对比它们的 assistant 输出，找出是没调用工具、工具格式错、还是最终答案错。
+  - 再针对性改 prompt 或桥接逻辑。
+
 ## 7. 下一步
 
-下一步进入 Phase 6 的小规模回归验证。
+下一步进入 Phase 6 的回归失败分析。
 
 ```text
-目标：用新服务器跑 MATH-500 20 题 sanity test，
-确认 vLLM 连续 rollout、answer 格式和 tool-call 格式是否稳定。
+目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，
+确认准确率下降主要来自 prompt 行为、tool-call 格式，还是最终答案质量。
 ```
 
-20 题稳定后，再考虑 100 题或全量 500 题。
+只有当 100 题回归进入 3% 误差以内，再考虑全量 500 题。
