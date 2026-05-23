@@ -1097,9 +1097,34 @@ manager.py
   - 把 prompt 从失败的 `skill_v5` Bad/Good 说明回退到更接近 legacy 的工具说明。
   - 作为 `skill_v6_legacy_adapter` 跑固定 100 题回归，观察是否接近 Task A baseline `0.58`。
 
+### Change 044: 实现 skill_v6 legacy adapter prompt
+
+- 日期：2026-05-23
+- 改动：
+  - 新增 `render_legacy_skill_prompt_block(...)`，从 `SkillSpec.legacy_calls` 自动生成旧标签工具说明。
+  - 新增 `tool_call_style="legacy"`，使 `get_policy_training_prompt(..., tool_specs=...)` 可以渲染 SKILL.md 驱动的 legacy prompt。
+  - 新增 `env.tool_prompt_format=skill_legacy|legacy_adapter`，用于区分：
+    - `legacy`: 旧手写 baseline prompt
+    - `skill`: structured `<tool_call>` prompt
+    - `skill_legacy`: SKILL.md 驱动的 `<python_code>` / `<local_rag>` prompt
+- 我理解的目的：
+  - 主线实验不再强迫 3B 模型学习严格 JSON tool call。
+  - 让模型侧尽量接近 Task A 习惯，同时内部仍走 SkillSpec / registry / dispatcher。
+  - 这比错误反馈重试更公平，因为没有给 Skill 版额外“补考机会”。
+- prompt 对比：
+  - `skill_v5 structured`: 约 1398 字符 / 20 行。
+  - `skill_v6 legacy adapter`: 约 895 字符 / 10 行。
+  - `legacy baseline`: 约 818 字符 / 9 行。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python -m py_compile` prompt 相关模块通过。
+- 下一步：
+  - 提交并同步到服务器。
+  - 用 `+env.tool_prompt_format=skill_legacy` 跑固定 100 题回归。
+
 ## 7. 下一步
 
-下一步继续 Phase 6 的回归失败分析：基于 parser legacy adapter 设计 `skill_v6_legacy_adapter` prompt，并运行固定 100 题回归。
+下一步继续 Phase 6 的回归失败分析：运行 `skill_v6_legacy_adapter` 固定 100 题回归，并和 Task A baseline `0.58` 对比。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，

@@ -381,20 +381,35 @@ class InformalMathTrainingEnvironmentManager(EnvironmentManagerBase):
         }
         tool_specs = self._get_enabled_tool_specs()
         tool_prompt_format = str(OmegaConf.select(self.config, "env.tool_prompt_format") or "skill").lower()
+        tool_call_style = "structured"
         if tool_prompt_format in {"legacy", "function_call"}:
             tool_specs = None
+        elif tool_prompt_format in {"skill_legacy", "legacy_adapter"}:
+            tool_call_style = "legacy"
         elif tool_prompt_format not in {"skill", "structured"}:
             raise ValueError(
-                "env.tool_prompt_format must be one of: skill, structured, legacy, function_call"
+                "env.tool_prompt_format must be one of: skill, structured, skill_legacy, legacy_adapter, legacy, function_call"
             )
         
         for i in range(len(text_obs)):
             if init:
-                template = get_policy_training_prompt(use_history=False, max_steps=self.config.env.max_steps, tool_config=tool_config, tool_specs=tool_specs)
+                template = get_policy_training_prompt(
+                    use_history=False,
+                    max_steps=self.config.env.max_steps,
+                    tool_config=tool_config,
+                    tool_specs=tool_specs,
+                    tool_call_style=tool_call_style,
+                )
                 obs_i = template.format(question=self.tasks[i])
             else:
                 memory_entry = "" if not memory_ctx else memory_ctx[i]
-                template = get_policy_training_prompt(use_history=True, max_steps=self.config.env.max_steps, tool_config=tool_config, tool_specs=tool_specs)
+                template = get_policy_training_prompt(
+                    use_history=True,
+                    max_steps=self.config.env.max_steps,
+                    tool_config=tool_config,
+                    tool_specs=tool_specs,
+                    tool_call_style=tool_call_style,
+                )
                 obs_i = template.format(question=self.tasks[i], memory_context=memory_entry, step_count=len(self.memory[i]))
                     
             postprocess_text_obs.append(obs_i)

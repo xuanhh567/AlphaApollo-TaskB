@@ -1,7 +1,7 @@
 # ------------- Training prompts -------------
 from typing import Iterable
 
-from alphaapollo.core.skills.prompt import render_skill_prompt_block
+from alphaapollo.core.skills.prompt import render_legacy_skill_prompt_block, render_skill_prompt_block
 from alphaapollo.core.skills.schema import SkillSpec
 
 # NOTE: initial training prompt for policy agent
@@ -56,6 +56,35 @@ Bad: <tool_call>...</tool_call>
 Good: <tool_call>{{"name":"python_code","arguments":{{"code":"print(1+1)"}}}}</tool_call>
 Do not write YAML, duplicate <tool_call>, placeholder dots, or text before the JSON inside <tool_call>.
 {tool_instructions}
+"""
+
+
+INFORMAL_MATH_TEMPLATE_SKILL_LEGACY_NO_HIS = """
+You are a math problem solver agent tasked with solving the given math problem step-by-step.
+
+Your question: {question}
+
+Now it's your turn to respond to the current step.
+You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
+After completing your reasoning, choose only one of the following actions (do not perform multiple actions at the same time):
+{tool_instructions}
+{answer_action_index}) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+"""
+
+INFORMAL_MATH_TEMPLATE_SKILL_LEGACY_WITH_HIS = """
+You are a math problem solver agent tasked with solving the given math problem step-by-step.
+
+Your question: {question}
+
+Prior to this step, you have already taken {step_count} step(s).
+Below is the interaction history:
+{memory_context}
+
+Now it's your turn to respond to the current step.
+You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
+After completing your reasoning, choose only one of the following actions (do not perform multiple actions at the same time):
+{tool_instructions}
+{answer_action_index}) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 """
 
 
@@ -145,15 +174,23 @@ After completing your reasoning, choose only one of the following actions (do no
 2) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 """
 
-def get_policy_training_prompt(use_history=False, max_steps=8, tool_config=None, tool_specs: Iterable[SkillSpec] | None = None) -> str:
+def get_policy_training_prompt(
+    use_history=False,
+    max_steps=8,
+    tool_config=None,
+    tool_specs: Iterable[SkillSpec] | None = None,
+    tool_call_style: str = "structured",
+) -> str:
    """
    Get the policy training prompt based on tool configuration.
    
    Args:
        use_history: Whether to include history in the prompt
        max_steps: Maximum number of steps allowed
-       tool_specs: Optional enabled skills used to auto-generate structured
-                   tool-call instructions.
+       tool_specs: Optional enabled skills used to auto-generate tool
+                   instructions.
+       tool_call_style: "structured" renders canonical <tool_call> JSON.
+                        "legacy" renders SkillSpec-declared legacy tags.
        tool_config: Dict with tool enable flags. 
                     Supported keys: "enable_python_code", "enable_local_rag"
                     Defaults to {"enable_python_code": True, "enable_local_rag": True}
@@ -166,6 +203,15 @@ def get_policy_training_prompt(use_history=False, max_steps=8, tool_config=None,
        specs = list(tool_specs)
        if max_steps == 1 or not specs:
            return INFORMAL_MATH_TEMPLATE_NO_TOOL
+       if tool_call_style == "legacy":
+           tool_instructions = render_legacy_skill_prompt_block(specs, escape_braces=True)
+           template = INFORMAL_MATH_TEMPLATE_SKILL_LEGACY_WITH_HIS if use_history else INFORMAL_MATH_TEMPLATE_SKILL_LEGACY_NO_HIS
+           answer_action_index = str(_legacy_action_count(specs) + 1)
+           return (
+               template
+               .replace("{tool_instructions}", tool_instructions)
+               .replace("{answer_action_index}", answer_action_index)
+           )
        tool_instructions = render_skill_prompt_block(specs, escape_braces=True)
        template = INFORMAL_MATH_TEMPLATE_DYNAMIC_WITH_HIS if use_history else INFORMAL_MATH_TEMPLATE_DYNAMIC_NO_HIS
        return template.replace("{tool_instructions}", tool_instructions)
@@ -186,3 +232,7 @@ def get_policy_training_prompt(use_history=False, max_steps=8, tool_config=None,
        return INFORMAL_MATH_TEMPLATE_RAG_ONLY_WITH_HIS if use_history else INFORMAL_MATH_TEMPLATE_RAG_ONLY_NO_HIS
 
    return INFORMAL_MATH_TEMPLATE_WITH_HIS  if use_history else INFORMAL_MATH_TEMPLATE_NO_HIS
+
+
+def _legacy_action_count(specs: Iterable[SkillSpec]) -> int:
+    return sum(1 for spec in specs if spec.legacy_calls)

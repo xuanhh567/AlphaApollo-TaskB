@@ -8,7 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 os.environ.setdefault("ALPHAAPOLLO_SKIP_VERL_ALIAS", "1")
 
-from alphaapollo.core.skills.prompt import render_skill_prompt_block
+from alphaapollo.core.skills.prompt import render_legacy_skill_prompt_block, render_skill_prompt_block
 from alphaapollo.core.skills.registry import get_builtin_skill_dirs, load_skill_registry_from_dirs
 
 PROMPT_PATH = PROJECT_ROOT / "alphaapollo/core/environments/prompts/informal_math_training.py"
@@ -59,6 +59,16 @@ def test_render_skill_prompt_block_can_escape_format_braces():
     assert '{{"name":"python_code","arguments":{{"code":"print(1 + 1)"}}}}' in block
 
 
+def test_render_legacy_skill_prompt_block_uses_skill_metadata():
+    specs = load_builtin_specs(["python_code", "local_rag"])
+
+    block = render_legacy_skill_prompt_block(specs)
+
+    assert "<python_code>print(1 + 1)</python_code>" in block
+    assert '<local_rag>{"repo_name":"sympy","query":"How to solve polynomial equations with sympy?","top_k":3}</local_rag>' in block
+    assert "<tool_call>" not in block
+
+
 def test_training_prompt_uses_structured_tool_call_specs():
     specs = load_builtin_specs(["python_code", "local_rag"])
 
@@ -70,6 +80,22 @@ def test_training_prompt_uses_structured_tool_call_specs():
     assert "local_rag" in prompt
     assert "<python_code>" not in prompt
     assert "<local_rag>" not in prompt
+
+
+def test_training_prompt_can_use_skill_legacy_adapter():
+    specs = load_builtin_specs(["python_code"])
+
+    template = get_policy_training_prompt(
+        use_history=False,
+        max_steps=4,
+        tool_specs=specs,
+        tool_call_style="legacy",
+    )
+    prompt = template.format(question="What is 1+1?")
+
+    assert "<python_code>" in prompt
+    assert "<tool_call>" not in prompt
+    assert "2) <answer>" in prompt
 
 
 def test_training_prompt_without_tools_has_no_tool_call():
@@ -107,7 +133,9 @@ if __name__ == "__main__":
     test_render_skill_prompt_block_includes_metadata()
     test_render_skill_prompt_block_renders_tool_call_examples()
     test_render_skill_prompt_block_can_escape_format_braces()
+    test_render_legacy_skill_prompt_block_uses_skill_metadata()
     test_training_prompt_uses_structured_tool_call_specs()
+    test_training_prompt_can_use_skill_legacy_adapter()
     test_training_prompt_without_tools_has_no_tool_call()
     test_training_prompt_with_history_keeps_history_placeholders()
     test_training_prompt_legacy_tool_config_still_supported()
