@@ -61,6 +61,7 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 | Task B skill prompt v2 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.32` |
 | Task B skill prompt v3 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.28` |
 | Task B skill prompt v4 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.33` |
+| Task B skill prompt v5 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.11` |
 | 指标差值 | MATH-500 固定 100 题子集 | Failed | best skill 比 baseline 低 20 个百分点 |
 
 结论：
@@ -428,6 +429,7 @@ env.informal_math.enable_local_rag=false
 | skill_v2 | 调整后的 `<tool_call>` prompt | `57c6d7a` | 0.32 | 0.32 | 0.32 | 64 | 15 structured calls | 未通过 |
 | skill_v3 | 对齐工具使用说明后的 `<tool_call>` prompt | `39f2a9e` | 0.28 | 0.28 | 0.28 | 63 | 14 structured calls | 未通过 |
 | skill_v4 | 最小化说明后的 `<tool_call>` prompt | `0188438` | 0.33 | 0.33 | 0.33 | 51 | 28 structured calls | 未通过 |
+| skill_v5 | Bad/Good 适配后的 `<tool_call>` prompt | `7e50310` | 0.11 | 0.11 | 0.11 | 19 | 53 structured calls | 未通过 |
 
 输出文件：
 
@@ -446,6 +448,9 @@ env.informal_math.enable_local_rag=false
 
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v4.json
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v4.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v5.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v5.parquet
 ```
 
 日志文件：
@@ -456,6 +461,7 @@ env.informal_math.enable_local_rag=false
 /tmp/run_math500_100_skill_v2.log
 /tmp/run_math500_100_skill_v3.log
 /tmp/run_math500_100_skill_v4.log
+/tmp/run_math500_100_skill_v5.log
 ```
 
 ### 当前判断
@@ -472,6 +478,8 @@ env.informal_math.enable_local_rag=false
 `skill_v3` 进一步补充了“调用工具后停止等待 `<tool_response>`”以及更多 MATH 风格的 `python_code` examples，但结果下降到 0.28。这说明简单增加格式说明和 examples 还不够，甚至可能让 3B 模型的 prompt 负担更重。
 
 `skill_v4` 反过来做减法，把 prompt 改成更接近旧版的最小说明，准确率回升到 0.33，但仍明显低于 baseline 0.58。它让模型更常输出 `<tool_call>`，但 28 行 structured tool call 中只有 1 个完整有效 JSON 调用，说明问题仍主要在模型格式跟随能力，而不是工具执行链路。
+
+`skill_v5` 增加了很短的 Bad/Good 格式纠偏，`<tool_call>` 出现次数上升到 53 行，有效 JSON tool call 也从 1 个增加到 4 个，但准确率降到 0.11。主要原因是模型开始照抄 prompt 里的 “Tool-call format adapter” 文本，很多回答既没有最终 `<answer>`，也没有可执行工具调用。
 
 ### 下一步建议
 

@@ -1049,9 +1049,31 @@ manager.py
   - 提交并同步到服务器。
   - 作为 `skill_v5` 跑固定 100 题回归，观察有效 JSON tool call 数是否上升。
 
+### Change 042: 跑 skill_v5 100 题回归
+
+- 日期：2026-05-23
+- 改动：
+  - 在服务器拉取 commit `7e50310`。
+  - 基于同一个 MATH-500 固定 100 题子集运行 `skill_v5`。
+  - 同步 `qwen25_3b_vllm_math500_100_skill_v5.json`、`run_math500_100_skill_v5.sh` 和 `task_b_regression_analysis_with_v5.json` 到 artifact 目录。
+- 实验结果：
+  - `legacy`: `avg@1/pass@1 = 0.58`
+  - `skill_v4`: `avg@1/pass@1 = 0.33`
+  - `skill_v5`: `avg@1/pass@1 = 0.11`
+- 细节观察：
+  - `skill_v5` 有 53 行出现 `<tool_call>`，比 `skill_v4` 的 28 行更多。
+  - 完整有效 JSON tool call 从 `skill_v4` 的 1 个增加到 4 个。
+  - 但 `<answer>` 行数从 `skill_v4` 的 51 行下降到 19 行。
+  - 无动作行数增加到 34 行。
+  - 很多输出开始照抄 `Tool-call format adapter:`、`Good:` 等 prompt 文本。
+- 我理解的结论：
+  - Bad/Good adapter prompt 没有解决问题，反而明显伤害准确率。
+  - 这说明 3B 模型容易把 prompt 里的格式教学内容当成要输出的正文。
+  - 下一步不要继续在 prompt 中加入 Bad/Good 对照；如果继续 prompt 路线，更应该考虑在 parser 侧做兼容，或者用 few-shot 但避免显式 “Bad/Good” 字样。
+
 ## 7. 下一步
 
-下一步继续 Phase 6 的回归失败分析和 `skill_v5` 100 题验证。
+下一步继续 Phase 6 的回归失败分析：决定是回退到 `skill_v4`，还是在 parser 侧兼容模型常见坏格式。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，
