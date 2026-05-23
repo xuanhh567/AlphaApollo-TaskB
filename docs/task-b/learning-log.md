@@ -876,6 +876,24 @@ manager.py
   - 对比它们的 assistant 输出，找出是没调用工具、工具格式错、还是最终答案错。
   - 再针对性改 prompt 或桥接逻辑。
 
+### Change 035: 分析 100 题回归失败样本
+
+- 日期：2026-05-23
+- 改动：
+  - 新增 `docs/task-b/regression-analysis.md`
+  - 在服务器读取 100 题 parquet 和三份 JSONL 输出。
+  - 对比 `legacy` / `skill` / `skill_v2` 的对错和 tool-call 格式。
+- 实验发现：
+  - `legacy` 对、`skill` 错的样本有 30 题。
+  - 这 30 题里，`skill` 有 26 题是直接给了最终答案但答案错。
+  - 另有 2 题是不完整 `<tool_call>` 标签，2 题没有最终答案也没有工具调用。
+  - `skill` 全 100 题只有 2 行产生了完整有效的 structured tool call。
+- 我理解的目的：确认 B6 失败到底是代码链路问题，还是模型在新 prompt 下行为改变。
+- 当前理解：
+  - registry / dispatcher / env bridge 不是主要失败点。
+  - 主要失败点是 prompt 行为：模型没有像旧 `<python_code>` prompt 那样稳定使用工具。
+  - 下一步应该做 prompt 对齐和 targeted regression，而不是马上扩大到 500 题。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的回归失败分析。
