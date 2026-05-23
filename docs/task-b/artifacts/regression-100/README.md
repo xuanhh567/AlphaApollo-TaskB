@@ -20,6 +20,11 @@ run_math500_100_skill_v2.sh
 run_math500_100_skill_v3.sh
 run_math500_100_skill_v4.sh
 run_math500_100_skill_v5.sh
+readable/qwen25_3b_vllm_math500_100_legacy_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v2_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v3_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v4_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 ```
 
@@ -28,10 +33,15 @@ readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 如果直接用 VS Code 打开 JSONL，会感觉“看不到完整 rollout”，因为每道题都压在一行里。更适合阅读的是：
 
 ```text
+readable/qwen25_3b_vllm_math500_100_legacy_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v2_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v3_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_v4_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 ```
 
-这个 Markdown 文件已经把 100 道题拆成 `Sample 000` 到 `Sample 099`，每题都有题目、标准答案、reward、模型输出和可展开的完整 history。
+这些 Markdown 文件已经把 100 道题拆成 `Sample 000` 到 `Sample 099`，每题都有题目、标准答案、reward、模型输出和可展开的完整 history。
 
 ## 未包含文件
 
@@ -90,7 +100,7 @@ docs/task-b/learning-log.md
 方式一：看已经导出的可读版。
 
 ```text
-docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
+docs/task-b/artifacts/regression-100/readable/
 ```
 
 方式二：重新导出某个 JSONL 文件。
