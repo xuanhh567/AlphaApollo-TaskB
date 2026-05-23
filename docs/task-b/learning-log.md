@@ -743,13 +743,59 @@ manager.py
 - 下一步：
   - 更新 README Task B 专区，说明重构前后流程、测试命令和当前回归状态。
 
+### Change 029: 4090 服务器 vLLM smoke / sanity 验证
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/environments/prompts/informal_math_training.py`
+  - 修改 `alphaapollo/core/generation/verl/trainer/main_generation.py`
+  - 更新 `docs/task-b/experiments.md`
+  - 更新 `docs/task-b/server-environment.md`
+- 我理解的目的：把 Task B 从“单元测试通过”推进到“真实模型 + vLLM + env 评分链路跑通”。
+- 当前理解：
+  - prompt 里原来只说可以 tool call 或 answer，但模型可能只输出 `<think>...</think>` 就停止，相当于想完了但没交卷。
+  - 新 prompt 增加了合法答案格式和合法工具格式，重点约束输出协议，不改变数学题本身。
+  - vLLM 0.8.5 关闭 top-k 要用 `top_k=-1`，不能用 HF 常见的 `top_k=0`。
+  - `main_generation.py` 原来的 `np.transpose` 对 `n_samples=1` 和多步 history/reward 嵌套结构不稳定，所以改为显式 list 转置。
+- 已验证：
+  - 4090 服务器上 Qwen2.5-3B-Instruct 本地模型可加载。
+  - 单题 `1+1` vLLM rollout 得到 `avg@1=1.0000`。
+  - MATH-500 前 5 题 strict-format prompt 得到 `avg@1=0.6000`。
+  - 本机 `test_skill_prompt_renderer.py`、`test_tool_call_parser.py`、`test_skill_registry.py` 通过。
+- 还不懂或待确认的问题：
+  - 20 题或 100 题时，错误主要来自模型能力，还是仍有 tool-call 格式问题。
+  - 是否需要给模型加“工具调用后必须根据 tool_response 再回答”的更强示例。
+
+### Change 030: 整理服务器迁移与提交流程
+
+- 日期：2026-05-23
+- 改动：
+  - 检查新服务器连接、GPU、conda 环境、模型文件、Task B 单元测试。
+  - 确认新服务器 `/root/AlphaApollo-TaskB` 是从 tarball / 镜像恢复的，没有 `.git` 目录。
+  - 准备把本机改动分组提交：Task B 实验主线与运行环境兼容补丁分开记录。
+- 我理解的目的：让本机和服务器的职责清楚起来。
+- 当前理解：
+  - 本机是代码和 git 的主版本。
+  - 服务器是运行模型和实验的地方。
+  - 实验结果要写回 docs，而不是只留在服务器输出里。
+  - 没有 `.git` 的服务器可以运行，但不适合作为代码管理源头。
+- 已验证：
+  - 新服务器 GPU 是 RTX 4090，CUDA / torch 可用。
+  - `alphaapollo` conda 环境存在，关键依赖存在。
+  - 模型目录 `models/Qwen2.5-3B-Instruct` 完整。
+  - Task B 关键单元测试通过。
+- 下一步：
+  - 提交当前改动。
+  - 将本机代码同步到新服务器。
+  - 跑 MATH-500 20 题 sanity test。
+
 ## 7. 下一步
 
-下一步进入 Phase 5：prompt 自动生成。
+下一步进入 Phase 6 的小规模回归验证。
 
 ```text
-目标：让 prompt 里的工具说明来自 SKILL.md，
-新增或移除 skill 时不再手写工具说明。
+目标：用新服务器跑 MATH-500 20 题 sanity test，
+确认 vLLM 连续 rollout、answer 格式和 tool-call 格式是否稳定。
 ```
 
-完成 Phase 5 后，再进入 Phase 6 回归与 README 整理。
+20 题稳定后，再考虑 100 题或全量 500 题。

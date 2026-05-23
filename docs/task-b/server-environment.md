@@ -2,6 +2,178 @@
 
 这份文档记录 Task B 后续跑测试、回归实验时使用的服务器和 conda 环境。目标是让以后重新接手时，能快速知道“代码在哪台机器上、用哪个 Python、为什么这么选”。
 
+## 0. 当前推荐服务器：RTX 4090 实验机
+
+后来新开了一台 RTX 4090 服务器。和前面的 RTX 5090 相比，4090 的 PyTorch / vLLM 生态更成熟，所以它更适合作为 Task B 后续复现和小规模回归实验的主机器。
+
+连接命令：
+
+```bash
+ssh -p 38983 root@proxy.cn-south-1.gpu-instance.ppinfra.com
+```
+
+说明：
+
+- 服务器用户是 `root`。
+- SSH 端口是 `38983`。
+- 密码属于敏感信息，不写进仓库文档。
+
+已检查硬件：
+
+```text
+GPU: NVIDIA GeForce RTX 4090
+显存: 24564 MiB
+Driver: 580.126.20
+系统: Ubuntu 22.04.5
+nvcc: CUDA 12.8
+```
+
+远端项目路径：
+
+```bash
+/root/AlphaApollo-TaskB
+```
+
+当前模型路径：
+
+```bash
+/root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
+```
+
+模型来源：
+
+```text
+ModelScope: Qwen/Qwen2.5-3B-Instruct
+```
+
+选择 ModelScope 的原因是服务器在国内访问 Hugging Face 容易超时，ModelScope 下载更稳定。
+
+当前使用的 Python 环境：
+
+```bash
+/root/miniconda3/envs/alphaapollo/bin/python
+```
+
+已安装的关键包：
+
+```text
+Python 3.12.13
+torch 2.6.0+cu124
+vLLM 0.8.5
+transformers 4.51.1
+ray 2.47.1
+pandas 3.0.3
+pyarrow 24.0.0
+datasets 4.8.5
+omegaconf 2.3.0
+```
+
+GPU 检查结果：
+
+```text
+torch.cuda.is_available(): True
+torch.version.cuda: 12.4
+GPU: NVIDIA GeForce RTX 4090
+bf16 matrix multiply: passed
+```
+
+模型与 vLLM 检查结果：
+
+```text
+Transformers 本地加载: passed
+vLLM 直接推理: passed
+main_generation + vLLM + informal_math_training 单题 rollout: passed
+```
+
+注意：vLLM 0.8.5 不接受 `rollout.top_k=0`。在这台服务器上跑 vLLM rollout 时，需要使用：
+
+```bash
+rollout.top_k=-1
+```
+
+`-1` 的意思是关闭 top-k 过滤。
+
+Task B 单元测试已在这台 4090 服务器通过：
+
+```bash
+cd /root/AlphaApollo-TaskB
+
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_skill_prompt_renderer.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_informal_math_skill_bridge.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_skill_dispatcher.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_skill_argument_validation.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_tool_call_parser.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_skill_registry.py
+ALPHAAPOLLO_SKIP_VERL_ALIAS=1 PYTHONPATH=/root/AlphaApollo-TaskB /root/miniconda3/envs/alphaapollo/bin/python tests/test_skill_loader.py
+```
+
+结果：
+
+```text
+skill prompt renderer tests passed
+informal math skill bridge tests passed
+skill dispatcher tests passed
+skill argument validation tests passed
+tool call parser tests passed
+skill registry tests passed
+skill loader tests passed
+```
+
+最小真实 rollout 已通过：
+
+```text
+输入: What is 1+1? Put the final answer in \boxed{}.
+模型: /root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
+后端: vLLM
+输出: <answer>\boxed{2}</answer>
+avg@1: 1.0000
+pass@1: 1.0000
+Reward: 1.0
+```
+
+输出文件：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-single-smoke/qwen25_3b_vllm_no_think_only.json
+/root/AlphaApollo-TaskB/data/task-b-single-smoke/qwen25_3b_vllm_no_think_only.parquet
+```
+
+MATH-500 5 题 sanity test 已通过运行：
+
+```text
+输入: /root/AlphaApollo-TaskB/data/task-b-sanity-5/custom_data/test.parquet
+输出: /root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5_strict_format.json
+输出: /root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5_strict_format.parquet
+avg@1: 0.6000
+pass@1: 0.6000
+```
+
+这一步验证的是小样本连续 rollout 稳定性，不是正式回归指标。正式回归还需要固定更大的样本数，例如 100 题或全量 500 题。
+
+依赖检查注意事项：
+
+```text
+pip check
+-> decord 0.6.0 is not supported on this platform
+```
+
+这个问题目前不影响 Task B 的 parser、registry、dispatcher、prompt、env bridge 单元测试。`decord` 主要和视频读取相关，Task B 的数学工具调用主线暂时用不到它。后续如果跑到多模态或视频相关流程，再单独处理。
+
+安装过程中的一个小坑：
+
+```bash
+curl -LO https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniforge/Miniforge3-Linux-x86_64.sh
+```
+
+这个地址当时下载到的是 153 字节的 404 HTML 页面，所以执行会出现：
+
+```text
+line 1: html: No such file or directory
+syntax error near unexpected token `<'
+```
+
+这不是 conda 本身坏了，而是下载地址不对。当前服务器已经安装并使用 `/root/miniconda3`，所以不需要继续执行那个坏掉的 `Miniforge3-Linux-x86_64.sh` 文件。
+
 ## 1. 服务器连接信息
 
 本机 SSH 配置里已经有服务器记录：

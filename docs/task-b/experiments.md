@@ -70,6 +70,249 @@ HF rollout 能跑通链路，但生成质量异常重复，不适合直接作为
 
 建议后续至少固定随机种子抽样 100 题，再视资源跑全量 500 题。
 
+## 3.1 4090 服务器 vLLM 单题链路验证
+
+### 目的
+
+在新的 RTX 4090 服务器上验证 Task B 的真实推理链路：
+
+```text
+parquet 数据
+-> Qwen2.5-3B-Instruct 本地模型
+-> vLLM rollout
+-> SkillSpec 自动生成 prompt
+-> informal_math_training env
+-> reward
+-> JSON / parquet 输出
+```
+
+这一步比单元测试更接近真实使用，因为它真的加载模型、真的生成文本、真的让 env 评分。
+
+### 服务器与模型
+
+```text
+服务器: RTX 4090
+仓库: /root/AlphaApollo-TaskB
+conda 环境: /root/miniconda3/envs/alphaapollo
+模型: /root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
+模型来源: ModelScope Qwen/Qwen2.5-3B-Instruct
+```
+
+国内服务器访问 Hugging Face 容易慢或超时，所以这里使用 ModelScope 下载模型。
+
+### 运行中发现的问题
+
+第一个问题是 vLLM 参数兼容：
+
+```text
+ValueError: top_k must be -1 (disable), or at least 1, got 0.
+```
+
+处理方式：
+
+```bash
+rollout.top_k=-1
+```
+
+通俗解释：旧配置里 `top_k=0` 在部分后端里表示“不限制”，但 vLLM 0.8.5 要求用 `-1` 表示“不限制”。
+
+第二个问题是单样本保存结果时，`main_generation.py` 对嵌套 list 做 `np.transpose` 不稳定：
+
+```text
+ValueError: axes don't match array
+```
+
+处理方式：把保存前的转置逻辑改成显式的 Python list 转置，避免 `n_samples=1` 时 numpy 推断维度出错。
+
+第三个问题是模型一开始只输出：
+
+```xml
+<think>...</think>
+```
+
+然后就停止，没有继续输出：
+
+```xml
+<answer>\boxed{2}</answer>
+```
+
+这会导致 env 认为本轮已经结束，然后进入评分，但因为没有最终答案，所以 reward 是 0。
+
+处理方式：在 structured skill prompt 里补充一句：
+
+```text
+Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
+```
+
+通俗解释：模型本来已经“想明白了”，但没有“交卷”。这句话是在提醒模型：写完草稿以后，还必须把最终答案写进 `<answer>`。
+
+### 最终结果
+
+单题输入：
+
+```text
+What is 1+1? Put the final answer in \boxed{}.
+```
+
+模型输出关键片段：
+
+```xml
+<think>Let's solve the problem step-by-step. The problem is simply to add 1 and 1 together. We can do this directly without needing any computation or external tools. </think>
+
+<answer>\boxed{2}</answer>
+```
+
+指标：
+
+```text
+avg@1: 1.0000
+pass@1: 1.0000
+Reward: 1.0
+```
+
+输出文件：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-single-smoke/qwen25_3b_vllm_no_think_only.json
+/root/AlphaApollo-TaskB/data/task-b-single-smoke/qwen25_3b_vllm_no_think_only.parquet
+```
+
+### 结论
+
+Task B 的核心链路在 4090 服务器上已经跑通：
+
+```text
+SKILL.md
+-> SkillSpec
+-> prompt 自动生成
+-> structured <tool_call> 协议保留
+-> vLLM 真实生成
+-> env 评分
+-> 结果保存
+```
+
+下一步可以从“单题 smoke test”推进到“小样本 sanity test”，例如先跑 5 题或 10 题，再决定是否跑 MATH-500 子集回归。
+
+## 3.2 4090 服务器 vLLM：MATH-500 5 题 Sanity Test
+
+### 目的
+
+在单题跑通后，继续用 MATH-500 前 5 题检查：
+
+```text
+1. vLLM 多题连续 rollout 是否稳定。
+2. prompt 是否能让模型按 <answer> 或 <tool_call> 格式输出。
+3. 结果能否正常保存成 JSONL / parquet。
+```
+
+### 数据
+
+本机已有数据：
+
+```text
+data/task-b-sanity-5/custom_data/test.parquet
+```
+
+上传到服务器后路径为：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-sanity-5/custom_data/test.parquet
+```
+
+5 条样本的 ground truth：
+
+```text
+0: \left( 3, \frac{\pi}{2} \right)
+1: p - q
+2: \frac{14}{3}
+3: 9
+4: \text{Evelyn}
+```
+
+### 第一次运行：只禁止 think-only
+
+输出文件：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5.json
+/root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5.parquet
+```
+
+结果：
+
+```text
+avg@1: 0.4000
+pass@1: 0.4000
+```
+
+观察：
+
+```text
+第 0、1 题正确。
+第 2、3、4 题失败。
+失败题里，模型尝试调用 python_code，但 <tool_call> 格式不稳定：
+- 有的少了最外层 JSON 大括号。
+- 有的写成 key-value 文本。
+- 有的混入了 Markdown / HTML code 片段。
+```
+
+通俗解释：模型知道“可能要用工具”，但还没有稳定学会“工具调用必须是一整块 JSON”。
+
+### 第二次运行：补充严格格式模板
+
+prompt 中新增：
+
+```text
+Valid direct-answer format:
+<think>...</think>
+<answer>\boxed{...}</answer>
+
+Valid tool-call format:
+<think>...</think>
+<tool_call>{"name":"python_code","arguments":{"code":"print(1 + 1)"}}</tool_call>
+
+Never write tool calls as Markdown, YAML, XML attributes, or key-value text.
+The content inside <tool_call> must be one JSON object enclosed in braces.
+```
+
+输出文件：
+
+```text
+/root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5_strict_format.json
+/root/AlphaApollo-TaskB/data/task-b-sanity-5/qwen25_3b_vllm_math500_5_strict_format.parquet
+```
+
+结果：
+
+```text
+avg@1: 0.6000
+pass@1: 0.6000
+```
+
+逐题结果：
+
+```text
+0: correct, 输出 <answer>\boxed{(3, \frac{\pi}{2})}</answer>
+1: correct, 输出 <answer>\boxed{p - q}</answer>
+2: wrong, 输出 <answer>\boxed{\frac{1}{2}}</answer>，正确答案是 \frac{14}{3}
+3: correct, 输出 <answer>\boxed{9}</answer>
+4: wrong, 输出 <answer>\boxed{\text{Carla}}</answer>，正确答案是 \text{Evelyn}
+```
+
+结论：
+
+```text
+严格格式提示后，模型输出格式明显更稳定，5 题指标从 0.4 提升到 0.6。
+剩下错题主要是模型解题能力或读图能力问题，不是 Skill registry / dispatcher / env bridge 断链。
+```
+
+注意：
+
+```text
+main_generation 的 JSON 输出是 JSONL（一行一个 JSON 对象），不是一个普通 JSON 数组。
+读取时要按行 json.loads，不能直接 json.loads(整个文件)。
+```
+
 ## 4. 服务器 Smoke Test：MATH-500 1 题
 
 ### 目的

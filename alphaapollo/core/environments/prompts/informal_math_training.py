@@ -26,9 +26,17 @@ Your question: {question}
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions:
-1) Tool call: If a tool is helpful, use exactly one structured tool call.
+1) Answer: If you can solve the problem directly, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+2) Tool call: Use a tool only when computation, checking, or retrieval is helpful. If you use a tool, emit exactly one complete structured tool call.
+Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
+Valid direct-answer format:
+<think>...</think>
+<answer>\\boxed{{...}}</answer>
+Valid tool-call format:
+<think>...</think>
+<tool_call>{{"name":"python_code","arguments":{{"code":"print(1 + 1)"}}}}</tool_call>
+Never write tool calls as Markdown, YAML, XML attributes, or key-value text. The content inside <tool_call> must be one JSON object enclosed in braces.
 {tool_instructions}
-2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 """
 
 INFORMAL_MATH_TEMPLATE_DYNAMIC_WITH_HIS = """
@@ -43,9 +51,17 @@ Below is the interaction history:
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions:
-1) Tool call: If a tool is helpful, use exactly one structured tool call.
+1) Answer: If you can solve the problem directly, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+2) Tool call: Use a tool only when computation, checking, or retrieval is helpful. If you use a tool, emit exactly one complete structured tool call.
+Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
+Valid direct-answer format:
+<think>...</think>
+<answer>\\boxed{{...}}</answer>
+Valid tool-call format:
+<think>...</think>
+<tool_call>{{"name":"python_code","arguments":{{"code":"print(1 + 1)"}}}}</tool_call>
+Never write tool calls as Markdown, YAML, XML attributes, or key-value text. The content inside <tool_call> must be one JSON object enclosed in braces.
 {tool_instructions}
-2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 """
 
 

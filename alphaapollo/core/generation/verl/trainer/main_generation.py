@@ -214,34 +214,24 @@ def main_task(config):
             output_lst[n_sample].extend(output_texts)
             total_prompt_lst[n_sample].extend(total_prompts)
 
-    # convert output_lst from (n_samples, n_data) to (n_data, n_sampels)
-    output_lst = np.array(output_lst, dtype=object)
-    output_lst = np.transpose(output_lst, axes=(1, 0)).tolist()
-    
+    def _transpose_sample_major(values):
+        """Convert [sample][question] lists into [question][sample] lists."""
+        n_questions = len(original_dataset)
+        n_samples = config.data.n_samples
+        return [
+            [
+                values[sample_idx][question_idx]
+                if question_idx < len(values[sample_idx])
+                else []
+                for sample_idx in range(n_samples)
+            ]
+            for question_idx in range(n_questions)
+        ]
 
-    
-    # convert history_lst from (n_samples, n_data) to (n_data, n_samples)
-    # Each element is a list of lists: [step_str1, step_str2, ...] for each question
-    arr = np.array(history_lst, dtype=object)
-    if arr.ndim == 3 and arr.shape[-1] == 1:
-        arr = arr.squeeze(-1)
-    arr = np.transpose(arr, axes=(1, 0))
-    history_lst = [
-        [x if isinstance(x, list) else [x] for x in row]
-        for row in arr.tolist()
-    ]
-
-
-    # convert rewards_lst from (n_samples, n_data) to (n_data, n_samples)
-    # Each element is a list of lists: [rewards1, rewards2, ...] for each question
-    arr = np.array(rewards_lst, dtype=object)
-    if arr.ndim == 3 and arr.shape[-1] == 1:
-        arr = arr.squeeze(-1)
-    arr = np.transpose(arr, axes=(1, 0))
-    rewards_lst = [
-        [x if isinstance(x, list) else [x] for x in row]
-        for row in arr.tolist()
-    ]
+    # convert from (n_samples, n_data) to (n_data, n_samples)
+    output_lst = _transpose_sample_major(output_lst)
+    history_lst = _transpose_sample_major(history_lst)
+    rewards_lst = _transpose_sample_major(rewards_lst)
 
     # add to the data frame
     original_dataset["history"] = history_lst
