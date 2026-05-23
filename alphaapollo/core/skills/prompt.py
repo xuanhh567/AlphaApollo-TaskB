@@ -16,9 +16,7 @@ def render_skill_prompt_block(specs: Iterable[SkillSpec], escape_braces: bool = 
         return ""
 
     sections = [
-        "You may call exactly one tool by emitting exactly one <tool_call> block.",
-        'The JSON inside <tool_call> must be an object with "name" and "arguments".',
-        "Available tools:",
+        "Tool schemas:",
     ]
 
     for index, spec in enumerate(sorted_specs, start=1):
@@ -43,20 +41,16 @@ def render_tool_call_example(spec: SkillSpec, example: SkillExample) -> str:
 def _render_skill_section(index: int, spec: SkillSpec) -> str:
     lines = [
         f"{index}. {spec.name}: {spec.description}",
-        "Parameters:",
     ]
 
     if spec.parameters:
-        for parameter in spec.parameters:
-            lines.append(f"   - {_render_parameter(parameter)}")
+        parameters = "; ".join(_render_parameter(parameter) for parameter in spec.parameters)
+        lines.append(f"   arguments: {parameters}")
     else:
-        lines.append("   - none")
+        lines.append("   arguments: none")
 
     if spec.examples:
-        lines.append("Examples:")
-        for example in spec.examples:
-            prefix = f"   - {example.name}: " if example.name else "   - "
-            lines.append(prefix + render_tool_call_example(spec, example))
+        lines.append("   example: " + render_tool_call_example(spec, spec.examples[0]))
 
     return "\n".join(lines)
 

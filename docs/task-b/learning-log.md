@@ -964,9 +964,39 @@ manager.py
   - 这说明简单增加说明和 examples 不足以解决问题，可能还增加了 3B 模型的 prompt 负担。
   - 下一步更应该做“对齐旧 prompt 的最小 structured 格式”，或者把 legacy 正确轨迹转换成 structured 格式做 SFT / few-shot，而不是继续堆长说明。
 
+### Change 039: 设计 skill_v4 最小 prompt
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/environments/prompts/informal_math_training.py`
+  - 修改 `alphaapollo/core/skills/prompt.py`
+  - 修改 `alphaapollo/core/skills/builtin/python_code/SKILL.md`
+  - 修改 `tests/test_skill_prompt_renderer.py`
+- 我理解的目的：前面 `skill_v3` 说明更长、examples 更多，但 3B 模型反而表现更差，所以这次反过来做“减法”，让 Skill 版 prompt 更像原来的 tool-call prompt。
+- 具体变化：
+  - 去掉冗长的 structured tool-call 说明，只保留两种动作：`<tool_call>{...}</tool_call>` 或 `<answer>...</answer>`。
+  - `SkillSpec` 生成的工具说明从长列表改成紧凑的 `Tool schemas`。
+  - `python_code/SKILL.md` 暂时只保留一个最简单 example，避免 examples 太多挤占题目和推理空间。
+- 通俗解释：
+  - 这次不是改工具能力，而是改“给模型看的说明书”。
+  - v3 像一份很详细的操作手册，但小模型可能看晕。
+  - v4 像原来的简短考试说明：你可以调用工具，也可以直接交答案，但格式要对。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python tests/test_skill_argument_validation.py` 通过。
+- 下一步：
+  - 提交并同步到 GitHub。
+  - 在服务器拉取最新代码，作为 `skill_v4` 跑固定 100 题回归。
+  - 如果 `skill_v4` 仍然明显低于 `legacy=0.58`，就说明仅靠 prompt 调整很可能不够，需要考虑 few-shot 轨迹或训练数据对齐。
+
 ## 7. 下一步
 
-下一步进入 Phase 6 的回归失败分析。
+下一步继续 Phase 6 的回归失败分析和 `skill_v4` 100 题验证。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，

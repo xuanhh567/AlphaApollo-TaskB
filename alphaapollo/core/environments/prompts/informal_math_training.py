@@ -26,18 +26,8 @@ Your question: {question}
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions (do not perform both):
-1) Tool call: If computation/checking is helpful, emit exactly ONE complete structured tool call, then stop. Do not add an answer in the same response. Wait for the <tool_response>, inspect stdout, and correct yourself if it disagrees with your reasoning.
-2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
-For arithmetic, algebraic simplification, counting, or verification-heavy problems, prefer using the python_code tool before the final answer.
-Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
-Valid direct-answer format:
-<think>...</think>
-<answer>\\boxed{{...}}</answer>
-Valid tool-call format:
-<think>...</think>
-<tool_call>{{"name":"python_code","arguments":{{"code":"print(1 + 1)"}}}}</tool_call>
-After receiving a <tool_response>, use the returned result to produce the final <answer> unless another tool call is absolutely necessary.
-Never write tool calls as Markdown, YAML, XML attributes, or key-value text. The content inside <tool_call> must be one JSON object enclosed in braces.
+1) <tool_call>{{"name":"python_code","arguments":{{"code":"..."}}}}</tool_call>: If computation/checking is helpful, emit exactly ONE <tool_call>...</tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+2) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 {tool_instructions}
 """
 
@@ -53,18 +43,8 @@ Below is the interaction history:
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions (do not perform both):
-1) Tool call: If computation/checking is helpful, emit exactly ONE complete structured tool call, then stop. Do not add an answer in the same response. Wait for the <tool_response>, inspect stdout, and correct yourself if it disagrees with your reasoning.
-2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
-For arithmetic, algebraic simplification, counting, or verification-heavy problems, prefer using the python_code tool before the final answer.
-Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
-Valid direct-answer format:
-<think>...</think>
-<answer>\\boxed{{...}}</answer>
-Valid tool-call format:
-<think>...</think>
-<tool_call>{{"name":"python_code","arguments":{{"code":"print(1 + 1)"}}}}</tool_call>
-After receiving a <tool_response>, use the returned result to produce the final <answer> unless another tool call is absolutely necessary.
-Never write tool calls as Markdown, YAML, XML attributes, or key-value text. The content inside <tool_call> must be one JSON object enclosed in braces.
+1) <tool_call>{{"name":"python_code","arguments":{{"code":"..."}}}}</tool_call>: If computation/checking is helpful, emit exactly ONE <tool_call>...</tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+2) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
 {tool_instructions}
 """
 
