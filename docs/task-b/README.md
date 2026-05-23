@@ -23,6 +23,7 @@
 | `phase-5-prompt.md` | Phase 5：从 registry / `SKILL.md` 自动生成 prompt 工具说明 |
 | `experiments.md` | Task B 实验记录、smoke trajectory 和 MATH-500 回归状态 |
 | `server-environment.md` | 服务器配置、conda 环境选择和已完成的远端轻量验证 |
+| `reproducibility.md` | 如何复现 Task B 实验，以及以后如何管理实验 |
 | `trajectories/structured-python-code-smoke.md` | 结构化 `<tool_call>` 到 `<tool_response>` 的最小样例 |
 
 ## 写文档的原则

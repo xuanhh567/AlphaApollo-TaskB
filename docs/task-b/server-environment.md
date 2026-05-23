@@ -56,6 +56,21 @@ GitHub remote: https://github.com/xuanhh567/AlphaApollo-TaskB.git
 /root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
 ```
 
+已下载但暂不推荐在单卡 4090 上跑的模型：
+
+```bash
+/root/AlphaApollo-TaskB/models/Qwen2.5-7B-Instruct
+```
+
+说明：7B 模型来自 ModelScope `Qwen/Qwen2.5-7B-Instruct`。它已经下载成功，但在当前 Task B 的 `main_generation` 路线下，单张 RTX 4090 24GB 跑 7B sanity test 会 OOM：
+
+```text
+vLLM rollout: OOM
+HF rollout: OOM
+```
+
+通俗解释：7B 模型本身能放下，但这个框架在 rollout / FSDP 初始化时还需要额外显存，单张 4090 不够稳。后续如果要测 7B，建议使用 48GB/80GB 显存或多卡机器。
+
 当前使用的 Python 环境：
 
 ```bash
