@@ -74,7 +74,9 @@ def test_parse_structured_python_code():
 
 
 def test_parse_legacy_python_code():
-    actions = parse_tool_actions("<python_code>print(1 + 1)</python_code>")
+    registry = load_builtin_registry()
+
+    actions = parse_tool_actions("<python_code>print(1 + 1)</python_code>", registry=registry)
 
     assert len(actions) == 1
     assert actions[0].call is not None
@@ -84,8 +86,11 @@ def test_parse_legacy_python_code():
 
 
 def test_parse_legacy_local_rag_json():
+    registry = load_builtin_registry()
+
     actions = parse_tool_actions(
-        '<local_rag>{"repo_name":"sympy","query":"solve equations","top_k":3}</local_rag>'
+        '<local_rag>{"repo_name":"sympy","query":"solve equations","top_k":3}</local_rag>',
+        registry=registry,
     )
 
     assert len(actions) == 1
@@ -115,12 +120,23 @@ def test_parse_structured_local_rag():
 
 
 def test_parse_legacy_local_rag_invalid_json_keeps_old_error_text():
-    actions = parse_tool_actions("<local_rag>not json</local_rag>")
+    registry = load_builtin_registry()
+
+    actions = parse_tool_actions("<local_rag>not json</local_rag>", registry=registry)
 
     assert len(actions) == 1
     assert actions[0].error is not None
     assert actions[0].error.code == "invalid_json"
     assert actions[0].legacy_error_response == "Error: Invalid JSON input for local_rag"
+
+
+def test_legacy_tags_are_registry_driven():
+    actions = parse_tool_actions("<python_code>print(1 + 1)</python_code>", registry=None)
+
+    assert len(actions) == 1
+    assert actions[0].call is None
+    assert actions[0].tool_name is None
+    assert actions[0].call_format == "none"
 
 
 def test_execute_skill_call_validates_before_tool_group_execution():
@@ -204,6 +220,7 @@ if __name__ == "__main__":
     test_parse_legacy_local_rag_json()
     test_parse_structured_local_rag()
     test_parse_legacy_local_rag_invalid_json_keeps_old_error_text()
+    test_legacy_tags_are_registry_driven()
     test_execute_skill_call_validates_before_tool_group_execution()
     test_execute_unknown_skill_returns_error_without_tool_group_execution()
     test_execute_skill_call_uses_tool_group_for_runtime_behavior()

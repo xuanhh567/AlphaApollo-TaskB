@@ -1071,9 +1071,35 @@ manager.py
   - 这说明 3B 模型容易把 prompt 里的格式教学内容当成要输出的正文。
   - 下一步不要继续在 prompt 中加入 Bad/Good 对照；如果继续 prompt 路线，更应该考虑在 parser 侧做兼容，或者用 few-shot 但避免显式 “Bad/Good” 字样。
 
+### Change 043: 实现 Skill 驱动的 legacy parser adapter
+
+- 日期：2026-05-23
+- 改动：
+  - 在 `SkillSpec` 中增加 `legacy_calls` 字段。
+  - 在 `SKILL.md` 中声明旧标签兼容入口：
+    - `python_code`: `<python_code>...</python_code>` 映射到参数 `code`
+    - `local_rag`: `<local_rag>{...}</local_rag>` 按 JSON object 解析
+  - 修改 informal math parser：旧标签不再由 `skill_bridge.py` 硬编码表驱动，而是从 registry 中已加载 skill 的 `legacy_calls` 读取。
+  - env 调用 parser 时传入 `self.skill_registry`。
+- 我理解的目的：
+  - 让模型可以继续使用 Task A 中更熟悉的旧格式，减少严格 JSON `<tool_call>` 带来的格式失败。
+  - 但内部仍统一转换成 `ToolCall(name, arguments)`，后续继续走 SkillSpec 参数校验、registry 和 dispatcher。
+  - 这样更符合 B6 的“行为不变”，同时避免核心 parser 写死 `python_code` / `local_rag`。
+- 已验证：
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python -m py_compile` 相关模块通过。
+- 下一步：
+  - 把 prompt 从失败的 `skill_v5` Bad/Good 说明回退到更接近 legacy 的工具说明。
+  - 作为 `skill_v6_legacy_adapter` 跑固定 100 题回归，观察是否接近 Task A baseline `0.58`。
+
 ## 7. 下一步
 
-下一步继续 Phase 6 的回归失败分析：决定是回退到 `skill_v4`，还是在 parser 侧兼容模型常见坏格式。
+下一步继续 Phase 6 的回归失败分析：基于 parser legacy adapter 设计 `skill_v6_legacy_adapter` prompt，并运行固定 100 题回归。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，

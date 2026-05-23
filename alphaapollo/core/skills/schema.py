@@ -39,6 +39,15 @@ class SkillExample:
 
 
 @dataclass(frozen=True)
+class SkillLegacyCall:
+    """Backward-compatible text tag accepted for a skill call."""
+
+    tag: str
+    input_format: str
+    argument: str | None = None
+
+
+@dataclass(frozen=True)
 class SkillSpec:
     """Validated metadata for one skill."""
 
@@ -49,6 +58,7 @@ class SkillSpec:
     examples: list[SkillExample]
     source_path: Path
     timeout: int | None = None
+    legacy_calls: list[SkillLegacyCall] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

@@ -13,13 +13,6 @@ from alphaapollo.core.skills.registry import SkillRegistry
 from alphaapollo.core.skills.schema import SkillSpec
 
 
-LEGACY_TOOL_PATTERNS = [
-    ("python_code", r"<python_code>(.*?)</python_code>"),
-    ("informalmath_verify", r"<informalmath_verify>(.*?)</informalmath_verify>"),
-    ("local_rag", r"<local_rag>(.*?)</local_rag>"),
-]
-
-
 @dataclass(frozen=True)
 class ParsedToolAction:
     """One parsed tool action from a model response."""
@@ -36,8 +29,14 @@ class ParsedToolAction:
         return self.tool_name is not None or self.call is not None or self.error is not None
 
 
-def parse_tool_actions(action: str) -> list[ParsedToolAction]:
-    """Parse structured and legacy tool calls from one model action."""
+def parse_tool_actions(action: str, registry: SkillRegistry | None = None) -> list[ParsedToolAction]:
+    """Parse structured and legacy tool calls from one model action.
+
+    Structured ``<tool_call>{...}</tool_call>`` is the canonical protocol.
+    Legacy tags are accepted only when a loaded ``SkillSpec`` declares them via
+    ``legacy_calls``. This keeps backward compatibility out of hard-coded env
+    branches while still preserving the old model-facing behavior.
+    """
 
     if _contains_structured_tool_call_tag(action):
         parsed = parse_tool_call(action)
@@ -58,17 +57,7 @@ def parse_tool_actions(action: str) -> list[ParsedToolAction]:
             )
         ]
 
-    legacy_actions: list[ParsedToolAction] = []
-    for tool_name, pattern in LEGACY_TOOL_PATTERNS:
-        if f"<{tool_name}>" not in action or f"</{tool_name}>" not in action:
-            continue
-
-        match = re.search(pattern, action, re.DOTALL)
-        if match is None:
-            continue
-
-        tool_input = match.group(1).strip()
-        legacy_actions.append(_legacy_action_to_parsed(tool_name, tool_input, match.group(0)))
+    legacy_actions = _parse_legacy_skill_actions(action, registry)
 
     if not legacy_actions:
         return [ParsedToolAction()]
@@ -122,16 +111,63 @@ def _contains_structured_tool_call_tag(action: str) -> bool:
     return "<tool_call>" in lowered or "</tool_call>" in lowered
 
 
-def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> ParsedToolAction:
-    if tool_name == "python_code":
+def _parse_legacy_skill_actions(action: str, registry: SkillRegistry | None) -> list[ParsedToolAction]:
+    if registry is None:
+        return []
+
+    actions: list[ParsedToolAction] = []
+    for spec in registry.specs():
+        for legacy_call in spec.legacy_calls:
+            tag = legacy_call.tag
+            if f"<{tag}>" not in action or f"</{tag}>" not in action:
+                continue
+
+            pattern = rf"<{re.escape(tag)}>(.*?)</{re.escape(tag)}>"
+            match = re.search(pattern, action, re.DOTALL)
+            if match is None:
+                continue
+
+            tool_input = match.group(1).strip()
+            actions.append(
+                _legacy_action_to_parsed(
+                    spec,
+                    legacy_call.input_format,
+                    legacy_call.argument,
+                    tool_input,
+                    match.group(0),
+                )
+            )
+    return actions
+
+
+def _legacy_action_to_parsed(
+    spec: SkillSpec,
+    input_format: str,
+    argument: str | None,
+    tool_input: str,
+    raw_text: str,
+) -> ParsedToolAction:
+    tool_name = spec.name
+    if input_format == "text":
+        if argument is None:
+            return ParsedToolAction(
+                tool_name=tool_name,
+                tool_input=tool_input,
+                call_format="legacy",
+                error=ToolError(
+                    code="missing_legacy_argument",
+                    message=f"Legacy text input for {tool_name} must declare an argument.",
+                    tool_name=tool_name,
+                ),
+            )
         return ParsedToolAction(
             tool_name=tool_name,
-            call=ToolCall(name=tool_name, arguments={"code": tool_input}, raw_text=raw_text),
+            call=ToolCall(name=tool_name, arguments={argument: tool_input}, raw_text=raw_text),
             tool_input=tool_input,
             call_format="legacy",
         )
 
-    if tool_name == "local_rag":
+    if input_format == "json":
         try:
             arguments = json.loads(tool_input)
         except json.JSONDecodeError:
@@ -141,10 +177,10 @@ def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> 
                 call_format="legacy",
                 error=ToolError(
                     code="invalid_json",
-                    message="Invalid JSON input for local_rag.",
+                    message=f"Invalid JSON input for {tool_name}.",
                     tool_name=tool_name,
                 ),
-                legacy_error_response="Error: Invalid JSON input for local_rag",
+                legacy_error_response=f"Error: Invalid JSON input for {tool_name}",
             )
 
         if not isinstance(arguments, dict):
@@ -154,10 +190,10 @@ def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> 
                 call_format="legacy",
                 error=ToolError(
                     code="invalid_arguments_type",
-                    message="local_rag legacy input must be a JSON object.",
+                    message=f"{tool_name} legacy input must be a JSON object.",
                     tool_name=tool_name,
                 ),
-                legacy_error_response="Error: Invalid JSON input for local_rag",
+                legacy_error_response=f"Error: Invalid JSON input for {tool_name}",
             )
 
         return ParsedToolAction(
@@ -171,6 +207,11 @@ def _legacy_action_to_parsed(tool_name: str, tool_input: str, raw_text: str) -> 
         tool_name=tool_name,
         tool_input=tool_input,
         call_format="legacy",
+        error=ToolError(
+            code="unsupported_legacy_input_format",
+            message=f"Unsupported legacy input format for {tool_name}: {input_format}",
+            tool_name=tool_name,
+        ),
     )
 
 

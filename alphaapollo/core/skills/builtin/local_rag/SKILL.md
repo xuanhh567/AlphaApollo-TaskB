@@ -19,6 +19,9 @@ entrypoint:
   type: python_function
   path: alphaapollo.core.tools.rag.local_rag:local_rag_retrieve
 timeout: 60
+legacy_calls:
+  - tag: local_rag
+    input_format: json
 examples:
   - name: query sympy solving
     arguments:

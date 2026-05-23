@@ -22,6 +22,10 @@ entrypoint:
   type: python_function
   path: alphaapollo.core.tools.python_code:execute_python_code
 timeout: 30
+legacy_calls:
+  - tag: python_code
+    input_format: text
+    argument: code
 examples:
   - name: compute
     arguments:
@@ -61,6 +65,10 @@ def test_load_valid_skill(tmp_path):
     assert result.spec.entrypoint.path == "alphaapollo.core.tools.python_code:execute_python_code"
     assert result.spec.timeout == 30
     assert result.spec.examples[0].arguments == {"code": "print(1 + 1)"}
+    assert len(result.spec.legacy_calls) == 1
+    assert result.spec.legacy_calls[0].tag == "python_code"
+    assert result.spec.legacy_calls[0].input_format == "text"
+    assert result.spec.legacy_calls[0].argument == "code"
 
 
 def test_missing_name_returns_structured_error(tmp_path):
@@ -122,6 +130,15 @@ def test_missing_frontmatter_returns_structured_error(tmp_path):
     assert_first_error(result, "missing_frontmatter", None)
 
 
+def test_legacy_input_format_must_be_supported(tmp_path):
+    content = VALID_SKILL.replace("input_format: text", "input_format: yaml")
+    skill_dir = write_skill(tmp_path, content)
+
+    result = load_skill_from_dir(skill_dir)
+
+    assert_first_error(result, "unsupported_legacy_input_format", "legacy_calls[0].input_format")
+
+
 if __name__ == "__main__":
     import tempfile
 
@@ -133,4 +150,5 @@ if __name__ == "__main__":
         test_entrypoint_path_must_use_module_colon_function(tmp_path)
         test_example_must_have_arguments(tmp_path)
         test_missing_frontmatter_returns_structured_error(tmp_path)
+        test_legacy_input_format_must_be_supported(tmp_path)
     print("skill loader tests passed")

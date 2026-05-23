@@ -123,7 +123,7 @@ class InformalMathTrainingEnv(BaseTextEnv):
         """
         Parse action to extract structured or legacy tool calls.
         """
-        return parse_tool_actions(action)
+        return parse_tool_actions(action, registry=self.skill_registry)
 
     def _execute_skill_tool_action(self, parsed_action: ParsedToolAction) -> Tuple[Optional[str], Dict[str, Any]]:
         tool_name = parsed_action.tool_name

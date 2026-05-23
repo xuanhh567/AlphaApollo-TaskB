@@ -9,6 +9,7 @@ from typing import Any
 from .schema import (
     SkillEntrypoint,
     SkillExample,
+    SkillLegacyCall,
     SkillLoadError,
     SkillLoadResult,
     SkillParameter,
@@ -18,7 +19,9 @@ from .schema import (
 REQUIRED_TOP_LEVEL_FIELDS = {"name", "description", "parameters", "entrypoint", "examples"}
 SUPPORTED_PARAMETER_TYPES = {"string", "integer", "number", "boolean", "object", "array"}
 SUPPORTED_ENTRYPOINT_TYPES = {"python_function"}
+SUPPORTED_LEGACY_INPUT_FORMATS = {"text", "json"}
 SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+LEGACY_TAG_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 PYTHON_FUNCTION_PATH_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*:[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -142,8 +145,9 @@ def _build_skill_spec(data: dict[str, Any], path: Path) -> SkillLoadResult:
     entrypoint = _parse_entrypoint(data["entrypoint"], path)
     examples = _parse_examples(data["examples"], path)
     timeout = _parse_timeout(data.get("timeout"), path)
+    legacy_calls = _parse_legacy_calls(data.get("legacy_calls"), path)
 
-    for parsed in [parameters, entrypoint, examples, timeout]:
+    for parsed in [parameters, entrypoint, examples, timeout, legacy_calls]:
         if isinstance(parsed, list) and parsed and isinstance(parsed[0], SkillLoadError):
             errors.extend(parsed)
         elif isinstance(parsed, SkillLoadError):
@@ -160,6 +164,7 @@ def _build_skill_spec(data: dict[str, Any], path: Path) -> SkillLoadResult:
         examples=examples,
         source_path=path,
         timeout=timeout,
+        legacy_calls=legacy_calls,
     )
     return SkillLoadResult.success(spec)
 
@@ -336,6 +341,65 @@ def _parse_timeout(value: Any, path: Path) -> int | None | SkillLoadError:
             field="timeout",
         )
     return value
+
+
+def _parse_legacy_calls(value: Any, path: Path) -> list[SkillLegacyCall] | list[SkillLoadError]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        return [_type_error(path, "legacy_calls", "list")]
+
+    errors: list[SkillLoadError] = []
+    calls: list[SkillLegacyCall] = []
+    for idx, item in enumerate(value):
+        prefix = f"legacy_calls[{idx}]"
+        if not isinstance(item, dict):
+            errors.append(_type_error(path, prefix, "mapping"))
+            continue
+
+        for field in ["tag", "input_format"]:
+            if field not in item:
+                errors.append(_missing_error(path, f"{prefix}.{field}"))
+        if errors and any(error.field and error.field.startswith(prefix) for error in errors):
+            continue
+
+        tag = item["tag"]
+        input_format = item["input_format"]
+        argument = item.get("argument")
+
+        if not isinstance(tag, str) or not tag.strip():
+            errors.append(_type_error(path, f"{prefix}.tag", "non-empty string"))
+        elif not LEGACY_TAG_RE.match(tag):
+            errors.append(
+                SkillLoadError(
+                    code="invalid_field_value",
+                    message="Legacy tag must start with a lowercase letter and contain only lowercase letters, digits, and underscores.",
+                    path=path,
+                    field=f"{prefix}.tag",
+                )
+            )
+
+        if not isinstance(input_format, str):
+            errors.append(_type_error(path, f"{prefix}.input_format", "string"))
+        elif input_format not in SUPPORTED_LEGACY_INPUT_FORMATS:
+            errors.append(
+                SkillLoadError(
+                    code="unsupported_legacy_input_format",
+                    message=f"Unsupported legacy input format: {input_format}",
+                    path=path,
+                    field=f"{prefix}.input_format",
+                )
+            )
+
+        if argument is not None and not isinstance(argument, str):
+            errors.append(_type_error(path, f"{prefix}.argument", "string"))
+
+        if errors and any(error.field and error.field.startswith(prefix) for error in errors):
+            continue
+
+        calls.append(SkillLegacyCall(tag=tag, input_format=input_format, argument=argument))
+
+    return errors if errors else calls
 
 
 def _missing_error(path: Path, field: str) -> SkillLoadError:

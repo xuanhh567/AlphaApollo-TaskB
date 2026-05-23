@@ -14,6 +14,7 @@ from alphaapollo.core.skills.registry import (
 from alphaapollo.core.skills.schema import (
     SkillEntrypoint,
     SkillExample,
+    SkillLegacyCall,
     SkillLoadError,
     SkillLoadResult,
     SkillParameter,
@@ -31,6 +32,7 @@ __all__ = [
     "SkillRegistryLoadResult",
     "SkillEntrypoint",
     "SkillExample",
+    "SkillLegacyCall",
     "SkillLoadError",
     "SkillLoadResult",
     "SkillParameter",
