@@ -380,6 +380,13 @@ class InformalMathTrainingEnvironmentManager(EnvironmentManagerBase):
             "enable_local_rag": enable_local_rag,
         }
         tool_specs = self._get_enabled_tool_specs()
+        tool_prompt_format = str(OmegaConf.select(self.config, "env.tool_prompt_format") or "skill").lower()
+        if tool_prompt_format in {"legacy", "function_call"}:
+            tool_specs = None
+        elif tool_prompt_format not in {"skill", "structured"}:
+            raise ValueError(
+                "env.tool_prompt_format must be one of: skill, structured, legacy, function_call"
+            )
         
         for i in range(len(text_obs)):
             if init:
