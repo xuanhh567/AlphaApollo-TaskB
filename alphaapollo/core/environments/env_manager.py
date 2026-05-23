@@ -386,9 +386,11 @@ class InformalMathTrainingEnvironmentManager(EnvironmentManagerBase):
             tool_specs = None
         elif tool_prompt_format in {"skill_legacy", "legacy_adapter"}:
             tool_call_style = "legacy"
+        elif tool_prompt_format in {"skill_hermes", "hermes", "qwen_hermes"}:
+            tool_call_style = "hermes"
         elif tool_prompt_format not in {"skill", "structured"}:
             raise ValueError(
-                "env.tool_prompt_format must be one of: skill, structured, skill_legacy, legacy_adapter, legacy, function_call"
+                "env.tool_prompt_format must be one of: skill, structured, skill_hermes, hermes, qwen_hermes, skill_legacy, legacy_adapter, legacy, function_call"
             )
         
         for i in range(len(text_obs)):

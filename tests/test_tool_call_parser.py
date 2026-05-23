@@ -103,6 +103,35 @@ def test_arguments_must_be_object():
     assert error.tool_name == "python_code"
 
 
+def test_parse_plural_tool_calls_array():
+    result = parse_tool_call(
+        '<tool_calls>[{"name":"python_code","arguments":{"code":"print(1 + 1)"}}]</tool_calls>'
+    )
+
+    assert isinstance(result, ToolCall)
+    assert result.name == "python_code"
+    assert result.arguments == {"code": "print(1 + 1)"}
+
+
+def test_parse_openai_function_tool_call_shape():
+    result = parse_tool_call(
+        '<tool_calls>{"tool_calls":[{"type":"function","function":{"name":"python_code","arguments":"{\\"code\\":\\"print(1 + 1)\\"}"}}]}</tool_calls>'
+    )
+
+    assert isinstance(result, ToolCall)
+    assert result.name == "python_code"
+    assert result.arguments == {"code": "print(1 + 1)"}
+
+
+def test_plural_tool_calls_rejects_multiple_calls():
+    result = parse_tool_call(
+        '<tool_calls>[{"name":"a","arguments":{}},{"name":"b","arguments":{}}]</tool_calls>'
+    )
+
+    error = assert_error(result, "multiple_tool_calls")
+    assert error.details == {"count": 2}
+
+
 if __name__ == "__main__":
     test_parse_valid_tool_call()
     test_parse_multiline_tool_call()
@@ -115,4 +144,7 @@ if __name__ == "__main__":
     test_name_must_be_non_empty_string()
     test_missing_arguments_returns_error()
     test_arguments_must_be_object()
+    test_parse_plural_tool_calls_array()
+    test_parse_openai_function_tool_call_shape()
+    test_plural_tool_calls_rejects_multiple_calls()
     print("tool call parser tests passed")

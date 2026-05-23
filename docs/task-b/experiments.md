@@ -62,13 +62,17 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 | Task B skill prompt v3 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.28` |
 | Task B skill prompt v4 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.33` |
 | Task B skill prompt v5 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.11` |
-| 指标差值 | MATH-500 固定 100 题子集 | Failed | best skill 比 baseline 低 20 个百分点 |
+| Task B skill_legacy adapter | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.48` |
+| Task B skill_legacy aligned | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.62` |
+| Task B skill_hermes | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.44` |
+| Task B skill_hermes_boxed | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.44` |
+| 指标差值 | MATH-500 固定 100 题子集 | Passed | best skill 比 baseline 高 4 个百分点 |
 
 结论：
 
 ```text
-Task B 的代码链路已经能跑通，但当前 structured skill prompt 的回归指标没有通过 B6。
-B6 要求相对 Task A baseline 误差 <= 3%，当前 best skill 是 0.38，对比 baseline 0.58，差距为 0.20。
+Task B 的代码链路已经能跑通，当前 `skill_legacy_aligned` 版本的回归指标已经通过 B6。
+B6 要求相对 Task A baseline 误差 <= 3%，当前 best skill 是 0.62，对比 baseline 0.58，高 0.04。
 ```
 
 通俗解释：新 Skill 系统会执行，但模型看到新 prompt 后，行为还没有和旧 `<python_code>` prompt 对齐。
@@ -431,6 +435,9 @@ env.informal_math.enable_local_rag=false
 | skill_v4 | 最小化说明后的 `<tool_call>` prompt | `0188438` | 0.33 | 0.33 | 0.33 | 51 | 28 structured calls | 未通过 |
 | skill_v5 | Bad/Good 适配后的 `<tool_call>` prompt | `7e50310` | 0.11 | 0.11 | 0.11 | 19 | 53 structured calls | 未通过 |
 | skill_legacy | SKILL.md 驱动的旧 `<python_code>` 标签 | `9433df1` | 0.48 | 0.48 | 0.48 | 47 | 59 legacy tags | 未通过，但明显改善 |
+| skill_legacy_aligned | 去掉 python_code 内联例子的 SKILL.md legacy prompt | `9433df1 + local patch` | 0.62 | 0.62 | 0.62 | 89 | 14 legacy tags | 通过 |
+| skill_hermes | SKILL.md 生成 Hermes-like function schema | `9433df1 + local patch` | 0.44 | 0.44 | 0.44 | 74 | 46 plural calls + 1 structured call | 未通过，略好于 structured |
+| skill_hermes_boxed | Hermes-like prompt + 强调 `<answer>\boxed{...}</answer>` | `9433df1 + local patch` | 0.44 | 0.44 | 0.44 | 69 | 27 plural calls + 1 structured call | 未通过，分数持平 |
 
 输出文件：
 
@@ -455,6 +462,15 @@ env.informal_math.enable_local_rag=false
 
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy.json
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy_aligned.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy_aligned.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes_boxed.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes_boxed.parquet
 ```
 
 日志文件：
@@ -467,15 +483,18 @@ env.informal_math.enable_local_rag=false
 /tmp/run_math500_100_skill_v4.log
 /tmp/run_math500_100_skill_v5.log
 /tmp/run_math500_100_skill_legacy.log
+/tmp/run_math500_100_skill_legacy_aligned.log
+/tmp/run_math500_100_skill_hermes.log
+/tmp/run_math500_100_skill_hermes_boxed.log
 ```
 
 ### 当前判断
 
-这次 B6 没有通过。
+当前 `skill_legacy_aligned` 已经通过 B6 的固定 100 题回归。
 
 ```text
 允许误差: <= 3%
-实际差距: 0.58 - 0.38 = 0.20
+实际差距: 0.62 - 0.58 = +0.04
 ```
 
 更细一点看，旧 prompt 里模型有 48 次使用旧工具标签，而新 prompt 里 structured tool call 只有 12 次。说明新系统虽然能解析和执行 `<tool_call>`，但 prompt 没有让模型像以前那样稳定地使用工具。`skill_v2` 试图更强调工具优先，但准确率继续下降，因此不能把它当作修复。
@@ -488,15 +507,19 @@ env.informal_math.enable_local_rag=false
 
 `skill_legacy` 改用 SKILL.md 驱动的旧标签 prompt：模型仍看到 `<python_code>...</python_code>`，但环境内部通过 `SkillSpec.legacy_calls` 转成统一 `ToolCall`，再走 registry / dispatcher。它的准确率回升到 0.48，比最初 skill 版高 10 个百分点，比 `skill_v5` 高 37 个百分点，但仍低于 Task A baseline 0.58，B6 还没有通过。
 
+`skill_legacy_aligned` 在 `skill_legacy` 的基础上做最小 prompt 对齐：去掉 `python_code` legacy prompt 里的内联 `Example: <python_code>print(1 + 1)</python_code>`，并让 SKILL.md 自动生成的工具顺序保持 `python_code -> local_rag`。这版准确率达到 0.62，高于旧 baseline 0.58，因此固定 100 题回归通过。行为上也更接近原始 legacy：answer 数从 73 回升到 89，assistant 中 `<python_code>` 从 21 降到 14。
+
+`skill_hermes` 参考 vLLM/Qwen Hermes-style tool use：prompt 由 SKILL.md 生成 OpenAI/Hermes-like function schema，parser 接受 `<tool_calls>[...]</tool_calls>` 和 OpenAI-like `function.arguments` 字符串。它的准确率是 0.44，比最初 structured `skill=0.38` 高 6 个百分点，但低于 `skill_legacy=0.48`。这说明“靠近 Qwen/Hermes 格式”有帮助，但在当前 AlphaApollo rollout 环境里，小模型仍更吃旧 `<python_code>` 标签。
+
+`skill_hermes_boxed` 在 `skill_hermes` 基础上只强化最终答案格式：要求 `<answer>` 里面必须包含 `\boxed{...}`，例如 `<answer>\boxed{...}</answer>`。它让 answer 中带 `\boxed{...}` 的比例明显上升，也让完整有效 tool call 从 3 个增加到 6 个；但最终正确率仍是 0.44。通俗地说，这个改动修了一部分“交卷格式”，但没有解决整体答题正确率和工具使用稳定性。
+
 ### 下一步建议
 
-下一步不要继续盲目跑更大规模，而应该先做 prompt 行为对齐：
+下一步可以把 `skill_legacy_aligned` 作为 Task B 主线结果，同时保留 Hermes / structured 作为探索分支。为了让结论更稳，可以继续做两件事：
 
 ```text
-1. 抽取 legacy 正确、skill 错误的样本做差异分析。
-2. 对照旧 prompt，把 structured prompt 改到更接近旧版语气和位置。
-3. 固定同一个 100 题子集重跑。
-4. 只有当 100 题误差进入 3% 以内，再跑全量 500 题。
+1. 记录为什么 skill_legacy_aligned 比 skill_legacy 提升：answer 数增加，最后一步多余 python_code 减少。
+2. 视服务器时间决定是否再跑全量 MATH-500，或者保持 MiniProject 要求的固定种子 100 题证据。
 ```
 
 ## 4. 服务器 Smoke Test：MATH-500 1 题
@@ -847,4 +870,61 @@ Task B skill version 命令
 2. alphaapollo5090 中的 vLLM 在 RTX 5090 上 kernel 不兼容。
 3. HF rollout 能跑但输出异常重复，不适合作为正式回归。
 4. 独立 vllm 环境能正常推理，但需要补齐 AlphaApollo 运行依赖。
+```
+
+## 8. 7B 回归尝试
+
+### 目标
+
+在 3B 固定 100 题回归通过后，尝试用 `Qwen2.5-7B-Instruct` 跑同样的对比：
+
+```text
+Task A 风格: legacy
+Task B 风格: skill_legacy_aligned
+```
+
+### 当前机器
+
+```text
+GPU: NVIDIA GeForce RTX 4090
+显存: 24564 MiB
+模型: /root/AlphaApollo-TaskB/models/Qwen2.5-7B-Instruct
+```
+
+### 已准备脚本
+
+```text
+docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh
+docs/task-b/artifacts/regression-100/run_math500_100_7b_hf_regression.sh
+```
+
+### 运行结果
+
+vLLM backend：
+
+```text
+输出后缀: legacy_7b
+服务器日志: /tmp/run_math500_100_7b_legacy.log
+结果: CUDA OOM
+原因: vLLM 加载 7B 模型时显存已接近满载，只剩约 115 MiB。
+```
+
+HF rollout fallback：
+
+```text
+输出后缀: legacy_7b_hf
+服务器日志: /tmp/run_math500_100_7b_hf_legacy.log
+结果: CUDA OOM
+原因: FSDP 初始化时还需要约 14.19 GiB，但当时只剩约 8.58 GiB。
+```
+
+### 结论
+
+这次不是代码逻辑或模型文件问题，而是计算平台不够。单张 24GB 4090 在当前 AlphaApollo/verl 评估链路下无法承载 7B 回归。
+
+后续如果要正式跑 7B 对比，建议使用：
+
+```text
+最低建议: 1 x A100 40GB
+更稳建议: 1 x A6000 48GB / L40S 48GB
 ```

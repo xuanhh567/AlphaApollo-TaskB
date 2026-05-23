@@ -1155,3 +1155,317 @@ manager.py
 ```
 
 只有当 100 题回归进入 3% 误差以内，再考虑全量 500 题。
+
+### Change 046: 参考 vLLM/Qwen Hermes 思路，但保留自己的 parser
+
+- 日期：2026-05-23
+- 背景：
+  - vLLM 文档提到 Qwen2.5 的 tokenizer chat template 支持 Hermes-style tool use，可以配合 `--tool-call-parser hermes`。
+  - 但 Task B 要求我们自己实现 parser / dispatcher，所以不能直接用 vLLM hermes parser 替代项目里的 parser。
+- 改动：
+  - `alphaapollo/core/skills/call_parser.py` 继续保留 canonical `<tool_call>{...}</tool_call>` 解析。
+  - 新增对 Hermes-like / OpenAI-like 结构的兼容：
+    - `<tool_calls>[{"name":"python_code","arguments":{...}}]</tool_calls>`
+    - `<tool_calls>{"tool_calls":[{"type":"function","function":{"name":"python_code","arguments":"{...}"}}]}</tool_calls>`
+  - 这些格式最终都会被归一化成同一个内部对象：
+
+```text
+ToolCall(name="python_code", arguments={"code": "..."})
+```
+
+  - `skill_bridge.py` 识别 `<tool_calls>`，但后续仍走 SkillSpec / registry / dispatcher。
+  - 新增 `render_hermes_skill_prompt_block(...)`，从 `SKILL.md` 生成 OpenAI/Hermes-like function schema。
+  - 新增 `env.tool_prompt_format=skill_hermes|hermes|qwen_hermes`，作为一个实验 prompt 格式。
+- 我理解的目的：
+  - 不是“让 vLLM 代替我们解析”，而是“学习 vLLM/Qwen 对小模型更友好的函数调用格式”。
+  - 这样既保留 Task B 的内部实现要求，又给 3B 模型一个更接近官方 tool-use 习惯的输出空间。
+  - 这条路线是实验分支，不替代当前最稳的 `skill_legacy` 路线。
+- 已验证：
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python -m py_compile` 相关模块通过。
+- 下一步：
+  - 可以用固定 100 题跑一版 `+env.tool_prompt_format=skill_hermes`，验证它是否比 structured `skill=0.38` 更好。
+  - 如果 `skill_hermes` 仍然低于 `skill_legacy=0.48`，主线仍建议回到 `skill_legacy` 并继续缩小它和 Task A baseline 的 prompt 差异。
+
+### Change 047: 在服务器验证 skill_hermes 固定 100 题回归
+
+- 日期：2026-05-23
+- 服务器：
+  - 美国 RTX 4090 实验服务器。
+  - 项目路径：`/root/AlphaApollo-TaskB`。
+  - 模型路径：`/root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct`。
+- 执行内容：
+  - 将本地 Hermes-like parser / prompt 补丁应用到服务器 `9433df1` 工作树。
+  - 服务器侧通过以下测试：
+    - `python tests/test_tool_call_parser.py`
+    - `python tests/test_informal_math_skill_bridge.py`
+    - `python tests/test_skill_prompt_renderer.py`
+    - `python tests/test_skill_loader.py`
+    - `python tests/test_skill_dispatcher.py`
+    - `python tests/test_skill_registry.py`
+    - `python -m py_compile` 相关模块
+  - 使用同一个 MATH-500 固定 100 题子集运行：
+
+```text
++env.tool_prompt_format=skill_hermes
+```
+
+- 输出文件：
+  - 服务器 JSONL：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes.json`
+  - 服务器 parquet：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes.parquet`
+  - 本地同步：`docs/task-b/artifacts/regression-100/qwen25_3b_vllm_math500_100_skill_hermes.json`
+  - 可读版 rollout：`docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_hermes_rollouts.md`
+- 实验结果：
+  - `avg@1 = 0.4400`
+  - `pass@1 = 0.4400`
+  - 重新统计：`44 / 100 = 0.44`
+  - `assistant_has_answer = 74`
+  - `assistant_has_plural_tool_calls = 46`
+  - `assistant_has_structured_tool_call = 1`
+  - `valid_structured_tool_calls = 3`
+  - `assistant_has_legacy_tool_tag = 0`
+- 我理解的结论：
+  - `skill_hermes=0.44` 比最初 structured `skill=0.38` 好，说明参考 Qwen/Hermes 格式是有帮助的。
+  - 但它低于 `skill_legacy=0.48`，更低于 Task A baseline `legacy=0.58`。
+  - 所以主线仍建议优先优化 `skill_legacy`，因为它最符合“行为不变”，也更接近 3B 模型已经习惯的旧 `<python_code>` 标签。
+
+### Change 048: 重新生成完整 prompt 展示文档
+
+- 日期：2026-05-23
+- 改动：
+  - 新增 `scripts/task_b/export_current_prompts.py`。
+  - 重新生成 `docs/task-b/prompts/current-prompt-gallery.md`。
+  - 展示当前代码能生成的主要 prompt 分支：
+    - `no_tool`
+    - `legacy_python_only`
+    - `legacy_python_rag`
+    - `legacy_rag_only`
+    - `structured_skill_python_only`
+    - `structured_skill_python_rag`
+    - `skill_legacy_adapter_python_only`
+    - `skill_legacy_adapter_python_rag`
+    - `skill_hermes_python_only`
+    - `skill_hermes_python_rag`
+  - 每个分支都有 no-history / with-history 两个版本。
+- 我理解的目的：
+  - 不再靠手动拼 prompt，而是直接用当前代码调用 `get_policy_training_prompt(...)` 渲染。
+  - 以后改 prompt 后，只要重新运行这个脚本，就能得到新的完整 prompt 展示。
+  - 这方便解释为什么不同实验的成功率不同：可以直接对比模型实际看到的输入。
+- 重新生成命令：
+
+```bash
+PYTHONPATH=/Users/wangjiaxuan/mini-project/AlphaApollo \
+  /Users/wangjiaxuan/miniforge3/envs/alphaapollo/bin/python \
+  scripts/task_b/export_current_prompts.py \
+  --output docs/task-b/prompts/current-prompt-gallery.md
+```
+
+### Change 049: 记录 skill_hermes 中的评分器漏判样本
+
+- 日期：2026-05-23
+- 发现：
+  - 在 `skill_hermes` 100 题回归中，`Sample 000 / dataset index 0` 的 reward 是 `[[0.0]]`。
+  - 题目：把直角坐标点 `(0, 3)` 转成极坐标。
+  - 标准答案：`\left( 3, \frac{\pi}{2} \right)`。
+  - 模型输出：
+
+```text
+<answer>\(\left(3, \frac{\pi}{2}\right)\)</answer>
+```
+
+- 人工判断：
+  - 这个答案在数学上是正确的。
+  - 它和标准答案只差外层 `\(...\)` 和空格。
+- 为什么 reward 还是 0：
+  - `env.py` 里最终 reward 来自 `compute_score(solution_str, ground_truth)`。
+  - `qwen_math.py` 的 `extract_answer(...)` 优先找 `\boxed{...}`。
+  - 但这个样本没有写 `\boxed{...}`，而是写在 `<answer>...</answer>` 里。
+  - 当前 `extract_answer(...)` 没有优先解析 `<answer>` 标签，所以误抽取了其他文本，导致自动评分为 0。
+- 本地验证：
+
+```text
+math_equal("\left(3, \frac{\pi}{2}\right)", "\left( 3, \frac{\pi}{2} \right)") -> True
+compute_score("<answer>\(\left(3, \frac{\pi}{2}\right)\)</answer>", ground_truth) -> 0.0
+compute_score("\boxed{\left(3, \frac{\pi}{2}\right)}", ground_truth) -> 1.0
+```
+
+- 我理解的结论：
+  - 这是一个 false negative：模型答对了，但自动评分器漏判。
+  - 现在主回归暂时不改评分器，因为 Task B 要和 Task A baseline 使用同一套评分规则才公平。
+  - 后续可以单独做“人工复核 / 修正版评分器”分析，但不能直接拿修正版结果替代主表里的 baseline 对比。
+
+### Change 050: 强化 `<answer>` 中必须写 `\boxed{...}` 的提示
+
+- 日期：2026-05-23
+- 背景：
+  - `skill_hermes` 的 `Sample 000` 暴露出一个问题：模型写了数学正确的 `<answer>\(...\)</answer>`，但评分器优先抽取 `\boxed{...}`，导致 reward 为 0。
+  - 为了不改评分器、保持和 Task A baseline 可比，更合理的做法是让 prompt 明确告诉模型：最终答案必须用 `\boxed{...}`。
+- 改动：
+  - 更新 `alphaapollo/core/environments/prompts/informal_math_training.py` 中所有最终答案说明。
+  - 原来是较弱的：
+
+```text
+formatted in LaTeX, e.g., \boxed{...}
+```
+
+  - 现在改成更明确的：
+
+```text
+The content inside <answer> must include the final answer in \boxed{...}, e.g., <answer>\boxed{...}</answer>.
+```
+
+  - 重新生成 `docs/task-b/prompts/current-prompt-gallery.md`，现在所有 prompt 分支都展示了这个更强约束。
+  - 更新 `tests/test_skill_prompt_renderer.py`，增加测试防止这个提示被误删。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python -m py_compile` 相关模块通过。
+- 注意：
+  - 这个改动会改变模型输入 prompt，所以需要重新跑固定 100 题才能知道是否提升。
+  - 它没有改评分器，因此仍然保持和 baseline 使用同一套 reward 规则。
+
+### Change 051: 服务器回归测试 `skill_hermes_boxed`
+
+- 日期：2026-05-23
+- 目的：
+  - 验证 Change 050 的 boxed-answer prompt 是否能提升固定 100 题回归。
+  - 仍然不改评分器，保持和 Task A baseline 可比。
+- 服务器：
+  - 仓库路径：`/root/AlphaApollo-TaskB`
+  - 模型：`/root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct`
+  - 数据：`/root/AlphaApollo-TaskB/data/task-b-regression-100/custom_data/test.parquet`
+- 运行方式：
+
+```text
+env.tool_prompt_format=skill_hermes
+输出后缀: skill_hermes_boxed
+```
+
+- 输出文件：
+  - 服务器 JSONL：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes_boxed.json`
+  - 服务器 parquet：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_hermes_boxed.parquet`
+  - 本地同步：`docs/task-b/artifacts/regression-100/qwen25_3b_vllm_math500_100_skill_hermes_boxed.json`
+  - 可读版 rollout：`docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_hermes_boxed_rollouts.md`
+  - 分析文件：`docs/task-b/artifacts/regression-100/task_b_regression_analysis_with_skill_hermes_boxed.json`
+- 实验结果：
+  - `avg@1 = 0.4400`
+  - `pass@1 = 0.4400`
+  - 重新统计：`44 / 100 = 0.44`
+  - `assistant_has_answer = 69`
+  - `assistant_answer_contains_boxed = 66`
+  - `assistant_has_plural_tool_calls = 27`
+  - `assistant_has_structured_tool_call = 1`
+  - `valid_structured_tool_calls = 6`
+- 我理解的结论：
+  - 强调 `<answer>\boxed{...}</answer>` 后，模型确实更常把最终答案写成评分器喜欢的 boxed 格式。
+  - 完整有效 tool call 也从 `skill_hermes` 的 3 个增加到 6 个。
+  - 但最终分数仍然是 0.44，没有超过 `skill_legacy=0.48`，更没有追上 baseline `legacy=0.58`。
+  - 所以 boxed prompt 是一个有用的格式修补，但不是解决 B6 回归差距的关键。
+
+### Change 052: 分析并优化 `skill_legacy` prompt 对齐
+
+- 日期：2026-05-23
+- 背景：
+  - 当前最接近 baseline 的版本是 `skill_legacy=0.48`，而 legacy baseline 是 `0.58`。
+  - 因此优先优化 `skill_legacy`，而不是继续堆 Hermes / structured prompt。
+- 新增分析脚本：
+  - `scripts/task_b/analyze_legacy_gap.py`
+  - 输出：`docs/task-b/legacy-vs-skill-legacy-analysis.md`
+- 分析结果：
+  - `legacy 对，skill_legacy 也对`: 42
+  - `legacy 对，skill_legacy 错`: 16
+  - `legacy 错，skill_legacy 对`: 6
+  - `legacy 错，skill_legacy 也错`: 36
+  - `legacy` 的 assistant 含 `<python_code>`：8
+  - `skill_legacy` 的 assistant 含 `<python_code>`：21
+- 我理解的问题：
+  - `skill_legacy` 不是工具用少了，而是更容易在最后一步继续调用 `<python_code>`，没有及时交 `<answer>`。
+  - 一个明显 prompt 差异是：`skill_legacy` 自动生成的 `python_code` 说明原来多了内联示例：
+
+```text
+Example: <python_code>print(1 + 1)</python_code>
+```
+
+  - 这个例子可能让 3B 模型更倾向于照着继续写代码。
+- 改动：
+  - `alphaapollo/core/skills/prompt.py`
+    - `python_code` 的 legacy prompt 不再附带内联 Example。
+    - prompt 渲染顺序优先保持 `python_code -> local_rag`，更贴近旧版手写 prompt。
+  - `alphaapollo/core/environments/prompts/informal_math_training.py`
+    - 只有一个 legacy tool 时使用旧版措辞 `do not perform both`。
+    - 多个 legacy tool 时仍使用 `do not perform multiple actions at the same time`。
+  - 重新生成 `docs/task-b/prompts/current-prompt-gallery.md`。
+- 当前状态：
+  - 已继续跑服务器 100 题，结果记录在 Change 053。
+
+### Change 053: 服务器回归测试 `skill_legacy_aligned`
+
+- 日期：2026-05-23
+- 目的：
+  - 验证 Change 052 的 prompt 对齐是否能修复 `skill_legacy=0.48` 的回归差距。
+- 运行方式：
+
+```text
++env.tool_prompt_format=skill_legacy
+输出后缀: skill_legacy_aligned
+```
+
+- 输出文件：
+  - 服务器 JSONL：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy_aligned.json`
+  - 服务器 parquet：`/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy_aligned.parquet`
+  - 本地同步：`docs/task-b/artifacts/regression-100/qwen25_3b_vllm_math500_100_skill_legacy_aligned.json`
+  - 可读版 rollout：`docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_legacy_aligned_rollouts.md`
+  - 差异分析：`docs/task-b/legacy-vs-skill-legacy-aligned-analysis.md`
+- 实验结果：
+  - `avg@1 = 0.6200`
+  - `pass@1 = 0.6200`
+  - 重新统计：`62 / 100 = 0.62`
+  - `assistant_has_answer = 89`
+  - `assistant_answer_contains_boxed = 89`
+  - `assistant_has_legacy_tool_tag = 14`
+- 对比：
+
+```text
+legacy baseline:        0.58
+skill_legacy:           0.48
+skill_legacy_aligned:   0.62
+```
+
+- 我理解的结论：
+  - 固定 100 题回归已经通过 B6。
+  - 这次提升来自“行为对齐”，不是换更复杂的新格式。
+  - 原来的 `skill_legacy` 多了一个 `python_code` 内联 example，导致模型更容易在最后一步继续写 `<python_code>`，不交 `<answer>`。
+  - 去掉这个 example 后，answer 数从 73 回升到 89，assistant 中 `<python_code>` 从 21 降到 14。
+
+### Change 054: 尝试 7B 模型回归，对当前 4090 机器做资源判断
+
+- 日期：2026-05-23
+- 目的：
+  - 在同一套 Task B 回归设置下，用 `Qwen2.5-7B-Instruct` 跑一组 100 题对比。
+  - 先验证当前服务器是否能承载 7B，再决定是否正式跑 `legacy` 和 `skill_legacy_aligned`。
+- 服务器资源：
+  - GPU：`NVIDIA GeForce RTX 4090`
+  - 显存：`24564 MiB`
+  - 模型路径：`/root/AlphaApollo-TaskB/models/Qwen2.5-7B-Instruct`
+- 新增脚本：
+  - `docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh`
+  - `docs/task-b/artifacts/regression-100/run_math500_100_7b_hf_regression.sh`
+- vLLM 尝试：
+  - 命令后缀：`legacy_7b`
+  - 日志：服务器 `/tmp/run_math500_100_7b_legacy.log`
+  - 结果：失败，CUDA OOM。
+  - 现象：vLLM 加载 7B 模型时显存已经接近满载，只剩约 `115 MiB`，再申请 `130 MiB` 失败。
+- HF rollout 尝试：
+  - 命令后缀：`legacy_7b_hf`
+  - 日志：服务器 `/tmp/run_math500_100_7b_hf_legacy.log`
+  - 结果：失败，CUDA OOM。
+  - 现象：FSDP 初始化时需要再申请约 `14.19 GiB`，但 GPU 只剩约 `8.58 GiB`。
+- 我理解的结论：
+  - 不是模型没有下载，也不是脚本入口错了。
+  - 当前 AlphaApollo/verl 回归链路会带来额外显存开销；7B 在单张 24GB 4090 上跑不起来。
+  - 如果要做 7B 对比，建议换至少 `40GB` 显存机器，更稳的是 `48GB` 显存机器，例如 A100 40GB、A6000 48GB、L40S 48GB。
+  - 后续换机器后可以直接复用这两个 7B 脚本，继续跑 `legacy` 和 `skill_legacy_aligned` 对比。

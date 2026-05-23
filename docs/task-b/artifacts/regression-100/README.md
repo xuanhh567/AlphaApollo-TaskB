@@ -12,17 +12,26 @@ qwen25_3b_vllm_math500_100_skill_v3.json
 qwen25_3b_vllm_math500_100_skill_v4.json
 qwen25_3b_vllm_math500_100_skill_v5.json
 qwen25_3b_vllm_math500_100_skill_legacy.json
+qwen25_3b_vllm_math500_100_skill_legacy_aligned.json
+qwen25_3b_vllm_math500_100_skill_hermes.json
+qwen25_3b_vllm_math500_100_skill_hermes_boxed.json
 task_b_regression_analysis.json
 task_b_regression_analysis_with_v3.json
 task_b_regression_analysis_with_v4.json
 task_b_regression_analysis_with_v5.json
 task_b_regression_analysis_with_skill_legacy.json
+task_b_regression_analysis_with_skill_legacy_aligned.json
+task_b_regression_analysis_with_skill_hermes.json
+task_b_regression_analysis_with_skill_hermes_boxed.json
 run_math500_100_regression.sh
 run_math500_100_skill_v2.sh
 run_math500_100_skill_v3.sh
 run_math500_100_skill_v4.sh
 run_math500_100_skill_v5.sh
 run_math500_100_skill_legacy.sh
+run_math500_100_skill_legacy_aligned.sh
+run_math500_100_skill_hermes.sh
+run_math500_100_skill_hermes_boxed.sh
 readable/qwen25_3b_vllm_math500_100_legacy_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v2_rollouts.md
@@ -30,6 +39,9 @@ readable/qwen25_3b_vllm_math500_100_skill_v3_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v4_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_legacy_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_legacy_aligned_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_hermes_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_hermes_boxed_rollouts.md
 ```
 
 这些 `.json` 结果文件其实是 JSONL 文件：一行代表一道题的完整回归 rollout。每一行里都包含原始题目信息、rollout `history` 和 `rewards`。
@@ -44,6 +56,9 @@ readable/qwen25_3b_vllm_math500_100_skill_v3_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v4_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 readable/qwen25_3b_vllm_math500_100_skill_legacy_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_legacy_aligned_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_hermes_rollouts.md
+readable/qwen25_3b_vllm_math500_100_skill_hermes_boxed_rollouts.md
 ```
 
 这些 Markdown 文件已经把 100 道题拆成 `Sample 000` 到 `Sample 099`，每题都有题目、标准答案、reward、模型输出和可展开的完整 history。
@@ -79,6 +94,9 @@ parquet 文件可以在服务器上保留，或者之后重新生成。
 | skill_v4 | 0.33 | 0.33 | 0.33 | minimized structured prompt |
 | skill_v5 | 0.11 | 0.11 | 0.11 | Bad/Good adapter prompt |
 | skill_legacy | 0.48 | 0.48 | 0.48 | SKILL.md-driven legacy tag prompt |
+| skill_legacy_aligned | 0.62 | 0.62 | 0.62 | removed python_code inline example; matched legacy prompt more closely |
+| skill_hermes | 0.44 | 0.44 | 0.44 | SKILL.md-driven Hermes-like function schema |
+| skill_hermes_boxed | 0.44 | 0.44 | 0.44 | Hermes-like prompt with stronger `\boxed{...}` answer requirement |
 
 当前结论记录在：
 

@@ -80,6 +80,9 @@ rewards  环境给这条样本的得分
 | skill_v4 | 33 / 100 | 0.33 | 51 | 28 | 1 |
 | skill_v5 | 11 / 100 | 0.11 | 19 | 53 | 4 |
 | skill_legacy | 48 / 100 | 0.48 | 47 | 0 | 0 |
+| skill_legacy_aligned | 62 / 100 | 0.62 | 89 | 0 | 0 |
+| skill_hermes | 44 / 100 | 0.44 | 74 | 1 `<tool_call>` + 46 `<tool_calls>` | 3 |
+| skill_hermes_boxed | 44 / 100 | 0.44 | 69 | 1 `<tool_call>` + 27 `<tool_calls>` | 6 |
 
 说明：
 
@@ -104,6 +107,14 @@ skill 全 100 题里，只有 2 行产生了完整有效的 structured tool call
 
 补充：`skill_legacy` 使用 SKILL.md 驱动的旧标签 prompt。模型侧看到 `<python_code>...</python_code>`，parser 从 registry 中读取 `legacy_calls`，再统一转成 `ToolCall` 执行。准确率回升到 0.48，说明主要退化确实来自模型不稳定输出严格 JSON tool call；但它仍低于 legacy 0.58，说明 prompt 细节和内部执行路径仍有差异。
 
+补充：`skill_legacy_aligned` 去掉了 `python_code` legacy prompt 里的内联例子，并保持 `python_code -> local_rag` 的旧版工具顺序。准确率达到 0.62，高于 legacy baseline 0.58，因此固定 100 题回归通过。这个结果说明前一版 `skill_legacy` 的主要问题不是 SkillSpec / dispatcher，而是 prompt 里多出的例子让模型更容易在最后一步继续调用工具、不交最终答案。
+
+补充：`skill_hermes` 参考 vLLM/Qwen 的 Hermes-style tool use 思路，但没有用 vLLM parser 替代项目 parser。它让我们的 parser 支持 `<tool_calls>[...]</tool_calls>` 和 OpenAI-like `function.arguments` 字符串，再统一转成 `ToolCall`。100 题结果是 0.44，比最初 structured `skill=0.38` 高，但低于 `skill_legacy=0.48`，说明“更接近 Hermes”有帮助，但还不如直接保留模型熟悉的旧 `<python_code>` 标签。
+
+评分器漏判观察：`skill_hermes` 的 `Sample 000 / dataset index 0` 数学上答对了，但 reward 是 `0.0`。模型输出 `<answer>\(\left(3, \frac{\pi}{2}\right)\)</answer>`，标准答案是 `\left( 3, \frac{\pi}{2} \right)`。本地验证显示裸答案与标准答案 `math_equal=True`，但当前 `compute_score(...)` 优先抽取 `\boxed{...}`，没有优先解析 `<answer>...</answer>`，因此误抽取了其他文本并判错。这个样本应记为 false negative。为了和 Task A baseline 保持公平比较，主回归表暂时不改评分器；可在后续另做人工复核或修正版评分器分析。
+
+补充：`skill_hermes_boxed` 只在 `skill_hermes` 基础上强化最终答案格式，提示模型必须写 `<answer>\boxed{...}</answer>`。结果仍是 0.44，和 `skill_hermes` 持平；但 answer 中包含 `\boxed{...}` 的样本达到 66 个，完整有效 tool call 从 3 个增加到 6 个。说明这个改动改善了格式服从，但没有带来总体正确率提升。
+
 ## 4.1 Prompt 精简程度对比
 
 为了确认几次实验到底是“加长说明”还是“压缩说明”，我用同一道题：
@@ -123,6 +134,9 @@ Evaluate $(1+2i)6-3i$.
 | skill_v4 | `0188438` | 1157 | 14 | 1.41x | 3 | 1 | 0.33 |
 | skill_v5 | `7e50310` | 1398 | 19 | 1.71x | 5 | 1 | 0.11 |
 | skill_legacy | `9433df1` | 895 | 10 | 1.09x | 0 | 1 | 0.48 |
+| skill_legacy_aligned | `9433df1 + local patch` | 886 | 9 | 1.00x | 0 | 0 | 0.62 |
+| skill_hermes | `9433df1 + local patch` | 1299 | 29 | 1.59x | 2 | 0 | 0.44 |
+| skill_hermes_boxed | `9433df1 + local patch` | 1368 | 28 | 1.67x | 2 | 0 | 0.44 |
 
 通俗解释：
 
@@ -134,6 +148,9 @@ skill_v3 加了调用后停止、等待 tool_response、更多 examples，是最
 skill_v4 做减法，只保留最小 structured 格式和一个 example。
 skill_v5 在 v4 基础上只增加 Bad/Good 格式纠偏，针对模型真实犯过的坏格式。
 skill_legacy 回到旧标签格式，但工具说明由 SKILL.md 自动生成，内部仍走 SkillSpec / registry / dispatcher。
+skill_legacy_aligned 继续使用 SKILL.md，但去掉 python_code 内联例子，prompt 长度几乎与 legacy 一致。
+skill_hermes 用 SKILL.md 生成 OpenAI/Hermes-like function schema，并允许 `<tool_calls>[...]</tool_calls>`，但实际准确率仍低于 skill_legacy。
+skill_hermes_boxed 在 Hermes-like prompt 上强调最终答案必须 boxed，格式指标改善但分数不变。
 ```
 
 从结果看，prompt 不是越详细越好。`skill_v3` 最长，但准确率最低；`skill_v4` 明显压缩后准确率回升到 0.33，但仍然没有达到 legacy 的 0.58。

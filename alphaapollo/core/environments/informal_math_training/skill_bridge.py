@@ -108,7 +108,12 @@ def _contains_structured_tool_call_tag(action: str) -> bool:
     if not isinstance(action, str):
         return False
     lowered = action.lower()
-    return "<tool_call>" in lowered or "</tool_call>" in lowered
+    return (
+        "<tool_call>" in lowered
+        or "</tool_call>" in lowered
+        or "<tool_calls>" in lowered
+        or "</tool_calls>" in lowered
+    )
 
 
 def _parse_legacy_skill_actions(action: str, registry: SkillRegistry | None) -> list[ParsedToolAction]:

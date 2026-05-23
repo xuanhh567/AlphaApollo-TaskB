@@ -119,6 +119,18 @@ def test_parse_structured_local_rag():
     assert actions[0].call_format == "structured"
 
 
+def test_parse_hermes_like_plural_tool_calls():
+    actions = parse_tool_actions(
+        '<tool_calls>[{"name":"python_code","arguments":{"code":"print(1 + 1)"}}]</tool_calls>'
+    )
+
+    assert len(actions) == 1
+    assert actions[0].call is not None
+    assert actions[0].call.name == "python_code"
+    assert actions[0].call.arguments == {"code": "print(1 + 1)"}
+    assert actions[0].call_format == "structured"
+
+
 def test_parse_legacy_local_rag_invalid_json_keeps_old_error_text():
     registry = load_builtin_registry()
 
@@ -219,6 +231,7 @@ if __name__ == "__main__":
     test_parse_legacy_python_code()
     test_parse_legacy_local_rag_json()
     test_parse_structured_local_rag()
+    test_parse_hermes_like_plural_tool_calls()
     test_parse_legacy_local_rag_invalid_json_keeps_old_error_text()
     test_legacy_tags_are_registry_driven()
     test_execute_skill_call_validates_before_tool_group_execution()

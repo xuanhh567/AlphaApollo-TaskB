@@ -3,6 +3,7 @@
 from alphaapollo.core.skills.call_parser import ToolCall, ToolError, parse_tool_call
 from alphaapollo.core.skills.dispatcher import RuntimeExecutor, ToolResult, dispatch_tool_call
 from alphaapollo.core.skills.prompt import (
+    render_hermes_skill_prompt_block,
     render_legacy_skill_prompt_block,
     render_skill_prompt_block,
     render_tool_call_example,
@@ -44,6 +45,7 @@ __all__ = [
     "get_builtin_skill_dirs",
     "load_skill_registry_from_dirs",
     "parse_tool_call",
+    "render_hermes_skill_prompt_block",
     "render_legacy_skill_prompt_block",
     "render_skill_prompt_block",
     "render_tool_call_example",
