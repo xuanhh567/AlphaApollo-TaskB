@@ -14,7 +14,7 @@
     0.0
   ]
 ]`
-- Ground truth: `\left( 3, \frac{\pi}{2} \right)`
+- Ground truth: $\left( 3, \frac{\pi}{2} \right)$
 
 ### Question
 
@@ -143,7 +143,7 @@ Since the point \((0, 3)\) lies on the positive \(y\)-axis, \(\theta\) should be
     0.0
   ]
 ]`
-- Ground truth: `90^\circ`
+- Ground truth: $90^\circ$
 
 ### Question
 
@@ -443,7 +443,7 @@ Let's compute the angle in degrees.
     0.0
   ]
 ]`
-- Ground truth: `6+9i`
+- Ground truth: 6+9i
 
 ### Question
 
@@ -601,7 +601,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `11\sqrt2`
+- Ground truth: $11\sqrt2$
 
 ### Question
 
@@ -665,7 +665,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `720`
+- Ground truth: 720
 
 ### Question
 
@@ -766,7 +766,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `72`
+- Ground truth: 72
 
 ### Question
 
@@ -899,7 +899,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -1276,7 +1276,7 @@ Let's verify:
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -1345,7 +1345,7 @@ Let's start by solving the quadratic equation \( w^2 + w + 1 = 0 \).
     0.0
   ]
 ]`
-- Ground truth: `5`
+- Ground truth: 5
 
 ### Question
 
@@ -1416,7 +1416,7 @@ Let's solve the quadratic equation \( x^2 - 5x - 14 = 0 \) to find the vertical 
     0.0
   ]
 ]`
-- Ground truth: `\frac{3}{2}`
+- Ground truth: $\frac{3}{2}$
 
 ### Question
 
@@ -1484,7 +1484,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `203`
+- Ground truth: 203
 
 ### Question
 
@@ -1555,7 +1555,7 @@ Let's start solving the problem by finding the smallest \(x\) such that \(7x + 5
     0.0
   ]
 ]`
-- Ground truth: `x^5 - x^4 + x^3 - x^2 + x - 1`
+- Ground truth: $x^5 - x^4 + x^3 - x^2 + x - 1$
 
 ### Question
 
@@ -1624,7 +1624,7 @@ Let's start the division process.
     0.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1692,7 +1692,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2516_8`
+- Ground truth: $2516_8$
 
 ### Question
 
@@ -1762,7 +1762,7 @@ Let's proceed with the conversion.
     0.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1976,7 +1976,7 @@ Do not write YAML, duplicate
     0.0
   ]
 ]`
-- Ground truth: `\frac{11}{36}`
+- Ground truth: $\frac{11}{36}$
 
 ### Question
 
@@ -2195,7 +2195,7 @@ The probability is then the number of favorable outcomes divided by the total nu
     0.0
   ]
 ]`
-- Ground truth: `\text{east}`
+- Ground truth: $\text{east}$
 
 ### Question
 
@@ -2257,7 +2257,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `40`
+- Ground truth: 40
 
 ### Question
 
@@ -2698,7 +2698,7 @@ Let's use the distance formula \(d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}\).
     0.0
   ]
 ]`
-- Ground truth: `210`
+- Ground truth: 210
 
 ### Question
 
@@ -2798,7 +2798,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `8000`
+- Ground truth: 8000
 
 ### Question
 
@@ -2967,7 +2967,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -3132,7 +3132,7 @@ Let's calculate \( k \) using the given information.
     0.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -3362,7 +3362,7 @@ Therefore, the largest possible value of \(x\) is \(\boxed{\frac{3}{1}}\).
     0.0
   ]
 ]`
-- Ground truth: `36`
+- Ground truth: 36
 
 ### Question
 
@@ -3432,7 +3432,7 @@ Let's start by calculating the number of days in February and then determine how
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -3553,7 +3553,7 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"common_factors = [1,
     0.0
   ]
 ]`
-- Ground truth: `120`
+- Ground truth: 120
 
 ### Question
 
@@ -3711,7 +3711,7 @@ print(largest_angle)"}}
     0.0
   ]
 ]`
-- Ground truth: `(15,-29)`
+- Ground truth: (15,-29)
 
 ### Question
 
@@ -3906,7 +3906,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `49`
+- Ground truth: 49
 
 ### Question
 
@@ -4026,7 +4026,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2\sqrt{113}`
+- Ground truth: $2\sqrt{113}$
 
 ### Question
 
@@ -4155,7 +4155,7 @@ Since all three unfolded cases give the same distance, the shortest path the gec
     0.0
   ]
 ]`
-- Ground truth: `\frac{1}{4}`
+- Ground truth: $\frac{1}{4}$
 
 ### Question
 
@@ -4304,7 +4304,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `2107`
+- Ground truth: 2107
 
 ### Question
 
@@ -4558,7 +4558,7 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"print(7 * 301)"}-exp
     1.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -4627,7 +4627,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-\frac{35}{9}`
+- Ground truth: $-\frac{35}{9}$
 
 ### Question
 
@@ -4896,7 +4896,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `\frac{270}7\text{ degrees}`
+- Ground truth: $\frac{270}7\text{ degrees}$
 
 ### Question
 
@@ -5129,7 +5129,7 @@ Let's perform the calculation.
     1.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -5366,7 +5366,7 @@ The area of the triangle is 12 square units, not 6 square units as previously ca
     0.0
   ]
 ]`
-- Ground truth: `1736`
+- Ground truth: 1736
 
 ### Question
 
@@ -5436,7 +5436,7 @@ Let's start by substituting \(y = x^2 - 8\) into \(y^2 = -5x + 44\).
     0.0
   ]
 ]`
-- Ground truth: `\frac{\sqrt{3}}{3}`
+- Ground truth: $\frac{\sqrt{3}}{3}$
 
 ### Question
 
@@ -5617,7 +5617,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `23`
+- Ground truth: 23
 
 ### Question
 
@@ -5877,7 +5877,7 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"from sympy import *;
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -5946,7 +5946,7 @@ Let's start by calculating \(10!\) and then finding its prime factorization.
     0.0
   ]
 ]`
-- Ground truth: `0`
+- Ground truth: 0
 
 ### Question
 
@@ -6113,7 +6113,7 @@ Therefore, the maximum value is \(\boxed{64}\).
     0.0
   ]
 ]`
-- Ground truth: `28`
+- Ground truth: 28
 
 ### Question
 
@@ -6225,7 +6225,7 @@ combinations"}
     0.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -6297,7 +6297,7 @@ To solve the quadratic equation \(x^2 - x - 1 = 0\), we can use the quadratic fo
     0.0
   ]
 ]`
-- Ground truth: `54`
+- Ground truth: 54
 
 ### Question
 
@@ -6620,7 +6620,7 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"print(6 / 16)"}
     0.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -6742,7 +6742,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `90`
+- Ground truth: 90
 
 ### Question
 
@@ -6854,7 +6854,7 @@ Tool-call:
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -7012,7 +7012,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -7260,7 +7260,7 @@ Since \(1080^\circ\) is close to \(1070^\circ + \text{one interior angle}\) and 
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}$
 
 ### Question
 
@@ -7399,7 +7399,7 @@ Now, we can write \(\mathbf{A} = \mathbf{PDP}^{-1}\), where \(\mathbf{D} = \begi
     1.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -7555,7 +7555,7 @@ a + b + m = 4 + 12 - 3.
     0.0
   ]
 ]`
-- Ground truth: `81`
+- Ground truth: 81
 
 ### Question
 
@@ -7651,7 +7651,7 @@ First, let's expand the function \( f(x) = 4(x + 7)(2 - x) \).
     1.0
   ]
 ]`
-- Ground truth: `16`
+- Ground truth: 16
 
 ### Question
 
@@ -7887,7 +7887,7 @@ The number of blue marbles in the bag before adding more was \(\boxed{16}\).
     0.0
   ]
 ]`
-- Ground truth: `120^\circ`
+- Ground truth: $120^\circ$
 
 ### Question
 
@@ -7996,7 +7996,7 @@ Let's start by calculating the vectors \(\overrightarrow{BA}\) and \(\overrighta
     0.0
   ]
 ]`
-- Ground truth: `76^\circ`
+- Ground truth: $76^\circ$
 
 ### Question
 
@@ -8096,7 +8096,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\dfrac{33}{100}`
+- Ground truth: $\dfrac{33}{100}$
 
 ### Question
 
@@ -8243,7 +8243,7 @@ Now, let's compute the probability.
     0.0
   ]
 ]`
-- Ground truth: `1030`
+- Ground truth: 1030
 
 ### Question
 
@@ -8359,7 +8359,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `255`
+- Ground truth: 255
 
 ### Question
 
@@ -8488,7 +8488,7 @@ Action 1: <tool_call>python_code {"code":"binary_number = '11111111'\ndecimal_nu
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -8561,7 +8561,7 @@ Let's simplify the expression step by step.
     0.0
   ]
 ]`
-- Ground truth: `129`
+- Ground truth: 129
 
 ### Question
 
@@ -8730,7 +8730,7 @@ Tool-call:
     0.0
   ]
 ]`
-- Ground truth: `\frac{17}{21}`
+- Ground truth: $\frac{17}{21}$
 
 ### Question
 
@@ -8958,7 +8958,7 @@ sum_value"}
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -9033,7 +9033,7 @@ Next, we will expand the right-hand side and then simplify the resulting equatio
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}$
 
 ### Question
 
@@ -9382,7 +9382,7 @@ Now, let's perform the computation.
     0.0
   ]
 ]`
-- Ground truth: `1+2\sqrt{3}`
+- Ground truth: $1+2\sqrt{3}$
 
 ### Question
 
@@ -9789,7 +9789,7 @@ Good:
     0.0
   ]
 ]`
-- Ground truth: `(5,\infty)`
+- Ground truth: $(5,\infty)$
 
 ### Question
 
@@ -9899,7 +9899,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12\pi`
+- Ground truth: $12\pi$
 
 ### Question
 
@@ -9961,7 +9961,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -10030,7 +10030,7 @@ Let's expand \((Ax - 8)(Bx + 3)\) and compare the coefficients.
     0.0
   ]
 ]`
-- Ground truth: `-\frac{24}{25}`
+- Ground truth: $-\frac{24}{25}$
 
 ### Question
 
@@ -10228,7 +10228,7 @@ Let's solve for \(\cos \angle RPQ\).
     0.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 
@@ -10779,7 +10779,7 @@ This does not work. Let's
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -11026,7 +11026,7 @@ Since the reasoning is correct, no further computation is needed. The solution i
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -11090,7 +11090,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{7}{4}`
+- Ground truth: $\frac{7}{4}$
 
 ### Question
 
@@ -11409,7 +11409,7 @@ Thus, the value of \( b \) is indeed \(-1\). Let's confirm this by checking the 
     1.0
   ]
 ]`
-- Ground truth: `16 \sqrt{3}`
+- Ground truth: $16 \sqrt{3}$
 
 ### Question
 
@@ -11564,7 +11564,7 @@ The side length of the equilateral triangle is \(2x_1 = 2 \cdot 8\sqrt{3} = 16\s
     0.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -11627,7 +11627,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `31`
+- Ground truth: 31
 
 ### Question
 
@@ -11780,7 +11780,7 @@ Now, let's compute the greatest possible perimeter.
     0.0
   ]
 ]`
-- Ground truth: `1+2i`
+- Ground truth: 1+2i
 
 ### Question
 
@@ -11844,7 +11844,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `11`
+- Ground truth: 11
 
 ### Question
 
@@ -11951,7 +11951,7 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"print(len([x for x i
     0.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -12113,7 +12113,7 @@ Given the confirmation from the tool, the smallest real number \( x \) in the do
     0.0
   ]
 ]`
-- Ground truth: `\frac{13}{4}`
+- Ground truth: $\frac{13}{4}$
 
 ### Question
 
@@ -12292,7 +12292,7 @@ Good:
     1.0
   ]
 ]`
-- Ground truth: `2 \sqrt{5}`
+- Ground truth: $2 \sqrt{5}$
 
 ### Question
 
@@ -12591,7 +12591,7 @@ Now, let's provide the final answer in LaTeX format.
     1.0
   ]
 ]`
-- Ground truth: `60`
+- Ground truth: 60
 
 ### Question
 
@@ -12675,7 +12675,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `406`
+- Ground truth: 406
 
 ### Question
 
@@ -12978,7 +12978,7 @@ Finally, we need to find \(P(16)\):
     0.0
   ]
 ]`
-- Ground truth: `10`
+- Ground truth: 10
 
 ### Question
 
@@ -13178,7 +13178,7 @@ Therefore, the sum of the values of \(a\) that satisfy the equation is 0, as the
     0.0
   ]
 ]`
-- Ground truth: `\{1\pm\sqrt{5},-2\}`
+- Ground truth: $\{1\pm\sqrt{5},-2\}$
 
 ### Question
 
@@ -13420,7 +13420,7 @@ This can be rearranged to:
     0.0
   ]
 ]`
-- Ground truth: `1440`
+- Ground truth: 1440
 
 ### Question
 
@@ -13653,7 +13653,7 @@ Since all conditions are satisfied, the largest integer less than 2010 that meet
     0.0
   ]
 ]`
-- Ground truth: `600`
+- Ground truth: 600
 
 ### Question
 
@@ -13725,7 +13725,7 @@ Let's start by finding the constant \(k\).
     0.0
   ]
 ]`
-- Ground truth: `4.5`
+- Ground truth: 4.5
 
 ### Question
 
@@ -13836,7 +13836,7 @@ Tool-call:
     0.0
   ]
 ]`
-- Ground truth: `331`
+- Ground truth: 331
 
 ### Question
 
@@ -14149,7 +14149,7 @@ This is a geometric series with the first term \( a = 1 \) and common ratio \( r
     0.0
   ]
 ]`
-- Ground truth: `(-\infty, 2) \cup (3, \infty)`
+- Ground truth: $(-\infty, 2) \cup (3, \infty)$
 
 ### Question
 
@@ -14272,7 +14272,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `45`
+- Ground truth: 45
 
 ### Question
 
@@ -14506,7 +14506,7 @@ Now, let's calculate the value of \(x\).
     0.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -14568,7 +14568,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -14699,7 +14699,7 @@ num_ways
     0.0
   ]
 ]`
-- Ground truth: `-2,1`
+- Ground truth: -2,1
 
 ### Question
 
@@ -14770,7 +14770,7 @@ Let's test these values.
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -14961,7 +14961,7 @@ Let's confirm this with Python code.
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -15194,7 +15194,7 @@ Since \(x\) represents a logarithm argument, it must be positive. Therefore, \(x
     0.0
   ]
 ]`
-- Ground truth: `121`
+- Ground truth: 121
 
 ### Question
 
@@ -15326,7 +15326,7 @@ Tool-call:
     0.0
   ]
 ]`
-- Ground truth: `15\mbox{ cm}^2`
+- Ground truth: $15\mbox{ cm}^2$
 
 ### Question
 
@@ -15483,7 +15483,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -15599,7 +15599,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `27648`
+- Ground truth: 27648
 
 ### Question
 
@@ -15838,7 +15838,7 @@ k_solution[0], max_value"}
     0.0
   ]
 ]`
-- Ground truth: `\frac{2}{1005}`
+- Ground truth: $\frac{2}{1005}$
 
 ### Question
 
@@ -16036,7 +16036,7 @@ Let's test \(x = -\sqrt{3}\):
     0.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -16219,7 +16219,7 @@ The minimum distance among these paths is 12.
     0.0
   ]
 ]`
-- Ground truth: `\$36`
+- Ground truth: $\$36$
 
 ### Question
 
@@ -16318,7 +16318,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 

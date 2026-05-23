@@ -14,7 +14,7 @@
     1.0
   ]
 ]`
-- Ground truth: `\left( 3, \frac{\pi}{2} \right)`
+- Ground truth: $\left( 3, \frac{\pi}{2} \right)$
 
 ### Question
 
@@ -109,7 +109,7 @@ However, we need to consider the quadrant in which the point lies to get the cor
     1.0
   ]
 ]`
-- Ground truth: `90^\circ`
+- Ground truth: $90^\circ$
 
 ### Question
 
@@ -334,7 +334,7 @@ Let's calculate the dot product and the magnitudes of the vectors.
     0.0
   ]
 ]`
-- Ground truth: `6+9i`
+- Ground truth: 6+9i
 
 ### Question
 
@@ -458,7 +458,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `11\sqrt2`
+- Ground truth: $11\sqrt2$
 
 ### Question
 
@@ -532,7 +532,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `720`
+- Ground truth: 720
 
 ### Question
 
@@ -606,7 +606,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `72`
+- Ground truth: 72
 
 ### Question
 
@@ -680,7 +680,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -832,7 +832,7 @@ x_plus_y
     1.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -910,7 +910,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `5`
+- Ground truth: 5
 
 ### Question
 
@@ -1083,7 +1083,7 @@ a, b, root1, root2, root1 + root2"}}
     1.0
   ]
 ]`
-- Ground truth: `\frac{3}{2}`
+- Ground truth: $\frac{3}{2}$
 
 ### Question
 
@@ -1157,7 +1157,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `203`
+- Ground truth: 203
 
 ### Question
 
@@ -1229,7 +1229,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `x^5 - x^4 + x^3 - x^2 + x - 1`
+- Ground truth: $x^5 - x^4 + x^3 - x^2 + x - 1$
 
 ### Question
 
@@ -1306,7 +1306,7 @@ To solve this, we will use polynomial long division. Let's start the division pr
     1.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1380,7 +1380,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2516_8`
+- Ground truth: $2516_8$
 
 ### Question
 
@@ -1478,7 +1478,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1552,7 +1552,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{11}{36}`
+- Ground truth: $\frac{11}{36}$
 
 ### Question
 
@@ -1632,7 +1632,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\text{east}`
+- Ground truth: $\text{east}$
 
 ### Question
 
@@ -1707,7 +1707,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `40`
+- Ground truth: 40
 
 ### Question
 
@@ -1891,7 +1891,7 @@ intersection_points"}}
     0.0
   ]
 ]`
-- Ground truth: `210`
+- Ground truth: 210
 
 ### Question
 
@@ -1965,7 +1965,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `8000`
+- Ground truth: 8000
 
 ### Question
 
@@ -2039,7 +2039,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -2146,7 +2146,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -2229,7 +2229,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `36`
+- Ground truth: 36
 
 ### Question
 
@@ -2303,7 +2303,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -2374,7 +2374,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `120`
+- Ground truth: 120
 
 ### Question
 
@@ -2448,7 +2448,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `(15,-29)`
+- Ground truth: (15,-29)
 
 ### Question
 
@@ -2524,7 +2524,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `49`
+- Ground truth: 49
 
 ### Question
 
@@ -2598,7 +2598,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2\sqrt{113}`
+- Ground truth: $2\sqrt{113}$
 
 ### Question
 
@@ -2672,7 +2672,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\frac{1}{4}`
+- Ground truth: $\frac{1}{4}$
 
 ### Question
 
@@ -2746,7 +2746,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2107`
+- Ground truth: 2107
 
 ### Question
 
@@ -2820,7 +2820,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -2895,7 +2895,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-\frac{35}{9}`
+- Ground truth: $-\frac{35}{9}$
 
 ### Question
 
@@ -3037,7 +3037,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{270}7\text{ degrees}`
+- Ground truth: $\frac{270}7\text{ degrees}$
 
 ### Question
 
@@ -3153,7 +3153,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -3287,7 +3287,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `1736`
+- Ground truth: 1736
 
 ### Question
 
@@ -3424,7 +3424,7 @@ y_product"
     1.0
   ]
 ]`
-- Ground truth: `\frac{\sqrt{3}}{3}`
+- Ground truth: $\frac{\sqrt{3}}{3}$
 
 ### Question
 
@@ -3498,7 +3498,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `23`
+- Ground truth: 23
 
 ### Question
 
@@ -3572,7 +3572,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -3646,7 +3646,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `0`
+- Ground truth: 0
 
 ### Question
 
@@ -3930,7 +3930,7 @@ The magnitudes are:
     1.0
   ]
 ]`
-- Ground truth: `28`
+- Ground truth: 28
 
 ### Question
 
@@ -4054,7 +4054,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -4128,7 +4128,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `54`
+- Ground truth: 54
 
 ### Question
 
@@ -4219,7 +4219,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -4293,7 +4293,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `90`
+- Ground truth: 90
 
 ### Question
 
@@ -4377,7 +4377,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -4472,7 +4472,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -4562,7 +4562,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}$
 
 ### Question
 
@@ -4687,7 +4687,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -4761,7 +4761,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `81`
+- Ground truth: 81
 
 ### Question
 
@@ -4847,7 +4847,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `16`
+- Ground truth: 16
 
 ### Question
 
@@ -5020,7 +5020,7 @@ Now that we have \(x\), we can find the initial number of blue marbles, which is
     0.0
   ]
 ]`
-- Ground truth: `120^\circ`
+- Ground truth: $120^\circ$
 
 ### Question
 
@@ -5160,7 +5160,7 @@ angle_ABC = angle_between_vectors(A, B, C)</ thunder>
     0.0
   ]
 ]`
-- Ground truth: `76^\circ`
+- Ground truth: $76^\circ$
 
 ### Question
 
@@ -5234,7 +5234,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\dfrac{33}{100}`
+- Ground truth: $\dfrac{33}{100}$
 
 ### Question
 
@@ -5308,7 +5308,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `1030`
+- Ground truth: 1030
 
 ### Question
 
@@ -5449,7 +5449,7 @@ The GCD is 1, so the fraction \(\frac{1331}{9999}\) is already in its simplest f
     1.0
   ]
 ]`
-- Ground truth: `255`
+- Ground truth: 255
 
 ### Question
 
@@ -5581,7 +5581,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -5688,7 +5688,7 @@ Let's verify this by calculating the divisors of \(2ab\).
     0.0
   ]
 ]`
-- Ground truth: `129`
+- Ground truth: 129
 
 ### Question
 
@@ -5793,7 +5793,7 @@ We can see that the ninth term is the first term greater than 125. Let's confirm
     0.0
   ]
 ]`
-- Ground truth: `\frac{17}{21}`
+- Ground truth: $\frac{17}{21}$
 
 ### Question
 
@@ -5932,7 +5932,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -6006,7 +6006,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}$
 
 ### Question
 
@@ -6155,7 +6155,7 @@ However, we can directly compute \(\mathbf{b} \times \mathbf{c}\) using the know
     0.0
   ]
 ]`
-- Ground truth: `1+2\sqrt{3}`
+- Ground truth: $1+2\sqrt{3}$
 
 ### Question
 
@@ -6229,7 +6229,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `(5,\infty)`
+- Ground truth: $(5,\infty)$
 
 ### Question
 
@@ -6305,7 +6305,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12\pi`
+- Ground truth: $12\pi$
 
 ### Question
 
@@ -6379,7 +6379,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -6453,7 +6453,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-\frac{24}{25}`
+- Ground truth: $-\frac{24}{25}$
 
 ### Question
 
@@ -6579,7 +6579,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 
@@ -6737,7 +6737,7 @@ Let's compute \(P(5)\) using the given conditions and the form of the polynomial
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -6811,7 +6811,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -6903,7 +6903,7 @@ We can see that the units digits repeat every 4 numbers in the sequence 8, 4, 2,
     0.0
   ]
 ]`
-- Ground truth: `\frac{7}{4}`
+- Ground truth: $\frac{7}{4}$
 
 ### Question
 
@@ -7027,7 +7027,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `16 \sqrt{3}`
+- Ground truth: $16 \sqrt{3}$
 
 ### Question
 
@@ -7101,7 +7101,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -7178,7 +7178,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `31`
+- Ground truth: 31
 
 ### Question
 
@@ -7267,7 +7267,7 @@ The first inequality simplifies to \(16 > x\) or \(x < 16\). The second and thir
     0.0
   ]
 ]`
-- Ground truth: `1+2i`
+- Ground truth: 1+2i
 
 ### Question
 
@@ -7341,7 +7341,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `11`
+- Ground truth: 11
 
 ### Question
 
@@ -7415,7 +7415,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -7493,7 +7493,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{13}{4}`
+- Ground truth: $\frac{13}{4}$
 
 ### Question
 
@@ -7620,7 +7620,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2 \sqrt{5}`
+- Ground truth: $2 \sqrt{5}$
 
 ### Question
 
@@ -7694,7 +7694,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `60`
+- Ground truth: 60
 
 ### Question
 
@@ -7769,7 +7769,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `406`
+- Ground truth: 406
 
 ### Question
 
@@ -8010,7 +8010,7 @@ Thus, the answer is \(\boxed{324}\).</think>
     1.0
   ]
 ]`
-- Ground truth: `10`
+- Ground truth: 10
 
 ### Question
 
@@ -8223,7 +8223,7 @@ So the values of \(a\) are \(5 + \sqrt{121.5}\) and \(5 - \sqrt{121.5}\). The su
     0.0
   ]
 ]`
-- Ground truth: `\{1\pm\sqrt{5},-2\}`
+- Ground truth: $\{1\pm\sqrt{5},-2\}$
 
 ### Question
 
@@ -8304,7 +8304,7 @@ We need to find the value of \(\{\alpha_1\alpha_2 + \alpha_3\alpha_4, \alpha_1\a
     0.0
   ]
 ]`
-- Ground truth: `1440`
+- Ground truth: 1440
 
 ### Question
 
@@ -8390,7 +8390,7 @@ Additionally, \( x \) must be less than 2010. We can use the Chinese Remainder T
     0.0
   ]
 ]`
-- Ground truth: `600`
+- Ground truth: 600
 
 ### Question
 
@@ -8464,7 +8464,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `4.5`
+- Ground truth: 4.5
 
 ### Question
 
@@ -8541,7 +8541,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `331`
+- Ground truth: 331
 
 ### Question
 
@@ -8640,7 +8640,7 @@ We can see that the terms are alternating in sign and involve a pattern related 
     1.0
   ]
 ]`
-- Ground truth: `(-\infty, 2) \cup (3, \infty)`
+- Ground truth: $(-\infty, 2) \cup (3, \infty)$
 
 ### Question
 
@@ -8714,7 +8714,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `45`
+- Ground truth: 45
 
 ### Question
 
@@ -8815,7 +8815,7 @@ Now, let's solve this equation for x.
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -8890,7 +8890,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -9020,7 +9020,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-2,1`
+- Ground truth: -2,1
 
 ### Question
 
@@ -9096,7 +9096,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -9261,7 +9261,7 @@ Finally, we sum the results: \(f\left(\frac{\pi}{3}\right) + f(\sqrt{45}) + f(8^
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -9547,7 +9547,7 @@ Thus, the only valid solution is \(x = 9\).
     1.0
   ]
 ]`
-- Ground truth: `121`
+- Ground truth: 121
 
 ### Question
 
@@ -9627,7 +9627,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `15\mbox{ cm}^2`
+- Ground truth: $15\mbox{ cm}^2$
 
 ### Question
 
@@ -9721,7 +9721,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -9795,7 +9795,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `27648`
+- Ground truth: 27648
 
 ### Question
 
@@ -9881,7 +9881,7 @@ Now we can calculate \(ab^2c^3d^4\):</think>
     0.0
   ]
 ]`
-- Ground truth: `\frac{2}{1005}`
+- Ground truth: $\frac{2}{1005}$
 
 ### Question
 
@@ -10029,7 +10029,7 @@ sum_of_roots"}>}
     0.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -10139,7 +10139,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\$36`
+- Ground truth: $\$36$
 
 ### Question
 
@@ -10213,7 +10213,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 

@@ -14,7 +14,7 @@
     1.0
   ]
 ]`
-- Ground truth: `\left( 3, \frac{\pi}{2} \right)`
+- Ground truth: $\left( 3, \frac{\pi}{2} \right)$
 
 ### Question
 
@@ -101,7 +101,7 @@ However, we need to consider the quadrant in which the point lies. Since x = 0 a
     0.0
   ]
 ]`
-- Ground truth: `90^\circ`
+- Ground truth: $90^\circ$
 
 ### Question
 
@@ -240,7 +240,7 @@ where \(\mathbf{a} \cdot \mathbf{b}\) is the dot product of \(\mathbf{a}\) and \
     0.0
   ]
 ]`
-- Ground truth: `6+9i`
+- Ground truth: 6+9i
 
 ### Question
 
@@ -319,7 +319,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `11\sqrt2`
+- Ground truth: $11\sqrt2$
 
 ### Question
 
@@ -394,7 +394,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `720`
+- Ground truth: 720
 
 ### Question
 
@@ -467,7 +467,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `72`
+- Ground truth: 72
 
 ### Question
 
@@ -542,7 +542,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -617,7 +617,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -693,7 +693,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `5`
+- Ground truth: 5
 
 ### Question
 
@@ -853,7 +853,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\frac{3}{2}`
+- Ground truth: $\frac{3}{2}$
 
 ### Question
 
@@ -928,7 +928,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `203`
+- Ground truth: 203
 
 ### Question
 
@@ -1004,7 +1004,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `x^5 - x^4 + x^3 - x^2 + x - 1`
+- Ground truth: $x^5 - x^4 + x^3 - x^2 + x - 1$
 
 ### Question
 
@@ -1197,7 +1197,7 @@ result
     1.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1272,7 +1272,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2516_8`
+- Ground truth: $2516_8$
 
 ### Question
 
@@ -1416,7 +1416,7 @@ base_eight_num
     1.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -1539,7 +1539,7 @@ r = 3
     1.0
   ]
 ]`
-- Ground truth: `\frac{11}{36}`
+- Ground truth: $\frac{11}{36}$
 
 ### Question
 
@@ -1614,7 +1614,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\text{east}`
+- Ground truth: $\text{east}$
 
 ### Question
 
@@ -1689,7 +1689,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `40`
+- Ground truth: 40
 
 ### Question
 
@@ -1869,7 +1869,7 @@ sum_of_distances
     0.0
   ]
 ]`
-- Ground truth: `210`
+- Ground truth: 210
 
 ### Question
 
@@ -1944,7 +1944,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `8000`
+- Ground truth: 8000
 
 ### Question
 
@@ -2019,7 +2019,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -2094,7 +2094,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -2167,7 +2167,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `36`
+- Ground truth: 36
 
 ### Question
 
@@ -2240,7 +2240,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -2312,7 +2312,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `120`
+- Ground truth: 120
 
 ### Question
 
@@ -2387,7 +2387,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `(15,-29)`
+- Ground truth: (15,-29)
 
 ### Question
 
@@ -2464,7 +2464,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `49`
+- Ground truth: 49
 
 ### Question
 
@@ -2539,7 +2539,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2\sqrt{113}`
+- Ground truth: $2\sqrt{113}$
 
 ### Question
 
@@ -2662,7 +2662,7 @@ The shortest path the gecko can take to reach the fly is \(2\sqrt{34}\) feet.</t
     1.0
   ]
 ]`
-- Ground truth: `\frac{1}{4}`
+- Ground truth: $\frac{1}{4}$
 
 ### Question
 
@@ -2738,7 +2738,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `2107`
+- Ground truth: 2107
 
 ### Question
 
@@ -2890,7 +2890,7 @@ sum_multiples"}}
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -2965,7 +2965,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-\frac{35}{9}`
+- Ground truth: $-\frac{35}{9}$
 
 ### Question
 
@@ -3039,7 +3039,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{270}7\text{ degrees}`
+- Ground truth: $\frac{270}7\text{ degrees}$
 
 ### Question
 
@@ -3236,7 +3236,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -3310,7 +3310,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `1736`
+- Ground truth: 1736
 
 ### Question
 
@@ -3501,7 +3501,7 @@ y_product_simplified
     1.0
   ]
 ]`
-- Ground truth: `\frac{\sqrt{3}}{3}`
+- Ground truth: $\frac{\sqrt{3}}{3}$
 
 ### Question
 
@@ -3577,7 +3577,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `23`
+- Ground truth: 23
 
 ### Question
 
@@ -3697,7 +3697,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -3770,7 +3770,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `0`
+- Ground truth: 0
 
 ### Question
 
@@ -3872,7 +3872,7 @@ However, this is not the complete expression we need. We need to consider the pr
     0.0
   ]
 ]`
-- Ground truth: `28`
+- Ground truth: 28
 
 ### Question
 
@@ -4000,7 +4000,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -4075,7 +4075,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `54`
+- Ground truth: 54
 
 ### Question
 
@@ -4164,7 +4164,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `3`
+- Ground truth: 3
 
 ### Question
 
@@ -4240,7 +4240,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `90`
+- Ground truth: 90
 
 ### Question
 
@@ -4360,7 +4360,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `17`
+- Ground truth: 17
 
 ### Question
 
@@ -4462,7 +4462,7 @@ min_distance_squared"}}
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -4538,7 +4538,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix}$
 
 ### Question
 
@@ -4727,7 +4727,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -4800,7 +4800,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `81`
+- Ground truth: 81
 
 ### Question
 
@@ -4875,7 +4875,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `16`
+- Ground truth: 16
 
 ### Question
 
@@ -4969,7 +4969,7 @@ We will solve this equation for \(x\).
     0.0
   ]
 ]`
-- Ground truth: `120^\circ`
+- Ground truth: $120^\circ$
 
 ### Question
 
@@ -5057,7 +5057,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `76^\circ`
+- Ground truth: $76^\circ$
 
 ### Question
 
@@ -5132,7 +5132,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\dfrac{33}{100}`
+- Ground truth: $\dfrac{33}{100}$
 
 ### Question
 
@@ -5208,7 +5208,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `1030`
+- Ground truth: 1030
 
 ### Question
 
@@ -5337,7 +5337,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `255`
+- Ground truth: 255
 
 ### Question
 
@@ -5464,7 +5464,7 @@ tool_calls:
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -5545,7 +5545,7 @@ Now, we need to find the number of whole-number divisors of $2ab$. Since $a$ and
     0.0
   ]
 ]`
-- Ground truth: `129`
+- Ground truth: 129
 
 ### Question
 
@@ -5664,7 +5664,7 @@ I will emit the python_code tool call.
     0.0
   ]
 ]`
-- Ground truth: `\frac{17}{21}`
+- Ground truth: $\frac{17}{21}$
 
 ### Question
 
@@ -5867,7 +5867,7 @@ total_sum"}}
     0.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -5942,7 +5942,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}`
+- Ground truth: $\begin{pmatrix} -18 \\ -49 \\ 96 \end{pmatrix}$
 
 ### Question
 
@@ -6090,7 +6090,7 @@ Now, let's compute this step-by-step using Python.
     0.0
   ]
 ]`
-- Ground truth: `1+2\sqrt{3}`
+- Ground truth: $1+2\sqrt{3}$
 
 ### Question
 
@@ -6165,7 +6165,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `(5,\infty)`
+- Ground truth: $(5,\infty)$
 
 ### Question
 
@@ -6242,7 +6242,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12\pi`
+- Ground truth: $12\pi$
 
 ### Question
 
@@ -6317,7 +6317,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -6419,7 +6419,7 @@ python_code:solutions
     1.0
   ]
 ]`
-- Ground truth: `-\frac{24}{25}`
+- Ground truth: $-\frac{24}{25}$
 
 ### Question
 
@@ -6546,7 +6546,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 
@@ -6676,7 +6676,7 @@ We need to find \(P(5)\). To do this, we need to determine the coefficients \(a\
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -6844,7 +6844,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `4`
+- Ground truth: 4
 
 ### Question
 
@@ -6919,7 +6919,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{7}{4}`
+- Ground truth: $\frac{7}{4}$
 
 ### Question
 
@@ -7068,7 +7068,7 @@ slope
     0.0
   ]
 ]`
-- Ground truth: `16 \sqrt{3}`
+- Ground truth: $16 \sqrt{3}$
 
 ### Question
 
@@ -7143,7 +7143,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `2`
+- Ground truth: 2
 
 ### Question
 
@@ -7221,7 +7221,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `31`
+- Ground truth: 31
 
 ### Question
 
@@ -7308,7 +7308,7 @@ The third inequality is redundant. The most restrictive condition is \( x < 16 \
     0.0
   ]
 ]`
-- Ground truth: `1+2i`
+- Ground truth: 1+2i
 
 ### Question
 
@@ -7382,7 +7382,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `11`
+- Ground truth: 11
 
 ### Question
 
@@ -7516,7 +7516,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `\frac{11}{2}`
+- Ground truth: $\frac{11}{2}$
 
 ### Question
 
@@ -7591,7 +7591,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\frac{13}{4}`
+- Ground truth: $\frac{13}{4}$
 
 ### Question
 
@@ -7686,7 +7686,7 @@ python_code:print("code")
     0.0
   ]
 ]`
-- Ground truth: `2 \sqrt{5}`
+- Ground truth: $2 \sqrt{5}$
 
 ### Question
 
@@ -7761,7 +7761,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `60`
+- Ground truth: 60
 
 ### Question
 
@@ -7836,7 +7836,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `406`
+- Ground truth: 406
 
 ### Question
 
@@ -7965,7 +7965,7 @@ solution"}}
     1.0
   ]
 ]`
-- Ground truth: `10`
+- Ground truth: 10
 
 ### Question
 
@@ -8040,7 +8040,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `\{1\pm\sqrt{5},-2\}`
+- Ground truth: $\{1\pm\sqrt{5},-2\}$
 
 ### Question
 
@@ -8122,7 +8122,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `1440`
+- Ground truth: 1440
 
 ### Question
 
@@ -8210,7 +8210,7 @@ We can start by finding a number that satisfies the first two conditions and the
     0.0
   ]
 ]`
-- Ground truth: `600`
+- Ground truth: 600
 
 ### Question
 
@@ -8285,7 +8285,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `4.5`
+- Ground truth: 4.5
 
 ### Question
 
@@ -8361,7 +8361,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `331`
+- Ground truth: 331
 
 ### Question
 
@@ -8450,7 +8450,7 @@ Let's compute \(f(2)\) and \(f(3)\) using the given recurrence relation.</think>
     1.0
   ]
 ]`
-- Ground truth: `(-\infty, 2) \cup (3, \infty)`
+- Ground truth: $(-\infty, 2) \cup (3, \infty)$
 
 ### Question
 
@@ -8526,7 +8526,7 @@ assistant
     1.0
   ]
 ]`
-- Ground truth: `45`
+- Ground truth: 45
 
 ### Question
 
@@ -8712,7 +8712,7 @@ Thus, the integer value of \(x\) is 45.</think>
     0.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -8787,7 +8787,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `6`
+- Ground truth: 6
 
 ### Question
 
@@ -8861,7 +8861,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `-2,1`
+- Ground truth: -2,1
 
 ### Question
 
@@ -9026,7 +9026,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `12`
+- Ground truth: 12
 
 ### Question
 
@@ -9168,7 +9168,7 @@ f_pi_over_3 + f_sqrt_45 + f_eight_power_two_thirds"}}
     1.0
   ]
 ]`
-- Ground truth: `9`
+- Ground truth: 9
 
 ### Question
 
@@ -9255,7 +9255,7 @@ We can substitute the second equation into the first to solve for \(x\). Substit
     1.0
   ]
 ]`
-- Ground truth: `121`
+- Ground truth: 121
 
 ### Question
 
@@ -9351,7 +9351,7 @@ The fifth number in the list of squares of the first few prime numbers is 121, w
     0.0
   ]
 ]`
-- Ground truth: `15\mbox{ cm}^2`
+- Ground truth: $15\mbox{ cm}^2$
 
 ### Question
 
@@ -9444,7 +9444,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `8`
+- Ground truth: 8
 
 ### Question
 
@@ -9519,7 +9519,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `27648`
+- Ground truth: 27648
 
 ### Question
 
@@ -9688,7 +9688,7 @@ max_value
     0.0
   ]
 ]`
-- Ground truth: `\frac{2}{1005}`
+- Ground truth: $\frac{2}{1005}$
 
 ### Question
 
@@ -9875,7 +9875,7 @@ sum_of_roots"}}</tool_call>
     0.0
   ]
 ]`
-- Ground truth: `13`
+- Ground truth: 13
 
 ### Question
 
@@ -10242,7 +10242,7 @@ shortest_path"}
     0.0
   ]
 ]`
-- Ground truth: `\$36`
+- Ground truth: $\$36$
 
 ### Question
 
@@ -10384,7 +10384,7 @@ assistant
     0.0
   ]
 ]`
-- Ground truth: `15`
+- Ground truth: 15
 
 ### Question
 

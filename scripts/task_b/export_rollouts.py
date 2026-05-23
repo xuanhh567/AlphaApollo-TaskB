@@ -64,6 +64,17 @@ def _math_friendly_markdown(text: str) -> str:
     return text.replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _inline_math(value: Any) -> str:
+    text = _text(value).strip()
+    if not text:
+        return ""
+    if text.startswith("$") or text.startswith("\\(") or text.startswith("\\["):
+        return _math_friendly_markdown(text)
+    if "\\" in text or "^" in text or "_" in text:
+        return f"${_math_friendly_markdown(text)}$"
+    return _math_friendly_markdown(text)
+
+
 def _iter_history_texts(history: Any) -> list[str]:
     """Normalize several possible history shapes into printable strings."""
     if not isinstance(history, list):
@@ -117,7 +128,7 @@ def export_rollouts(input_path: Path, output_path: Path, title: str) -> None:
                 f"## Sample {row_no:03d} / dataset index {dataset_index}",
                 "",
                 f"- Reward: `{_text(rewards)}`",
-                f"- Ground truth: `{ground_truth}`",
+                f"- Ground truth: {_inline_math(ground_truth)}",
                 "",
                 "### Question",
                 "",
