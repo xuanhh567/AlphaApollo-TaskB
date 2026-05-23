@@ -25,9 +25,10 @@ Your question: {question}
 
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
-After completing your reasoning, choose only one of the following actions:
-1) Answer: If you can solve the problem directly, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
-2) Tool call: Use a tool only when computation, checking, or retrieval is helpful. If you use a tool, emit exactly one complete structured tool call.
+After completing your reasoning, choose only one of the following actions (do not perform both):
+1) Tool call: If computation/checking is helpful, emit exactly ONE complete structured tool call. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+For arithmetic, algebraic simplification, counting, or verification-heavy problems, prefer using the python_code tool before the final answer.
 Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
 Valid direct-answer format:
 <think>...</think>
@@ -50,9 +51,10 @@ Below is the interaction history:
 
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
-After completing your reasoning, choose only one of the following actions:
-1) Answer: If you can solve the problem directly, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
-2) Tool call: Use a tool only when computation, checking, or retrieval is helpful. If you use a tool, emit exactly one complete structured tool call.
+After completing your reasoning, choose only one of the following actions (do not perform both):
+1) Tool call: If computation/checking is helpful, emit exactly ONE complete structured tool call. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+2) Answer: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+For arithmetic, algebraic simplification, counting, or verification-heavy problems, prefer using the python_code tool before the final answer.
 Do not stop after </think>. A response that contains only <think>...</think> is incomplete and invalid.
 Valid direct-answer format:
 <think>...</think>
