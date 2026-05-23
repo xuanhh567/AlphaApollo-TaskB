@@ -1017,9 +1017,41 @@ manager.py
   - 这说明“把 prompt 写短”可以减少一点负担，但不能根治格式跟随问题。
   - 目前 B6 仍未通过，主要卡点是模型没有稳定学会 `<tool_call>{"name": ..., "arguments": ...}</tool_call>`。
 
+### Change 041: 设计 skill_v5 adapter prompt
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/environments/prompts/informal_math_training.py`
+  - 更新 `docs/task-b/regression-analysis.md`
+- 我理解的目的：根据 `skill` 到 `skill_v4` 的真实输出，针对模型最常犯的 tool-call 格式错误做最小纠偏。
+- 具体变化：
+  - 去掉动作说明里容易被模型照抄的 `<tool_call>...</tool_call>` 占位表达。
+  - 增加两个 Bad 例子：
+    - `<tool_call>python_code {"code":"print(1+1)"}</tool_call>`
+    - `<tool_call>...</tool_call>`
+  - 增加一个 Good 例子：
+    - `<tool_call>{"name":"python_code","arguments":{"code":"print(1+1)"}}</tool_call>`
+  - 明确不要写 YAML、重复 `<tool_call>`、placeholder dots，或在 JSON 前写额外文本。
+- 通俗解释：
+  - v5 不是继续堆长说明。
+  - v5 是“对症下药”：模型之前怎么写坏，我们就用很短的 Bad/Good 对照提醒它。
+  - prompt 长度从 v4 的约 1157 字符增加到约 1398 字符，仍明显短于 v1/v2/v3。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+  - `python tests/test_skill_registry.py` 通过。
+  - `python tests/test_skill_argument_validation.py` 通过。
+  - `python -m py_compile alphaapollo/core/environments/prompts/informal_math_training.py alphaapollo/core/skills/prompt.py tests/test_skill_prompt_renderer.py` 通过。
+- 下一步：
+  - 提交并同步到服务器。
+  - 作为 `skill_v5` 跑固定 100 题回归，观察有效 JSON tool call 数是否上升。
+
 ## 7. 下一步
 
-下一步继续 Phase 6 的回归失败分析和 `skill_v4` 100 题验证。
+下一步继续 Phase 6 的回归失败分析和 `skill_v5` 100 题验证。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，

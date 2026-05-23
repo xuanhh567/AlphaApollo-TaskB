@@ -26,8 +26,13 @@ Your question: {question}
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions (do not perform both):
-1) <tool_call>{{"name":"python_code","arguments":{{"code":"..."}}}}</tool_call>: If computation/checking is helpful, emit exactly ONE <tool_call>...</tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+1) Tool call: If computation/checking is helpful, emit exactly ONE complete <tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
 2) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+Tool-call format adapter:
+Bad: <tool_call>python_code {{"code":"print(1+1)"}}</tool_call>
+Bad: <tool_call>...</tool_call>
+Good: <tool_call>{{"name":"python_code","arguments":{{"code":"print(1+1)"}}}}</tool_call>
+Do not write YAML, duplicate <tool_call>, placeholder dots, or text before the JSON inside <tool_call>.
 {tool_instructions}
 """
 
@@ -43,8 +48,13 @@ Below is the interaction history:
 Now it's your turn to respond to the current step.
 You should first conduct the reasoning process. This process MUST be enclosed within <think> </think> tags.
 After completing your reasoning, choose only one of the following actions (do not perform both):
-1) <tool_call>{{"name":"python_code","arguments":{{"code":"..."}}}}</tool_call>: If computation/checking is helpful, emit exactly ONE <tool_call>...</tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
+1) Tool call: If computation/checking is helpful, emit exactly ONE complete <tool_call> block. Put pure Python 3 code in arguments.code. Inspect the <tool_response> (stdout from your code). If it disagrees with your reasoning, correct yourself.
 2) <answer>...</answer>: If you are ready to provide the self-contained solution, provide the answer only inside <answer>...</answer>, formatted in LaTeX, e.g., \\boxed{{...}}.
+Tool-call format adapter:
+Bad: <tool_call>python_code {{"code":"print(1+1)"}}</tool_call>
+Bad: <tool_call>...</tool_call>
+Good: <tool_call>{{"name":"python_code","arguments":{{"code":"print(1+1)"}}}}</tool_call>
+Do not write YAML, duplicate <tool_call>, placeholder dots, or text before the JSON inside <tool_call>.
 {tool_instructions}
 """
 

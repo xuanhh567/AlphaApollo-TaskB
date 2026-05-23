@@ -115,6 +115,7 @@ Evaluate $(1+2i)6-3i$.
 | skill_v2 | `57c6d7a` | 1814 | 29 | 2.22x | 5 | 1 | 0.32 |
 | skill_v3 | `39f2a9e` | 2494 | 33 | 3.05x | 8 | 4 | 0.28 |
 | skill_v4 | `0188438` | 1157 | 14 | 1.41x | 3 | 1 | 0.33 |
+| skill_v5 | 当前调整 | 1398 | 19 | 1.71x | 5 | 1 | 待测试 |
 
 通俗解释：
 
@@ -124,6 +125,7 @@ skill 初版为了说明 JSON tool_call，几乎变成 legacy 的 2 倍。
 skill_v2 又加了“更偏向先用工具”的话，所以更长。
 skill_v3 加了调用后停止、等待 tool_response、更多 examples，是最重的版本。
 skill_v4 做减法，只保留最小 structured 格式和一个 example。
+skill_v5 在 v4 基础上只增加 Bad/Good 格式纠偏，针对模型真实犯过的坏格式。
 ```
 
 从结果看，prompt 不是越详细越好。`skill_v3` 最长，但准确率最低；`skill_v4` 明显压缩后准确率回升到 0.33，但仍然没有达到 legacy 的 0.58。
@@ -197,6 +199,16 @@ Good: <tool_call>{"name":"python_code","arguments":{"code":"print(1+1)"}}</tool_
 ```
 
 换句话说，下一版可以叫 `skill_v5_adapter_prompt`：不是增加更多概念，而是针对模型真实犯过的格式错误做最小纠偏。
+
+当前已按这个方向调整了 prompt，新增的核心内容是：
+
+```text
+Bad: <tool_call>python_code {"code":"print(1+1)"}</tool_call>
+Bad: <tool_call>...</tool_call>
+Good: <tool_call>{"name":"python_code","arguments":{"code":"print(1+1)"}}</tool_call>
+```
+
+这版 prompt 的目的不是让模型“更爱用工具”，而是当它决定用工具时，尽量不要写成 YAML、占位符、双重标签或半截 JSON。
 
 ## 5. legacy vs skill 对比
 
