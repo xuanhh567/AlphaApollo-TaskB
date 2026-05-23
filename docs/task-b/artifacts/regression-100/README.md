@@ -101,9 +101,16 @@ parquet 文件可以在服务器上保留，或者之后重新生成。
 当前结论记录在：
 
 ```text
+docs/task-b/3b-to-7b-handoff.md
 docs/task-b/experiments.md
 docs/task-b/regression-analysis.md
 docs/task-b/learning-log.md
+```
+
+如果下一步要迁移服务器并跑 7B，优先看：
+
+```text
+docs/task-b/3b-to-7b-handoff.md
 ```
 
 ## 固定 100 题子集
