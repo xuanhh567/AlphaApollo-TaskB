@@ -355,3 +355,27 @@ docs/task-b/learning-log.md
 | Qwen2.5-3B-Instruct | skill_legacy_aligned | 0.62 | 3B Task B 通过 |
 | Qwen2.5-7B-Instruct | legacy_7b | 待填 | 7B baseline |
 | Qwen2.5-7B-Instruct | skill_legacy_aligned_7b | 待填 | 7B Task B 对比 |
+
+## 10. 如果不用本地模型，改用 API 模型
+
+如果服务器本地 vLLM / Ray 路线不稳定，可以用 API 模型替代本地 7B 生成。
+
+入口文档：
+
+```text
+docs/task-b/api-regression.md
+```
+
+核心区别：
+
+```text
+API 只替代模型生成。
+env / Skill / parser / python_code 工具 / reward 仍然使用项目代码。
+```
+
+优先跑同样两组：
+
+```text
+api_7b_math500_100_legacy.json
+api_7b_math500_100_skill_legacy.json
+```
