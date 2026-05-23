@@ -894,6 +894,34 @@ manager.py
   - 主要失败点是 prompt 行为：模型没有像旧 `<python_code>` prompt 那样稳定使用工具。
   - 下一步应该做 prompt 对齐和 targeted regression，而不是马上扩大到 500 题。
 
+### Change 036: 对齐 Skill prompt 的工具使用说明
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/environments/prompts/informal_math_training.py`
+  - 修改 `alphaapollo/core/skills/builtin/python_code/SKILL.md`
+  - 修改 `tests/test_skill_prompt_renderer.py`
+- 我理解的目的：在不改变工具能力、不改变 reward、不改变数据和模型的前提下，让模型更容易学会 structured skill 调用格式。
+- 具体变化：
+  - prompt 明确说明：如果选择 tool call，本轮只输出一个完整 `<tool_call>`，然后停止，等待 `<tool_response>`。
+  - prompt 明确说明：收到 `<tool_response>` 后，除非确实需要再次调用工具，否则应输出最终 `<answer>`。
+  - `python_code/SKILL.md` 增加更贴近 MATH-500 的 examples：复数计算、圆排列计数、精确概率。
+- 为什么不违背 B6 对比要求：
+  - 没有改 `python_code` 的执行函数。
+  - 没有改 `local_rag` 的执行函数。
+  - 没有改 env 的 reward / done / history 逻辑。
+  - 没有改模型、数据、采样参数或 `max_steps`。
+  - 只是在 Skill 自描述和 prompt renderer 结果里更清楚地教模型如何使用同一个工具。
+- 已验证：
+  - `python tests/test_skill_prompt_renderer.py` 通过。
+  - `python tests/test_informal_math_skill_bridge.py` 通过。
+  - `python tests/test_skill_dispatcher.py` 通过。
+  - `python tests/test_tool_call_parser.py` 通过。
+  - `python tests/test_skill_loader.py` 通过。
+- 下一步：
+  - 作为 `skill_v3` 重新跑固定 100 题回归。
+  - 对比 `legacy=0.58`、`skill=0.38`、`skill_v2=0.32`、`skill_v3=?`。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的回归失败分析。

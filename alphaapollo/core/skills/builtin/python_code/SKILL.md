@@ -14,6 +14,21 @@ examples:
   - name: compute arithmetic
     arguments:
       code: "print(1 + 1)"
+  - name: verify complex arithmetic
+    arguments:
+      code: |
+        z = (1 + 2j) * 6 - 3j
+        print(f"{z.real:g}+{z.imag:g}i")
+  - name: count circular arrangements
+    arguments:
+      code: |
+        from math import factorial
+        print(factorial(5) * factorial(3))
+  - name: compute exact probability
+    arguments:
+      code: |
+        from fractions import Fraction
+        print(Fraction(36 - 25, 36))
 ---
 
 # Python Code

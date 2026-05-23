@@ -47,6 +47,9 @@ def test_render_skill_prompt_block_renders_tool_call_examples():
     block = render_skill_prompt_block(specs)
 
     assert '<tool_call>{"name":"python_code","arguments":{"code":"print(1 + 1)"}}</tool_call>' in block
+    assert "verify complex arithmetic" in block
+    assert "count circular arrangements" in block
+    assert "compute exact probability" in block
 
 
 def test_render_skill_prompt_block_can_escape_format_braces():
