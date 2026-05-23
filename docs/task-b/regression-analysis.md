@@ -77,6 +77,7 @@ rewards  环境给这条样本的得分
 | skill | 38 / 100 | 0.38 | 84 | 12 | 2 |
 | skill_v2 | 32 / 100 | 0.32 | 64 | 15 | 0 |
 | skill_v3 | 28 / 100 | 0.28 | 63 | 14 | 0 |
+| skill_v4 | 33 / 100 | 0.33 | 51 | 28 | 1 |
 
 说明：
 
@@ -94,6 +95,8 @@ skill 全 100 题里，只有 2 行产生了完整有效的 structured tool call
 这说明新 Skill 系统虽然能解析和执行 `<tool_call>`，但模型在当前 prompt 下没有稳定学会这个格式。
 
 补充：`skill_v3` 增加了“调用工具后停止等待 `<tool_response>`”和更多 MATH 风格 `python_code` examples，但准确率降到 0.28，完整有效 structured tool call 仍为 0。这说明继续堆长说明不是可靠方向。
+
+补充：`skill_v4` 将 prompt 改短，试图贴近旧版 tool-call 说明，准确率回升到 0.33。它让 `<tool_call>` 出现次数增加到 28 行，但完整有效 JSON 调用只有 1 个，所以仍没有达到 B6 要求。
 
 ## 5. legacy vs skill 对比
 

@@ -994,6 +994,29 @@ manager.py
   - 在服务器拉取最新代码，作为 `skill_v4` 跑固定 100 题回归。
   - 如果 `skill_v4` 仍然明显低于 `legacy=0.58`，就说明仅靠 prompt 调整很可能不够，需要考虑 few-shot 轨迹或训练数据对齐。
 
+### Change 040: 跑 skill_v4 100 题回归
+
+- 日期：2026-05-23
+- 改动：
+  - 在服务器拉取 commit `0188438`。
+  - 基于同一个 MATH-500 固定 100 题子集运行 `skill_v4`。
+  - 同步 `qwen25_3b_vllm_math500_100_skill_v4.json` 和 `run_math500_100_skill_v4.sh` 到 artifact 目录。
+- 实验结果：
+  - `legacy`: `avg@1/pass@1 = 0.58`
+  - `skill`: `avg@1/pass@1 = 0.38`
+  - `skill_v2`: `avg@1/pass@1 = 0.32`
+  - `skill_v3`: `avg@1/pass@1 = 0.28`
+  - `skill_v4`: `avg@1/pass@1 = 0.33`
+- 细节观察：
+  - `skill_v4` 有 51 行输出 `<answer>`。
+  - `skill_v4` 有 28 行出现 `<tool_call>`。
+  - 但完整有效的 structured JSON tool call 只有 1 个。
+  - 还有 8 行输出了旧的 `<python_code>` 或 `<local_rag>` 标签，说明模型仍会被旧格式习惯影响。
+- 我理解的结论：
+  - `skill_v4` 比 `skill_v3` 好一点，但仍远低于 Task A baseline。
+  - 这说明“把 prompt 写短”可以减少一点负担，但不能根治格式跟随问题。
+  - 目前 B6 仍未通过，主要卡点是模型没有稳定学会 `<tool_call>{"name": ..., "arguments": ...}</tool_call>`。
+
 ## 7. 下一步
 
 下一步继续 Phase 6 的回归失败分析和 `skill_v4` 100 题验证。

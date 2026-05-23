@@ -60,6 +60,7 @@ python -m py_compile alphaapollo/core/skills/schema.py alphaapollo/core/skills/l
 | Task B skill version | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.38` |
 | Task B skill prompt v2 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.32` |
 | Task B skill prompt v3 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.28` |
+| Task B skill prompt v4 | MATH-500 固定 100 题子集 | Completed | `avg@1/pass@1 = 0.33` |
 | 指标差值 | MATH-500 固定 100 题子集 | Failed | best skill 比 baseline 低 20 个百分点 |
 
 结论：
@@ -426,6 +427,7 @@ env.informal_math.enable_local_rag=false
 | skill | 新 `<tool_call>` JSON | `2fe16cb` | 0.38 | 0.38 | 0.38 | 84 | 12 structured calls | 未通过 |
 | skill_v2 | 调整后的 `<tool_call>` prompt | `57c6d7a` | 0.32 | 0.32 | 0.32 | 64 | 15 structured calls | 未通过 |
 | skill_v3 | 对齐工具使用说明后的 `<tool_call>` prompt | `39f2a9e` | 0.28 | 0.28 | 0.28 | 63 | 14 structured calls | 未通过 |
+| skill_v4 | 最小化说明后的 `<tool_call>` prompt | `0188438` | 0.33 | 0.33 | 0.33 | 51 | 28 structured calls | 未通过 |
 
 输出文件：
 
@@ -441,6 +443,9 @@ env.informal_math.enable_local_rag=false
 
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v3.json
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v3.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v4.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v4.parquet
 ```
 
 日志文件：
@@ -450,6 +455,7 @@ env.informal_math.enable_local_rag=false
 /tmp/run_math500_100_skill.log
 /tmp/run_math500_100_skill_v2.log
 /tmp/run_math500_100_skill_v3.log
+/tmp/run_math500_100_skill_v4.log
 ```
 
 ### 当前判断
@@ -464,6 +470,8 @@ env.informal_math.enable_local_rag=false
 更细一点看，旧 prompt 里模型有 48 次使用旧工具标签，而新 prompt 里 structured tool call 只有 12 次。说明新系统虽然能解析和执行 `<tool_call>`，但 prompt 没有让模型像以前那样稳定地使用工具。`skill_v2` 试图更强调工具优先，但准确率继续下降，因此不能把它当作修复。
 
 `skill_v3` 进一步补充了“调用工具后停止等待 `<tool_response>`”以及更多 MATH 风格的 `python_code` examples，但结果下降到 0.28。这说明简单增加格式说明和 examples 还不够，甚至可能让 3B 模型的 prompt 负担更重。
+
+`skill_v4` 反过来做减法，把 prompt 改成更接近旧版的最小说明，准确率回升到 0.33，但仍明显低于 baseline 0.58。它让模型更常输出 `<tool_call>`，但 28 行 structured tool call 中只有 1 个完整有效 JSON 调用，说明问题仍主要在模型格式跟随能力，而不是工具执行链路。
 
 ### 下一步建议
 

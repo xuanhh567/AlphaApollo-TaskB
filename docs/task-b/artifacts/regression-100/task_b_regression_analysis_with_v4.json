@@ -1,0 +1,62 @@
+{
+  "legacy": {
+    "rows": 100,
+    "correct_count": 58,
+    "accuracy": 0.58,
+    "assistant_has_answer": 71,
+    "assistant_has_structured_tool_call": 0,
+    "valid_structured_tool_calls": 0,
+    "invalid_closed_tool_calls": 0,
+    "incomplete_tool_call_rows": 0,
+    "assistant_has_legacy_tool_tag": 48,
+    "history_has_tool_response": 100
+  },
+  "skill": {
+    "rows": 100,
+    "correct_count": 38,
+    "accuracy": 0.38,
+    "assistant_has_answer": 84,
+    "assistant_has_structured_tool_call": 12,
+    "valid_structured_tool_calls": 2,
+    "invalid_closed_tool_calls": 3,
+    "incomplete_tool_call_rows": 9,
+    "assistant_has_legacy_tool_tag": 0,
+    "history_has_tool_response": 0
+  },
+  "skill_v2": {
+    "rows": 100,
+    "correct_count": 32,
+    "accuracy": 0.32,
+    "assistant_has_answer": 64,
+    "assistant_has_structured_tool_call": 15,
+    "valid_structured_tool_calls": 0,
+    "invalid_closed_tool_calls": 1,
+    "incomplete_tool_call_rows": 15,
+    "assistant_has_legacy_tool_tag": 4,
+    "history_has_tool_response": 100
+  },
+  "skill_v3": {
+    "rows": 100,
+    "correct_count": 28,
+    "accuracy": 0.28,
+    "assistant_has_answer": 63,
+    "assistant_has_structured_tool_call": 14,
+    "valid_structured_tool_calls": 0,
+    "invalid_closed_tool_calls": 3,
+    "incomplete_tool_call_rows": 12,
+    "assistant_has_legacy_tool_tag": 3,
+    "history_has_tool_response": 100
+  },
+  "skill_v4": {
+    "rows": 100,
+    "correct_count": 33,
+    "accuracy": 0.33,
+    "assistant_has_answer": 51,
+    "assistant_has_structured_tool_call": 28,
+    "valid_structured_tool_calls": 1,
+    "invalid_closed_tool_calls": 23,
+    "incomplete_tool_call_rows": 7,
+    "assistant_has_legacy_tool_tag": 8,
+    "history_has_tool_response": 100
+  }
+}
