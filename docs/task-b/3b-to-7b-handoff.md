@@ -199,6 +199,14 @@ cd /root/AlphaApollo-TaskB
 bash docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh legacy_7b legacy
 ```
 
+如果使用干净运行目录，例如 `/root/AlphaApollo-TaskB-7B`，用环境变量覆盖：
+
+```bash
+cd /root/AlphaApollo-TaskB-7B
+PROJECT_ROOT=/root/AlphaApollo-TaskB-7B \
+bash docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh legacy_7b legacy
+```
+
 预期输出：
 
 ```text
@@ -210,6 +218,14 @@ data/task-b-regression-100/qwen25_7b_vllm_math500_100_legacy_7b.parquet
 
 ```bash
 cd /root/AlphaApollo-TaskB
+bash docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh skill_legacy_aligned_7b skill_legacy
+```
+
+如果使用干净运行目录：
+
+```bash
+cd /root/AlphaApollo-TaskB-7B
+PROJECT_ROOT=/root/AlphaApollo-TaskB-7B \
 bash docs/task-b/artifacts/regression-100/run_math500_100_7b_regression.sh skill_legacy_aligned_7b skill_legacy
 ```
 

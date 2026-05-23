@@ -2,13 +2,13 @@
 set -euo pipefail
 SUFFIX=${1:-legacy_7b_hf}
 TOOL_FORMAT=${2:-legacy}
-PROJECT_ROOT=/root/AlphaApollo-TaskB
-PY=/root/miniconda3/envs/alphaapollo/bin/python
-MODEL_PATH=$PROJECT_ROOT/models/Qwen2.5-7B-Instruct
-DATA_ROOT=$PROJECT_ROOT/data/task-b-regression-100
-DATA_PATH=$DATA_ROOT/custom_data/test.parquet
-OUT_PARQUET=$DATA_ROOT/qwen25_7b_hf_math500_100_${SUFFIX}.parquet
-OUT_JSON=$DATA_ROOT/qwen25_7b_hf_math500_100_${SUFFIX}.json
+PROJECT_ROOT=${PROJECT_ROOT:-/root/AlphaApollo-TaskB}
+PY=${PY:-/root/miniconda3/envs/alphaapollo/bin/python}
+MODEL_PATH=${MODEL_PATH:-$PROJECT_ROOT/models/Qwen2.5-7B-Instruct}
+DATA_ROOT=${DATA_ROOT:-$PROJECT_ROOT/data/task-b-regression-100}
+DATA_PATH=${DATA_PATH:-$DATA_ROOT/custom_data/test.parquet}
+OUT_PARQUET=${OUT_PARQUET:-$DATA_ROOT/qwen25_7b_hf_math500_100_${SUFFIX}.parquet}
+OUT_JSON=${OUT_JSON:-$DATA_ROOT/qwen25_7b_hf_math500_100_${SUFFIX}.json}
 
 cd "$PROJECT_ROOT"
 echo "=== RUN MODEL=Qwen2.5-7B-Instruct BACKEND=hf SUFFIX=$SUFFIX TOOL_FORMAT=$TOOL_FORMAT ==="
