@@ -922,6 +922,28 @@ manager.py
   - 作为 `skill_v3` 重新跑固定 100 题回归。
   - 对比 `legacy=0.58`、`skill=0.38`、`skill_v2=0.32`、`skill_v3=?`。
 
+### Change 037: 同步服务器实验 artifacts 到 GitHub
+
+- 日期：2026-05-23
+- 改动：
+  - 新增 `docs/task-b/artifacts/regression-100/README.md`
+  - 同步服务器上的 100 题 JSONL 输出：
+    - `qwen25_3b_vllm_math500_100_legacy.json`
+    - `qwen25_3b_vllm_math500_100_skill.json`
+    - `qwen25_3b_vllm_math500_100_skill_v2.json`
+  - 同步分析摘要 `task_b_regression_analysis.json`
+  - 同步运行脚本 `run_math500_100_regression.sh` 和 `run_math500_100_skill_v2.sh`
+- 我理解的目的：让 GitHub 仓库不仅有文字结论，也有可检查的模型输出、reward 和 history 证据。
+- 没有同步的内容：
+  - 模型文件。
+  - conda 环境。
+  - 服务器日志。
+  - parquet 文件。
+- 为什么不提交 parquet：
+  - 原仓库 `.gitignore` 明确忽略 `data/` 和 `*.parquet`。
+  - JSONL 输出已经包含题目、答案、history 和 rewards，足够复核 Task B 回归结论。
+  - 输入 parquet 可以用固定 seed 和 sample indices 重建。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的回归失败分析。
