@@ -76,6 +76,7 @@ rewards  环境给这条样本的得分
 | legacy | 58 / 100 | 0.58 | 71 | 0 | 0 |
 | skill | 38 / 100 | 0.38 | 84 | 12 | 2 |
 | skill_v2 | 32 / 100 | 0.32 | 64 | 15 | 0 |
+| skill_v3 | 28 / 100 | 0.28 | 63 | 14 | 0 |
 
 说明：
 
@@ -91,6 +92,8 @@ skill 全 100 题里，只有 2 行产生了完整有效的 structured tool call
 ```
 
 这说明新 Skill 系统虽然能解析和执行 `<tool_call>`，但模型在当前 prompt 下没有稳定学会这个格式。
+
+补充：`skill_v3` 增加了“调用工具后停止等待 `<tool_response>`”和更多 MATH 风格 `python_code` examples，但准确率降到 0.28，完整有效 structured tool call 仍为 0。这说明继续堆长说明不是可靠方向。
 
 ## 5. legacy vs skill 对比
 

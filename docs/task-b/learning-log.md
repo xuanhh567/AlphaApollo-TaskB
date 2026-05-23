@@ -944,6 +944,26 @@ manager.py
   - JSONL 输出已经包含题目、答案、history 和 rewards，足够复核 Task B 回归结论。
   - 输入 parquet 可以用固定 seed 和 sample indices 重建。
 
+### Change 038: 跑 skill_v3 100 题回归
+
+- 日期：2026-05-23
+- 改动：
+  - 在服务器拉取最新 GitHub 代码。
+  - 基于同一个 MATH-500 固定 100 题子集运行 `skill_v3`。
+  - 同步 `qwen25_3b_vllm_math500_100_skill_v3.json`、`run_math500_100_skill_v3.sh` 和 `task_b_regression_analysis_with_v3.json` 到 artifact 目录。
+  - 更新 `docs/task-b/experiments.md` 和 `docs/task-b/artifacts/regression-100/README.md`。
+- 实验结果：
+  - `legacy`: `avg@1/pass@1 = 0.58`
+  - `skill`: `avg@1/pass@1 = 0.38`
+  - `skill_v2`: `avg@1/pass@1 = 0.32`
+  - `skill_v3`: `avg@1/pass@1 = 0.28`
+- 我理解的目的：验证“更明确的 tool-call 停止规则 + 更多 MATH 风格 examples”是否能提高 structured skill 成功率。
+- 当前理解：
+  - `skill_v3` 没有改善，反而更低。
+  - 全 100 题中 `skill_v3` 只有 14 行出现 `<tool_call>`，完整有效 structured tool call 为 0。
+  - 这说明简单增加说明和 examples 不足以解决问题，可能还增加了 3B 模型的 prompt 负担。
+  - 下一步更应该做“对齐旧 prompt 的最小 structured 格式”，或者把 legacy 正确轨迹转换成 structured 格式做 SFT / few-shot，而不是继续堆长说明。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的回归失败分析。

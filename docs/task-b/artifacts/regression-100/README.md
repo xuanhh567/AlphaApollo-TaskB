@@ -8,9 +8,12 @@
 qwen25_3b_vllm_math500_100_legacy.json
 qwen25_3b_vllm_math500_100_skill.json
 qwen25_3b_vllm_math500_100_skill_v2.json
+qwen25_3b_vllm_math500_100_skill_v3.json
 task_b_regression_analysis.json
+task_b_regression_analysis_with_v3.json
 run_math500_100_regression.sh
 run_math500_100_skill_v2.sh
+run_math500_100_skill_v3.sh
 ```
 
 The `.json` result files are JSONL files: one JSON object per line. Each row includes the original prompt metadata, rollout `history`, and `rewards`.
@@ -42,6 +45,7 @@ The parquet files can be regenerated or kept on the experiment server.
 | legacy | 0.58 | 0.58 | 0.58 | old `<python_code>` prompt |
 | skill | 0.38 | 0.38 | 0.38 | structured `<tool_call>` prompt |
 | skill_v2 | 0.32 | 0.32 | 0.32 | adjusted structured prompt |
+| skill_v3 | 0.28 | 0.28 | 0.28 | tool-use guidance and extra examples |
 
 The current conclusion is documented in:
 

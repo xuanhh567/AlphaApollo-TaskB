@@ -1,0 +1,58 @@
+{
+  "overall": {
+    "legacy": {
+      "correct": 58,
+      "total": 100,
+      "accuracy": 0.58,
+      "answer_count": 71,
+      "structured_count": 0,
+      "valid_structured_calls": 0,
+      "invalid_structured_calls": 0,
+      "incomplete_tool_call_rows": 0,
+      "legacy_tag_count": 48,
+      "tool_response_count": 100
+    },
+    "skill": {
+      "correct": 38,
+      "total": 100,
+      "accuracy": 0.38,
+      "answer_count": 84,
+      "structured_count": 12,
+      "valid_structured_calls": 2,
+      "invalid_structured_calls": 3,
+      "incomplete_tool_call_rows": 9,
+      "legacy_tag_count": 0,
+      "tool_response_count": 0
+    },
+    "skill_v2": {
+      "correct": 32,
+      "total": 100,
+      "accuracy": 0.32,
+      "answer_count": 64,
+      "structured_count": 15,
+      "valid_structured_calls": 0,
+      "invalid_structured_calls": 1,
+      "incomplete_tool_call_rows": 15,
+      "legacy_tag_count": 4,
+      "tool_response_count": 100
+    },
+    "skill_v3": {
+      "correct": 28,
+      "total": 100,
+      "accuracy": 0.28,
+      "answer_count": 63,
+      "structured_count": 14,
+      "valid_structured_calls": 0,
+      "invalid_structured_calls": 3,
+      "incomplete_tool_call_rows": 12,
+      "legacy_tag_count": 3,
+      "tool_response_count": 100
+    }
+  },
+  "comparison_legacy_vs_skill": {
+    "both_correct": 28,
+    "legacy_correct_skill_wrong": 30,
+    "legacy_wrong_skill_correct": 10,
+    "both_wrong": 32
+  }
+}
