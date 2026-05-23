@@ -137,6 +137,67 @@ skill_v4 做减法，只保留最小 structured 格式和一个 example。
 
 后续如果继续改 prompt，更合理的方向不是继续堆说明，而是让格式更贴近模型已经会的旧习惯，或者提供少量高质量 few-shot 轨迹。
 
+## 4.2 模型输出习惯溯源
+
+为了判断下一版 prompt 应该怎么写，我把 `skill` 到 `skill_v4` 的 JSONL 输出重新分类，重点看模型到底喜欢输出什么格式。
+
+| 版本 | 无 `<tool_call>` | 有 `<answer>` | 无动作 | 有旧 `<python_code>` | `<tool_call>` 未闭合 | 非 JSON / 文本式 tool call | invalid JSON | 有效 JSON tool call |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| skill | 88 | 84 | 8 | 0 | 7 | 2 | 1 | 2 |
+| skill_v2 | 85 | 64 | 18 | 4 | 14 | 1 | 0 | 0 |
+| skill_v3 | 86 | 63 | 22 | 3 | 11 | 1 | 2 | 0 |
+| skill_v4 | 72 | 51 | 17 | 8 | 5 | 10 | 12 | 1 |
+
+几个典型坏格式：
+
+```text
+<tool_call> name: python_code
+arguments: {"code": "..."}
+```
+
+```text
+<tool_call><tool_call>{"name":"python_code","arguments":{"code":"..."}}</tool_call>
+```
+
+```text
+<tool_call>python_code
+{"name":"python_code","arguments":{"code":"..."}}
+```
+
+```text
+<tool_call>...</tool_call>
+```
+
+```text
+<tool_call>{"name":"python_code","arguments":{"code":"..."
+```
+
+通俗解释：
+
+```text
+模型不是完全不知道“可以用工具”。
+它的问题是：经常把 tool call 写成自己熟悉的自然语言 / YAML / 半截 JSON / 双重标签。
+```
+
+这说明下一版 prompt 应该不是继续解释“什么是 tool call”，而是更明确地适配模型已经暴露出的坏习惯：
+
+```text
+1. 不要写 name: python_code / arguments: ... 这种 YAML 风格。
+2. 不要写 <tool_call>python_code。
+3. 不要写 <tool_call>...</tool_call> 占位符。
+4. 不要套两个 <tool_call>。
+5. 如果使用工具，只输出一行完整 JSON。
+```
+
+但是这些规则不能写成长篇说明，否则又会回到 `skill_v3` 的问题。更合理的是给一个短的 few-shot 对照：
+
+```text
+Bad:  <tool_call>python_code {"code":"print(1+1)"}</tool_call>
+Good: <tool_call>{"name":"python_code","arguments":{"code":"print(1+1)"}}</tool_call>
+```
+
+换句话说，下一版可以叫 `skill_v5_adapter_prompt`：不是增加更多概念，而是针对模型真实犯过的格式错误做最小纠偏。
+
 ## 5. legacy vs skill 对比
 
 | 类型 | 数量 |
