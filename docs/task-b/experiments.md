@@ -430,6 +430,7 @@ env.informal_math.enable_local_rag=false
 | skill_v3 | 对齐工具使用说明后的 `<tool_call>` prompt | `39f2a9e` | 0.28 | 0.28 | 0.28 | 63 | 14 structured calls | 未通过 |
 | skill_v4 | 最小化说明后的 `<tool_call>` prompt | `0188438` | 0.33 | 0.33 | 0.33 | 51 | 28 structured calls | 未通过 |
 | skill_v5 | Bad/Good 适配后的 `<tool_call>` prompt | `7e50310` | 0.11 | 0.11 | 0.11 | 19 | 53 structured calls | 未通过 |
+| skill_legacy | SKILL.md 驱动的旧 `<python_code>` 标签 | `9433df1` | 0.48 | 0.48 | 0.48 | 47 | 59 legacy tags | 未通过，但明显改善 |
 
 输出文件：
 
@@ -451,6 +452,9 @@ env.informal_math.enable_local_rag=false
 
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v5.json
 /root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_v5.parquet
+
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy.json
+/root/AlphaApollo-TaskB/data/task-b-regression-100/qwen25_3b_vllm_math500_100_skill_legacy.parquet
 ```
 
 日志文件：
@@ -462,6 +466,7 @@ env.informal_math.enable_local_rag=false
 /tmp/run_math500_100_skill_v3.log
 /tmp/run_math500_100_skill_v4.log
 /tmp/run_math500_100_skill_v5.log
+/tmp/run_math500_100_skill_legacy.log
 ```
 
 ### 当前判断
@@ -480,6 +485,8 @@ env.informal_math.enable_local_rag=false
 `skill_v4` 反过来做减法，把 prompt 改成更接近旧版的最小说明，准确率回升到 0.33，但仍明显低于 baseline 0.58。它让模型更常输出 `<tool_call>`，但 28 行 structured tool call 中只有 1 个完整有效 JSON 调用，说明问题仍主要在模型格式跟随能力，而不是工具执行链路。
 
 `skill_v5` 增加了很短的 Bad/Good 格式纠偏，`<tool_call>` 出现次数上升到 53 行，有效 JSON tool call 也从 1 个增加到 4 个，但准确率降到 0.11。主要原因是模型开始照抄 prompt 里的 “Tool-call format adapter” 文本，很多回答既没有最终 `<answer>`，也没有可执行工具调用。
+
+`skill_legacy` 改用 SKILL.md 驱动的旧标签 prompt：模型仍看到 `<python_code>...</python_code>`，但环境内部通过 `SkillSpec.legacy_calls` 转成统一 `ToolCall`，再走 registry / dispatcher。它的准确率回升到 0.48，比最初 skill 版高 10 个百分点，比 `skill_v5` 高 37 个百分点，但仍低于 Task A baseline 0.58，B6 还没有通过。
 
 ### 下一步建议
 

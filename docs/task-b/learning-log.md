@@ -1122,9 +1122,32 @@ manager.py
   - 提交并同步到服务器。
   - 用 `+env.tool_prompt_format=skill_legacy` 跑固定 100 题回归。
 
+### Change 045: 跑 skill_legacy 100 题回归并生成 prompt 展示
+
+- 日期：2026-05-23
+- 改动：
+  - 在服务器拉取 commit `9433df1`。
+  - 使用 `+env.tool_prompt_format=skill_legacy` 跑同一个 MATH-500 固定 100 题子集。
+  - 同步 `qwen25_3b_vllm_math500_100_skill_legacy.json`。
+  - 生成 `docs/task-b/prompts/current-prompt-gallery.md`，展示当前几类 prompt 的完整文本。
+- 实验结果：
+  - `legacy`: `avg@1/pass@1 = 0.58`
+  - `skill`: `avg@1/pass@1 = 0.38`
+  - `skill_v5`: `avg@1/pass@1 = 0.11`
+  - `skill_legacy`: `avg@1/pass@1 = 0.48`
+- 细节观察：
+  - `skill_legacy` 有 59 行输出旧 `<python_code>` / `<local_rag>` 标签。
+  - 没有 structured `<tool_call>`，因为这版 prompt 故意让模型使用旧标签。
+  - `<answer>` 行数是 47。
+  - 准确率比最初 `skill` 高 10 个百分点，比 `skill_v5` 高 37 个百分点。
+- 我理解的结论：
+  - parser legacy adapter 的方向是对的，证明主要问题确实是模型不稳定输出严格 JSON tool call。
+  - 但 `0.48` 仍低于 Task A baseline `0.58`，B6 还没有通过。
+  - 下一步应该对比 `legacy` 和 `skill_legacy` prompt 的细小差异，以及检查 tool_response / reward 轨迹是否有行为差异。
+
 ## 7. 下一步
 
-下一步继续 Phase 6 的回归失败分析：运行 `skill_v6_legacy_adapter` 固定 100 题回归，并和 Task A baseline `0.58` 对比。
+下一步继续 Phase 6 的回归失败分析：对比 `legacy` 和 `skill_legacy` 的 prompt/trajectory 差异，找出剩余 10 个百分点差距来自哪里。
 
 ```text
 目标：从固定 100 题结果中抽取 legacy 正确、skill 错误的样本，

@@ -79,6 +79,7 @@ rewards  环境给这条样本的得分
 | skill_v3 | 28 / 100 | 0.28 | 63 | 14 | 0 |
 | skill_v4 | 33 / 100 | 0.33 | 51 | 28 | 1 |
 | skill_v5 | 11 / 100 | 0.11 | 19 | 53 | 4 |
+| skill_legacy | 48 / 100 | 0.48 | 47 | 0 | 0 |
 
 说明：
 
@@ -101,6 +102,8 @@ skill 全 100 题里，只有 2 行产生了完整有效的 structured tool call
 
 补充：`skill_v5` 增加 Bad/Good 适配提示后，`<tool_call>` 出现次数增加到 53 行，完整有效 JSON 调用增加到 4 个，但准确率下降到 0.11。说明这个适配提示虽然提高了“想写工具”的概率，却诱导模型照抄 prompt 里的说明文字，严重损害最终答题。
 
+补充：`skill_legacy` 使用 SKILL.md 驱动的旧标签 prompt。模型侧看到 `<python_code>...</python_code>`，parser 从 registry 中读取 `legacy_calls`，再统一转成 `ToolCall` 执行。准确率回升到 0.48，说明主要退化确实来自模型不稳定输出严格 JSON tool call；但它仍低于 legacy 0.58，说明 prompt 细节和内部执行路径仍有差异。
+
 ## 4.1 Prompt 精简程度对比
 
 为了确认几次实验到底是“加长说明”还是“压缩说明”，我用同一道题：
@@ -119,6 +122,7 @@ Evaluate $(1+2i)6-3i$.
 | skill_v3 | `39f2a9e` | 2494 | 33 | 3.05x | 8 | 4 | 0.28 |
 | skill_v4 | `0188438` | 1157 | 14 | 1.41x | 3 | 1 | 0.33 |
 | skill_v5 | `7e50310` | 1398 | 19 | 1.71x | 5 | 1 | 0.11 |
+| skill_legacy | `9433df1` | 895 | 10 | 1.09x | 0 | 1 | 0.48 |
 
 通俗解释：
 
@@ -129,6 +133,7 @@ skill_v2 又加了“更偏向先用工具”的话，所以更长。
 skill_v3 加了调用后停止、等待 tool_response、更多 examples，是最重的版本。
 skill_v4 做减法，只保留最小 structured 格式和一个 example。
 skill_v5 在 v4 基础上只增加 Bad/Good 格式纠偏，针对模型真实犯过的坏格式。
+skill_legacy 回到旧标签格式，但工具说明由 SKILL.md 自动生成，内部仍走 SkillSpec / registry / dispatcher。
 ```
 
 从结果看，prompt 不是越详细越好。`skill_v3` 最长，但准确率最低；`skill_v4` 明显压缩后准确率回升到 0.33，但仍然没有达到 legacy 的 0.58。
@@ -153,6 +158,7 @@ skill_v5 在 v4 基础上只增加 Bad/Good 格式纠偏，针对模型真实犯
 | skill_v3 | 86 | 63 | 22 | 3 | 11 | 1 | 2 | 0 |
 | skill_v4 | 72 | 51 | 17 | 8 | 5 | 10 | 12 | 1 |
 | skill_v5 | 47 | 19 | 34 | 0 | 23 | 24 | 1 | 4 |
+| skill_legacy | 100 | 47 | 10 | 59 | 0 | 0 | 0 | 0 |
 
 几个典型坏格式：
 
