@@ -39,7 +39,10 @@ from verl.utils.ulysses import gather_outpus_and_unpad, ulysses_pad_and_slice_in
 from verl.workers.actor import BasePPOActor
 
 if is_cuda_available:
-    from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
+    try:
+        from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
+    except ModuleNotFoundError:
+        index_first_axis = pad_input = rearrange = unpad_input = None
 elif is_npu_available:
     from transformers.integrations.npu_flash_attention import index_first_axis, pad_input, rearrange, unpad_input
 
@@ -94,6 +97,8 @@ class DataParallelPPOActor(BasePPOActor):
                 position_ids = position_ids.transpose(0, 1)  # (bsz, 3, seqlen) -> (3, bsz, seqlen)
 
             if self.use_remove_padding:
+                if unpad_input is None:
+                    raise ImportError("flash-attn is required when actor.use_remove_padding=True on CUDA.")
                 input_ids_rmpad, indices, *_ = unpad_input(input_ids.unsqueeze(-1), attention_mask)  # input_ids_rmpad (total_nnz, ...)
                 input_ids_rmpad = input_ids_rmpad.transpose(0, 1)  # (1, total_nnz)
 

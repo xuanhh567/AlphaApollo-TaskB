@@ -789,6 +789,29 @@ manager.py
   - 将本机代码同步到新服务器。
   - 跑 MATH-500 20 题 sanity test。
 
+### Change 031: 单独记录运行环境兼容补丁
+
+- 日期：2026-05-23
+- 改动：
+  - 修改 `alphaapollo/core/generation/verl/trainer/fsdp_sft_trainer.py`
+  - 修改 `alphaapollo/core/generation/verl/workers/actor/dp_actor.py`
+  - 修改 `alphaapollo/core/generation/verl/workers/critic/dp_critic.py`
+  - 修改 `alphaapollo/core/generation/verl/workers/fsdp_workers.py`
+  - 修改 `alphaapollo/core/generation/verl/workers/rollout/vllm_rollout/vllm_rollout_spmd.py`
+- 我理解的目的：让服务器环境缺少某些可选高性能依赖时，代码能给出清晰错误或使用可用 fallback，而不是 import 阶段直接崩溃。
+- 当前理解：
+  - `flash-attn` 是高性能 attention / padding 相关依赖，但不是所有环境都一定装好。
+  - 如果 `use_remove_padding=True`，确实需要 `flash-attn`，所以应该在真正使用时明确报错。
+  - 如果没有 `flash-attn`，模型配置可以 fallback 到 `sdpa`，这样基础生成和 smoke test 仍然可跑。
+  - vLLM 不同版本的 `WorkerWrapperBase` 模块路径不同，需要兼容旧路径和 v1 路径。
+  - `AutoModelForVision2Seq` 在部分 Transformers 版本中不存在，所以导入失败时应回退到 causal LM。
+- 已验证：
+  - 相关文件 `py_compile` 通过。
+  - Task B 关键单元测试通过。
+- 注意：
+  - 这组补丁服务于运行环境兼容，不是 Task B 的 SkillSpec / dispatcher 主线逻辑。
+  - 因此和 Change 029 的实验主线分开提交，方便以后回滚或解释。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的小规模回归验证。

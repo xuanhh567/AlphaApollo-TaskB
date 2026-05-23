@@ -39,7 +39,10 @@ from omegaconf import DictConfig, OmegaConf
 from tensordict import TensorDict
 from vllm import LLM, SamplingParams
 from vllm.distributed import parallel_state as vllm_ps
-from vllm.worker.worker_base import WorkerWrapperBase
+try:
+    from vllm.worker.worker_base import WorkerWrapperBase
+except ModuleNotFoundError:
+    from vllm.v1.worker.worker_base import WorkerWrapperBase
 
 from verl import DataProto
 from verl.third_party.vllm import vllm_version

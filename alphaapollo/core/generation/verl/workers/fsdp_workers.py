@@ -185,7 +185,11 @@ class ActorRolloutRefWorker(Worker):
         from torch import optim
         from torch.distributed.fsdp import CPUOffload, MixedPrecision
         from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
-        from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForVision2Seq
+        from transformers import AutoConfig, AutoModelForCausalLM
+        try:
+            from transformers import AutoModelForVision2Seq
+        except ImportError:
+            AutoModelForVision2Seq = None
 
         from verl.utils.model import get_generation_config, print_model_size, update_model_config
         from verl.utils.torch_dtypes import PrecisionType
@@ -207,7 +211,13 @@ class ActorRolloutRefWorker(Worker):
             torch_dtype = PrecisionType.to_dtype(torch_dtype)
 
         # override model kwargs
-        actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code, attn_implementation="flash_attention_2")
+        try:
+            import flash_attn  # noqa: F401
+
+            attn_implementation = "flash_attention_2"
+        except ModuleNotFoundError:
+            attn_implementation = "sdpa"
+        actor_model_config = AutoConfig.from_pretrained(local_path, trust_remote_code=trust_remote_code, attn_implementation=attn_implementation)
                 
         # patch for kimi-vl
         if getattr(actor_model_config, "model_type", None) == "kimi_vl":
@@ -230,7 +240,7 @@ class ActorRolloutRefWorker(Worker):
 
         with init_context(), warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            if type(actor_model_config) in AutoModelForVision2Seq._model_mapping.keys():
+            if AutoModelForVision2Seq is not None and type(actor_model_config) in AutoModelForVision2Seq._model_mapping.keys():
                 actor_module_class = AutoModelForVision2Seq
             else:
                 actor_module_class = AutoModelForCausalLM

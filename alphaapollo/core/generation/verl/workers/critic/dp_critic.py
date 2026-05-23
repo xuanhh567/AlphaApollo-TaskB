@@ -21,7 +21,6 @@ import os
 
 import torch
 import torch.distributed
-from flash_attn.bert_padding import index_first_axis, pad_input, rearrange, unpad_input
 from torch import nn, optim
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 
@@ -38,7 +37,10 @@ from verl.utils.device import get_device_name, get_torch_device, is_npu_availabl
 
 
 if is_cuda_available:
-    from flash_attn.bert_padding import pad_input, unpad_input, rearrange, index_first_axis
+    try:
+        from flash_attn.bert_padding import pad_input, unpad_input, rearrange, index_first_axis
+    except ModuleNotFoundError:
+        pad_input = unpad_input = rearrange = index_first_axis = None
 elif is_npu_available:
     from transformers.integrations.npu_flash_attention import pad_input, unpad_input, rearrange, index_first_axis
 
@@ -73,6 +75,8 @@ class DataParallelPPOCritic(BasePPOCritic):
                 position_ids = position_ids.transpose(0, 1)
 
             if self.use_remove_padding:
+                if unpad_input is None:
+                    raise ImportError("flash-attn is required when critic.use_remove_padding=True on CUDA.")
                 input_ids_rmpad, indices, *_ = unpad_input(input_ids.unsqueeze(-1), attention_mask)  # input_ids_rmpad (total_nnz, ...)
                 input_ids_rmpad = input_ids_rmpad.transpose(0, 1)  # (1, total_nnz)
 
