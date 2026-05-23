@@ -98,6 +98,45 @@ skill 全 100 题里，只有 2 行产生了完整有效的 structured tool call
 
 补充：`skill_v4` 将 prompt 改短，试图贴近旧版 tool-call 说明，准确率回升到 0.33。它让 `<tool_call>` 出现次数增加到 28 行，但完整有效 JSON 调用只有 1 个，所以仍没有达到 B6 要求。
 
+## 4.1 Prompt 精简程度对比
+
+为了确认几次实验到底是“加长说明”还是“压缩说明”，我用同一道题：
+
+```text
+Evaluate $(1+2i)6-3i$.
+```
+
+在不同 commit 下渲染无历史首轮 prompt，并统计字符数、行数和格式提示数量。
+
+| 版本 | commit | prompt 字符数 | prompt 行数 | 相对 legacy 长度 | `<tool_call>` 出现次数 | examples 数 | 实验准确率 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| legacy | `2fe16cb` | 818 | 9 | 1.00x | 0 | 0 | 0.58 |
+| skill | `2fe16cb` | 1575 | 28 | 1.93x | 5 | 1 | 0.38 |
+| skill_v2 | `57c6d7a` | 1814 | 29 | 2.22x | 5 | 1 | 0.32 |
+| skill_v3 | `39f2a9e` | 2494 | 33 | 3.05x | 8 | 4 | 0.28 |
+| skill_v4 | `0188438` | 1157 | 14 | 1.41x | 3 | 1 | 0.33 |
+
+通俗解释：
+
+```text
+legacy 是最短的旧说明。
+skill 初版为了说明 JSON tool_call，几乎变成 legacy 的 2 倍。
+skill_v2 又加了“更偏向先用工具”的话，所以更长。
+skill_v3 加了调用后停止、等待 tool_response、更多 examples，是最重的版本。
+skill_v4 做减法，只保留最小 structured 格式和一个 example。
+```
+
+从结果看，prompt 不是越详细越好。`skill_v3` 最长，但准确率最低；`skill_v4` 明显压缩后准确率回升到 0.33，但仍然没有达到 legacy 的 0.58。
+
+这说明当前主要问题不是“说明不够多”，而是：
+
+```text
+模型没有稳定学会新格式：
+<tool_call>{"name":"python_code","arguments":{"code":"..."}}</tool_call>
+```
+
+后续如果继续改 prompt，更合理的方向不是继续堆说明，而是让格式更贴近模型已经会的旧习惯，或者提供少量高质量 few-shot 轨迹。
+
 ## 5. legacy vs skill 对比
 
 | 类型 | 数量 |
