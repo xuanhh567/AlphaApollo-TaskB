@@ -1,8 +1,8 @@
-# Task B 100-Question Regression Artifacts
+# Task B 100 题回归实验产物
 
-> These files are copied from the US RTX 4090 experiment server for lightweight GitHub archival.
+这些文件从美国 RTX 4090 实验服务器同步回来，用来在 GitHub 里轻量保存 Task B 的回归证据。
 
-## Included
+## 已包含文件
 
 ```text
 qwen25_3b_vllm_math500_100_legacy.json
@@ -20,13 +20,22 @@ run_math500_100_skill_v2.sh
 run_math500_100_skill_v3.sh
 run_math500_100_skill_v4.sh
 run_math500_100_skill_v5.sh
+readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
 ```
 
-The `.json` result files are JSONL files: one JSON object per line. Each row includes the original prompt metadata, rollout `history`, and `rewards`.
+这些 `.json` 结果文件其实是 JSONL 文件：一行代表一道题的完整回归 rollout。每一行里都包含原始题目信息、rollout `history` 和 `rewards`。
 
-## Not Included
+如果直接用 VS Code 打开 JSONL，会感觉“看不到完整 rollout”，因为每道题都压在一行里。更适合阅读的是：
 
-The following files were intentionally not committed:
+```text
+readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
+```
+
+这个 Markdown 文件已经把 100 道题拆成 `Sample 000` 到 `Sample 099`，每题都有题目、标准答案、reward、模型输出和可展开的完整 history。
+
+## 未包含文件
+
+下面这些文件没有提交到仓库：
 
 ```text
 custom_data/test.parquet
@@ -36,15 +45,15 @@ model files under models/
 conda environment files
 ```
 
-Reason:
+原因：
 
 ```text
-The repository .gitignore excludes data/ and *.parquet.
-The JSONL outputs are small enough for review and contain the trajectory evidence needed for Task B.
-The parquet files can be regenerated or kept on the experiment server.
+仓库 .gitignore 排除了 data/ 和 *.parquet。
+JSONL 输出文件体积较小，已经包含 Task B 所需的轨迹证据。
+parquet 文件可以在服务器上保留，或者之后重新生成。
 ```
 
-## Result Summary
+## 结果汇总
 
 | version | avg@1 | pass@1 | corrected accuracy | note |
 |---|---:|---:|---:|---|
@@ -55,7 +64,7 @@ The parquet files can be regenerated or kept on the experiment server.
 | skill_v4 | 0.33 | 0.33 | 0.33 | minimized structured prompt |
 | skill_v5 | 0.11 | 0.11 | 0.11 | Bad/Good adapter prompt |
 
-The current conclusion is documented in:
+当前结论记录在：
 
 ```text
 docs/task-b/experiments.md
@@ -63,9 +72,9 @@ docs/task-b/regression-analysis.md
 docs/task-b/learning-log.md
 ```
 
-## Fixed 100-Sample Subset
+## 固定 100 题子集
 
-The subset was sampled from MATH-500 with `random.Random(0)` and sorted:
+这个子集来自 MATH-500，使用 `random.Random(0)` 抽样后排序：
 
 ```text
 0,7,20,31,32,37,41,46,47,48,50,51,55,71,72,75,97,104,111,113,
@@ -76,9 +85,24 @@ The subset was sampled from MATH-500 with `random.Random(0)` and sorted:
 432,435,443,447,455,456,461,464,465,467,468,470,478,485,488,489
 ```
 
-## How To Inspect
+## 如何查看
 
-Example:
+方式一：看已经导出的可读版。
+
+```text
+docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md
+```
+
+方式二：重新导出某个 JSONL 文件。
+
+```bash
+python scripts/task_b/export_rollouts.py \
+  docs/task-b/artifacts/regression-100/qwen25_3b_vllm_math500_100_skill_v5.json \
+  docs/task-b/artifacts/regression-100/readable/qwen25_3b_vllm_math500_100_skill_v5_rollouts.md \
+  --title "Task B skill_v5 readable rollouts"
+```
+
+方式三：用 Python 快速看某一条原始 JSONL。
 
 ```bash
 python - <<'PY'
