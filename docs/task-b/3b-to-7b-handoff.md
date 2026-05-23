@@ -192,6 +192,15 @@ conda 环境: /root/miniconda3/envs/alphaapollo
 输入数据: /root/AlphaApollo-TaskB/data/task-b-regression-100/custom_data/test.parquet
 ```
 
+脚本默认会限制 Ray 使用的 CPU 数：
+
+```text
+RAY_NUM_CPUS=8
+DATALOADER_NUM_WORKERS=0
+```
+
+原因是 `ray_init.num_cpus=null` 会让 Ray 使用所有 CPU，在部分云容器里可能卡在 worker 初始化阶段。
+
 ### 7B baseline
 
 ```bash

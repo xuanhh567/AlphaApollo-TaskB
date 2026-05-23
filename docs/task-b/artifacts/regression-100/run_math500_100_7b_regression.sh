@@ -9,6 +9,8 @@ DATA_ROOT=${DATA_ROOT:-$PROJECT_ROOT/data/task-b-regression-100}
 DATA_PATH=${DATA_PATH:-$DATA_ROOT/custom_data/test.parquet}
 OUT_PARQUET=${OUT_PARQUET:-$DATA_ROOT/qwen25_7b_vllm_math500_100_${SUFFIX}.parquet}
 OUT_JSON=${OUT_JSON:-$DATA_ROOT/qwen25_7b_vllm_math500_100_${SUFFIX}.json}
+RAY_NUM_CPUS=${RAY_NUM_CPUS:-8}
+DATALOADER_NUM_WORKERS=${DATALOADER_NUM_WORKERS:-0}
 
 cd "$PROJECT_ROOT"
 echo "=== RUN MODEL=Qwen2.5-7B-Instruct SUFFIX=$SUFFIX TOOL_FORMAT=$TOOL_FORMAT ==="
@@ -27,10 +29,12 @@ PYTHONPATH="$PROJECT_ROOT:$PROJECT_ROOT/alphaapollo/core/generation" \
   "$PY" -m alphaapollo.core.generation.verl.trainer.main_generation \
     trainer.nnodes=1 \
     trainer.n_gpus_per_node=1 \
+    ray_init.num_cpus="$RAY_NUM_CPUS" \
     data.path="$DATA_PATH" \
     data.prompt_key=prompt \
     data.n_samples=1 \
     data.batch_size=1 \
+    data.dataloader_num_workers="$DATALOADER_NUM_WORKERS" \
     data.return_raw_chat=True \
     data.truncation=right \
     data.output_path="$OUT_PARQUET" \
