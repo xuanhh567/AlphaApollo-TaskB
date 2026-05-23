@@ -2,7 +2,89 @@
 
 这份文档记录 Task B 后续跑测试、回归实验时使用的服务器和 conda 环境。目标是让以后重新接手时，能快速知道“代码在哪台机器上、用哪个 Python、为什么这么选”。
 
-## 0. 当前推荐服务器：RTX 4090 实验机
+## 0. 当前推荐服务器：美国 RTX 4090 实验机
+
+这台美国服务器现在是 Task B 的推荐运行机器。原因是：
+
+- GitHub 访问正常，适合用 `git pull` / `git push` 同步代码。
+- Hugging Face 访问正常，后续如果需要下载模型或数据更方便。
+- GPU 仍然是 RTX 4090，和前面已经验证过的 vLLM / PyTorch 路线匹配。
+- `/root/AlphaApollo-TaskB` 已经被整理成真正的 GitHub clone，不再只是 tarball 解压目录。
+
+连接命令：
+
+```bash
+ssh -p 61214 root@proxy.us-ca-6.gpu-instance.ppinfra.com
+```
+
+说明：
+
+- 服务器用户是 `root`。
+- SSH 端口是 `61214`。
+- 密码属于敏感信息，不写进仓库文档。
+
+已检查硬件和环境：
+
+```text
+GPU: NVIDIA GeForce RTX 4090
+显存: 24564 MiB
+Driver: 580.126.20
+nvcc: CUDA 12.8
+torch: 2.6.0+cu124
+torch.cuda.is_available(): True
+bf16 matrix multiply: passed
+```
+
+远端项目路径：
+
+```bash
+/root/AlphaApollo-TaskB
+```
+
+当前代码状态：
+
+```text
+Git HEAD: f36b1f0
+GitHub remote: https://github.com/xuanhh567/AlphaApollo-TaskB.git
+```
+
+注意：`models/` 和 `data/` 是服务器上的运行资源，不提交进 Git，所以 `git status --short` 里看到 `?? models/` 属于正常现象。
+
+当前模型路径：
+
+```bash
+/root/AlphaApollo-TaskB/models/Qwen2.5-3B-Instruct
+```
+
+当前使用的 Python 环境：
+
+```bash
+/root/miniconda3/envs/alphaapollo/bin/python
+```
+
+已在这台服务器通过的验证：
+
+```text
+tests/test_skill_prompt_renderer.py: passed
+tests/test_informal_math_skill_bridge.py: passed
+tests/test_skill_dispatcher.py: passed
+tests/test_skill_argument_validation.py: passed
+tests/test_tool_call_parser.py: passed
+tests/test_skill_registry.py: passed
+tests/test_skill_loader.py: passed
+PyTorch CUDA smoke test: passed
+```
+
+推荐协作方式：
+
+```text
+本机：写代码、写中文文档、提交 git commit、push 到 GitHub
+服务器：git pull 最新代码、跑模型实验、把关键结果写回 docs
+```
+
+下一步实验优先在这台服务器上跑 MATH-500 20 题 sanity test。
+
+## 0.1 备用服务器：国内 RTX 4090 实验机
 
 后来新开了一台 RTX 4090 服务器。和前面的 RTX 5090 相比，4090 的 PyTorch / vLLM 生态更成熟，所以它更适合作为 Task B 后续复现和小规模回归实验的主机器。
 

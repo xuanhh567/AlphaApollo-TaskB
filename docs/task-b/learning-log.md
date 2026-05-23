@@ -812,6 +812,29 @@ manager.py
   - 这组补丁服务于运行环境兼容，不是 Task B 的 SkillSpec / dispatcher 主线逻辑。
   - 因此和 Change 029 的实验主线分开提交，方便以后回滚或解释。
 
+### Change 032: 美国 4090 服务器作为推荐实验机
+
+- 日期：2026-05-23
+- 改动：
+  - 检查美国服务器连接、GPU、CUDA、conda、GitHub 网络和 Hugging Face 网络。
+  - 将 `/root/AlphaApollo-TaskB` 整理成真正的 GitHub clone。
+  - 保留服务器上的 `models/` 和 `data/` 运行资源。
+  - 更新 `docs/task-b/server-environment.md`。
+- 我理解的目的：把服务器从“能跑但不方便同步”的状态，整理成“本机 GitHub push、服务器 GitHub pull”的标准协作方式。
+- 当前理解：
+  - 本机负责写代码和提交版本。
+  - GitHub 是本机和服务器之间的代码中转站。
+  - 服务器不应该手工改核心代码，主要负责跑 GPU 实验。
+  - 模型和实验数据很大，不放进 Git，留在服务器本地。
+- 已验证：
+  - GitHub `main` 分支可以在美国服务器正常访问。
+  - 服务器仓库 HEAD 是 `f36b1f0`。
+  - Task B 关键单元测试全部通过。
+  - PyTorch CUDA / bfloat16 smoke test 通过。
+- 下一步：
+  - 在美国服务器跑 MATH-500 20 题 sanity test。
+  - 把 20 题结果写入 `docs/task-b/experiments.md`。
+
 ## 7. 下一步
 
 下一步进入 Phase 6 的小规模回归验证。
